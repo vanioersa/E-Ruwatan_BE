@@ -22,6 +22,8 @@ public class SiswaDTO {
         this.alamat = alamat;
     }
 
+//    baru
+
     public Long getId() {
         return id;
     }
