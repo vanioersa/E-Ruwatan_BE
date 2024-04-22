@@ -13,6 +13,10 @@ public class SiswaDTO {
 
     private String alamat;
 
+    public SiswaDTO() {
+
+    }
+
     public SiswaDTO(Long id, String nama_siswa, String NISN, String tempat, String kelasId, String alamat) {
         this.id = id;
         this.nama_siswa = nama_siswa;
