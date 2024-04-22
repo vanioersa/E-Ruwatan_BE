@@ -8,6 +8,7 @@ public class TugasBeApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(TugasBeApplication.class, args);
+		System.out.println("Sistem Berhasil dijalankan!!");
 	}
 
 }
