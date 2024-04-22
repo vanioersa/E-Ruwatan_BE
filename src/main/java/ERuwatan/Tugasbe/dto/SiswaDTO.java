@@ -5,7 +5,7 @@ public class SiswaDTO {
 
     private String nama_siswa;
 
-    private String NISN;
+    private Long NISN;
 
     private String tempat;
 
@@ -17,7 +17,7 @@ public class SiswaDTO {
 
     }
 
-    public SiswaDTO(Long id, String nama_siswa, String NISN, String tempat, String kelasId, String alamat) {
+    public SiswaDTO(Long id, String nama_siswa, Long NISN, String tempat, String kelasId, String alamat) {
         this.id = id;
         this.nama_siswa = nama_siswa;
         this.NISN = NISN;
@@ -25,8 +25,6 @@ public class SiswaDTO {
         this.kelasId = kelasId;
         this.alamat = alamat;
     }
-
-//    baru
 
     public Long getId() {
         return id;
@@ -44,11 +42,11 @@ public class SiswaDTO {
         this.nama_siswa = nama_siswa;
     }
 
-    public String getNISN() {
+    public Long getNISN() {
         return NISN;
     }
 
-    public void setNISN(String NISN) {
+    public void setNISN(Long NISN) {
         this.NISN = NISN;
     }
 

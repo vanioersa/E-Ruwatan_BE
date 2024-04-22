@@ -1,5 +1,6 @@
 package ERuwatan.Tugasbe.controller;
 
+import ERuwatan.Tugasbe.model.KelasModel;
 import ERuwatan.Tugasbe.service.kelasService;
 import ERuwatan.Tugasbe.dto.kelasDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +24,31 @@ public class kelasController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<kelasDTO> createData(@RequestBody kelasDTO kelasDTO) {
-        kelasDTO newData = kelasService.createKelas(kelasDTO);
-        return new ResponseEntity<>(newData, HttpStatus.OK);
+    public ResponseEntity<kelasDTO> getMovieById(@PathVariable Long id) {
+        kelasDTO kelasDTO = kelasService.getKelasById(id);
+        return ResponseEntity.ok(kelasDTO);
     }
 
+    @PostMapping
+    public ResponseEntity<kelasDTO> createKelas(@RequestBody kelasDTO kelasDTO) {
+        kelasDTO createdKelas = kelasService.createKelas(kelasDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdKelas);
+    }
+
+
     @PutMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<kelasDTO> updateData(@PathVariable Long id, @RequestBody kelasDTO kelasDTO) {
+        kelasDTO updatedKelas = kelasService.updateKelas(id, kelasDTO);
+        if (updatedKelas != null) {
+            return new ResponseEntity<>(updatedKelas, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteKelas(@PathVariable Long id) {
         kelasService.deleteKelas(id);
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
