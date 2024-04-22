@@ -37,7 +37,8 @@ public class JwtTokenUtil implements Serializable {
         final Claims claims = getAllClaimsFromToken(token);
         return claimsResolver.apply(claims);
     }
-    //for retrieveing any information from token we will need the secret key
+
+    //for retrieving any information from token we will need the secret key
     private Claims getAllClaimsFromToken(String token) {
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
     }
@@ -51,48 +52,39 @@ public class JwtTokenUtil implements Serializable {
     //generate token for user
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        Collection<? extends GrantedAuthority> role = userDetails.getAuthorities();
+        Collection<? extends GrantedAuthority> roles = userDetails.getAuthorities();
 
-        if (role.contains(new SimpleGrantedAuthority("ROLE_ADMIN"))){
-            claims.put("isAdmin", true);
-        }
+        claims.put("isUser", roles.contains(new SimpleGrantedAuthority("ROLE_USER")));
+        claims.put("isGuru", roles.contains(new SimpleGrantedAuthority("ROLE_GURU")));
 
-        if (role.contains(new SimpleGrantedAuthority("ROLE_USER"))){
-            claims.put("isUser", true);
-        }
         return doGenerateToken(claims, userDetails.getUsername());
     }
 
     //while creating the token -
-    //1. Define  claims of the token, like Issuer, Expiration, Subject, and the ID
+    //1. Define claims of the token, like Issuer, Expiration, Subject, and the ID
     //2. Sign the JWT using the HS512 algorithm and secret key.
     //3. According to JWS Compact Serialization(https://tools.ietf.org/html/draft-ietf-jose-json-web-signature-41#section-3.1)
     //   compaction of the JWT to a URL-safe string
     private String doGenerateToken(Map<String, Object> claims, String subject) {
-
         return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
                 .signWith(SignatureAlgorithm.HS512, secret).compact();
     }
 
-    public List<SimpleGrantedAuthority> getRolesFromToken(String token){
-        Claims claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+    public List<SimpleGrantedAuthority> getRolesFromToken(String token) {
+        Claims claims = getAllClaimsFromToken(token);
+        List<SimpleGrantedAuthority> roles = new ArrayList<>();
 
-        List<SimpleGrantedAuthority> roles = null;
-
-        Boolean isAdmin = claims.get("isAdmin", Boolean.class);
-        Boolean isUser = claims.get("isUser", Boolean.class);
-
-        if (isAdmin != null && isAdmin) {
-            roles = Arrays.asList(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        if (claims.get("isUser", Boolean.class)) {
+            roles.add(new SimpleGrantedAuthority("ROLE_USER"));
         }
 
-        if (isUser != null && isAdmin) {
-            roles = Arrays.asList(new SimpleGrantedAuthority("ROLE_USER"));
+        if (claims.get("isGuru", Boolean.class)) {
+            roles.add(new SimpleGrantedAuthority("ROLE_GURU"));
         }
+
         return roles;
     }
-
 
     //validate token
     public Boolean validateToken(String token, UserDetails userDetails) {
