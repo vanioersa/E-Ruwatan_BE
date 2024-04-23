@@ -1,6 +1,7 @@
 package ERuwatan.Tugasbe.controller;
 
 import ERuwatan.Tugasbe.dto.SiswaDTO;
+import ERuwatan.Tugasbe.dto.kelasDTO;
 import ERuwatan.Tugasbe.service.SiswaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,12 @@ public class SiswaController {
     public ResponseEntity<List<SiswaDTO>> getAllSiswa() {
         List<SiswaDTO> siswaDTOs = siswaService.getAllSiswa();
         return new ResponseEntity<>(siswaDTOs, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<SiswaDTO> getSiswaById(@PathVariable Long id) {
+        SiswaDTO siswaDTO = siswaService.getSiswaById(id);
+        return ResponseEntity.ok(siswaDTO);
     }
 
     @PostMapping

@@ -1,6 +1,8 @@
 package ERuwatan.Tugasbe.service;
 
+import ERuwatan.Tugasbe.dto.GuruDTO;
 import ERuwatan.Tugasbe.dto.SiswaDTO;
+import ERuwatan.Tugasbe.model.GuruModel;
 import ERuwatan.Tugasbe.model.KelasModel;
 import ERuwatan.Tugasbe.model.SiswaModel;
 import ERuwatan.Tugasbe.repository.SiswaRepository;
@@ -24,11 +26,17 @@ public class SiswaService {
         return siswaModels.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
+    public SiswaDTO getSiswaById(Long id) {
+        SiswaModel siswaModel = siswaRepository.findById(id).orElseThrow(() -> new RuntimeException("Movie not found"));
+        return mapToDTO(siswaModel);
+    }
+
     public SiswaDTO createSiswa(SiswaDTO siswaDTO) {
         SiswaModel siswa = new SiswaModel();
         siswa.setNama_siswa(siswaDTO.getNama_siswa());
 
-        KelasModel kelas = kelasRepository.findById(siswaDTO.getKelasId())
+        Long kelasId = Long.parseLong(siswaDTO.getKelasId());
+        KelasModel kelas = kelasRepository.findById(kelasId)
                 .orElseThrow(() -> new RuntimeException("Kelas not found"));
         siswa.setKelasModel(kelas);
 
@@ -36,13 +44,13 @@ public class SiswaService {
         return mapToDTO(siswa);
     }
 
-//    update siswa
     public SiswaDTO updateSiswa(Long id, SiswaDTO siswaDTO) {
         SiswaModel siswaModel = siswaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Siswa not found"));
         siswaModel.setNama_siswa(siswaDTO.getNama_siswa());
 
-        KelasModel kelas = kelasRepository.findById(siswaDTO.getKelasId())
+        Long kelasId = Long.parseLong(siswaDTO.getKelasId());
+        KelasModel kelas = kelasRepository.findById(kelasId)
                 .orElseThrow(() -> new RuntimeException("Kelas not found"));
         siswaModel.setKelasModel(kelas);
 
@@ -58,8 +66,8 @@ public class SiswaService {
         SiswaDTO dto = new SiswaDTO();
         dto.setId(siswaModel.getId());
         dto.setNama_siswa(siswaModel.getNama_siswa());
-
-        dto.setKelasId(siswaModel.getKelasModel().getNama_kelas()); // Assuming you also have this setter
+        dto.setKelasId(String.valueOf(siswaModel.getKelasModel().getId())); // Assuming ID needs to be stored as String
+        dto.setKelasId(siswaModel.getKelasModel().getNama_kelas()); // Assuming you need to keep the class name
 
         return dto;
     }

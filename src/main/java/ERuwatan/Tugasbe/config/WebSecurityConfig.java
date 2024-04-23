@@ -60,27 +60,27 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/login", "/register",
 
             // Guru
-            "/tugas_akhir/api/guru/all",
-            "/tugas_akhir/api/guru/by-id/{id}",
+            "/guru/all",
+            "/guru/by-id/{id}",
 
             // Kelas
-            "/tugas_akhir/api/kelas/all",
-            "/tugas_akhir/api/kelas/by-id/{id}",
+            "/kelas/all",
+            "/kelas/by-id/{id}",
 
             // Mapel
-            "/tugas_akhir/api/mapel/all",
-            "/tugas_akhir/api/mapel/by-id/{id}",
+//            "/tugas_akhir/api/mapel/all",
+//            "/tugas_akhir/api/mapel/by-id/{id}",
 
             // Murid
-            "/tugas_akhir/api/murid/all",
-            "/tugas_akhir/api/murid/by-id/{id}",
+            "/murid/all",
+            "/murid/by-id/{id}",
     };
 
     private static final String[] AUTH_AUTHORIZATION = {
-            "/tugas_akhir/api/guru/**",
-            "/tugas_akhir/api/kelas/**",
-            "/tugas_akhir/api/mapel/**",
-            "/tugas_akhir/api/murid/**",
+            "/guru/**",
+            "/kelas/**",
+            "/mapel/**",
+            "/murid/**",
     };
 
     @Override

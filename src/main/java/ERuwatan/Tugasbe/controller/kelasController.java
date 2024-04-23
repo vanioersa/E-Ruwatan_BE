@@ -24,7 +24,7 @@ public class kelasController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<kelasDTO> getMovieById(@PathVariable Long id) {
+    public ResponseEntity<kelasDTO> getKelasById(@PathVariable Long id) {
         kelasDTO kelasDTO = kelasService.getKelasById(id);
         return ResponseEntity.ok(kelasDTO);
     }
