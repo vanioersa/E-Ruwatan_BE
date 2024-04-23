@@ -13,28 +13,26 @@ import java.util.stream.Collectors;
 
 @Service
 public class kelasService {
-    private final kelasRepository kelasRepository;
-
     @Autowired
-    public kelasService(kelasRepository kelasRepository) {
-        this.kelasRepository = kelasRepository;
+    private kelasRepository kelasRepository;
+
+    public List<kelasDTO> getAllKelas() {
+        List<KelasModel> kelasModels = kelasRepository.findAll();
+        return kelasModels.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
     public kelasDTO createKelas(kelasDTO kelasDTO) {
         KelasModel kelas = new KelasModel();
         BeanUtils.copyProperties(kelasDTO, kelas);
         kelas = kelasRepository.save(kelas);
-        return convertToDTO(kelas);
+        return mapToDTO(kelas);
     }
 
     public kelasDTO getKelasById(Long id) {
-        Optional<KelasModel> kelasOptional = kelasRepository.findById(id);
-        return kelasOptional.map(this::convertToDTO).orElse(null);
+        KelasModel kelasModel = kelasRepository.findById(id).orElseThrow(() -> new RuntimeException("Movie not found"));
+        return mapToDTO(kelasModel);
     }
 
-    public List<kelasDTO> getAllKelas() {
-        return kelasRepository.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
-    }
 
     public kelasDTO updateKelas(Long id, kelasDTO kelasDTO) {
         Optional<KelasModel> optionalKelas = kelasRepository.findById(id);
@@ -42,7 +40,7 @@ public class kelasService {
             KelasModel kelas = optionalKelas.get();
             BeanUtils.copyProperties(kelasDTO, kelas, "id");
             kelas = kelasRepository.save(kelas);
-            return convertToDTO(kelas);
+            return mapToDTO(kelas);
         }
         return null;
     }
@@ -51,9 +49,13 @@ public class kelasService {
         kelasRepository.deleteById(id);
     }
 
-    private kelasDTO convertToDTO(KelasModel kelas) {
-        kelasDTO kelasDTO = new kelasDTO();
-        BeanUtils.copyProperties(kelas, kelasDTO);
-        return kelasDTO;
+    private kelasDTO mapToDTO(KelasModel kelasModel) {
+        kelasDTO dto = new kelasDTO();
+        dto.setId(kelasModel.getId());
+        dto.setNama_kelas(kelasModel.getNama_kelas());
+        dto.setKelas(kelasModel.getKelas());
+        // Set other properties as needed
+        return dto;
     }
+
 }
