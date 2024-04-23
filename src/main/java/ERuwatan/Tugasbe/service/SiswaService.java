@@ -36,6 +36,7 @@ public class SiswaService {
         return mapToDTO(siswa);
     }
 
+//    update siswa
     public SiswaDTO updateSiswa(Long id, SiswaDTO siswaDTO) {
         SiswaModel siswaModel = siswaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Siswa not found"));
