@@ -22,7 +22,7 @@ public class SiswaController {
         return new ResponseEntity<>(siswaDTOs, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/by-id/{id}")
     public ResponseEntity<SiswaDTO> getSiswaById(@PathVariable Long id) {
         SiswaDTO siswaDTO = siswaService.getSiswaById(id);
         return ResponseEntity.ok(siswaDTO);

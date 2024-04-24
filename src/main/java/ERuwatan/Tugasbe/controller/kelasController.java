@@ -24,7 +24,7 @@ public class kelasController {
         return ResponseEntity.ok(kelasDTOS);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/by-id/{id}")
     public ResponseEntity<KelasModel> getKelasById(@PathVariable Long id) {
         try {
             KelasModel kelasDTO = kelasService.getKelasById(id);
@@ -50,7 +50,7 @@ public class kelasController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/hapus/{id}")
     public ResponseEntity<Void> deleteKelas(@PathVariable Long id) {
         try {
             kelasService.deleteKelas(id);

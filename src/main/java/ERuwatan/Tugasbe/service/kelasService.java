@@ -6,6 +6,7 @@ import ERuwatan.Tugasbe.repository.KelasRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Service
@@ -35,7 +36,11 @@ public class kelasService {
     }
 
     public void deleteKelas(Long id) {
-        kelasRepository.deleteById(id);
+        if (kelasRepository.existsById(id)) {
+            kelasRepository.deleteById(id);
+        } else {
+            throw new EntityNotFoundException("Class not found");
+        }
     }
 
     private void updateKelasModel(KelasModel kelasExisting, KelasDTO kelasUpdate) {
