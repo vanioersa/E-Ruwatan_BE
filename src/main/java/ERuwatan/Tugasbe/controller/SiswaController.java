@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping(name = "/siswa")
-@CrossOrigin(origins = "*")
 public class SiswaController {
     @Autowired
     private SiswaService siswaService;

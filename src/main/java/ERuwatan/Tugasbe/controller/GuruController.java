@@ -12,7 +12,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/guru")
-@CrossOrigin("*")
 public class GuruController {
     @Autowired
     private GuruService guruService;

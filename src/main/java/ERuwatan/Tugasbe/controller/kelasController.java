@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/kelas")
-@CrossOrigin(origins = "*")
 public class kelasController {
     @Autowired
     private kelasService kelasService;
