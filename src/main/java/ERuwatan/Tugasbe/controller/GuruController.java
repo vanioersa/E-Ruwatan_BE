@@ -1,7 +1,6 @@
 package ERuwatan.Tugasbe.controller;
 
-import ERuwatan.Tugasbe.dto.GuruDTO;
-import ERuwatan.Tugasbe.dto.SiswaDTO;
+import ERuwatan.Tugasbe.model.GuruModel;
 import ERuwatan.Tugasbe.service.GuruService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,38 +15,45 @@ public class GuruController {
     @Autowired
     private GuruService guruService;
 
-    @GetMapping
-    public ResponseEntity<List<GuruDTO>> getAllGuru() {
-        List<GuruDTO> guruDTOS = guruService.getAllGuru();
-        return new ResponseEntity<>(guruDTOS, HttpStatus.OK);
+    @GetMapping("/all")
+    public ResponseEntity<List<GuruModel>> getAllGuru() {
+        List<GuruModel> allGuru = guruService.getAllGuru();
+        return ResponseEntity.ok(allGuru);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GuruDTO> getGuruById(@PathVariable Long id) {
-        GuruDTO guruDTO = guruService.getGuruById(id);
-        return ResponseEntity.ok(guruDTO);
+    public ResponseEntity<GuruModel> getGuruById(@PathVariable Long id) {
+        try {
+            GuruModel guru = guruService.getGuruById(id);
+            return ResponseEntity.ok(guru);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @PostMapping
-    public ResponseEntity<GuruDTO> createSiswa(@RequestBody GuruDTO guruDTO) {
-        GuruDTO createdGuru = guruService.createGuru(guruDTO);
+    @PostMapping("/add")
+    public ResponseEntity<GuruModel> createGuru(@RequestBody GuruModel guru) {
+        GuruModel createdGuru = guruService.createGuru(guru);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdGuru);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<GuruDTO> updateguru(@PathVariable Long id, @RequestBody GuruDTO guruDTO) {
-        GuruDTO updatedGuru = guruService.updateGuru(id, guruDTO);
-        if (updatedGuru != null) {
-            return new ResponseEntity<>(updatedGuru, HttpStatus.OK);
-        } else {
+    public ResponseEntity<GuruModel> updateGuru(@PathVariable Long id, @RequestBody GuruModel guru) {
+        try {
+            GuruModel updatedGuru = guruService.updateGuru(id, guru);
+            return ResponseEntity.ok(updatedGuru);
+        } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteGuru(@PathVariable Long id) {
-        guruService.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        try {
+            guruService.deleteById(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
-
 }

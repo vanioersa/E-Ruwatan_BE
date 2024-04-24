@@ -79,7 +79,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private static final String[] AUTH_AUTHORIZATION = {
             "/guru/**",
             "/kelas/**",
-            "/mapel/**",
+//            "/mapel/**",
             "/murid/**",
     };
 
