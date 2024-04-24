@@ -10,12 +10,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(name = "/siswa")
+
+@RequestMapping("/siswa")
 public class SiswaController {
     @Autowired
     private SiswaService siswaService;
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<SiswaDTO>> getAllSiswa() {
         List<SiswaDTO> siswaDTOs = siswaService.getAllSiswa();
         return new ResponseEntity<>(siswaDTOs, HttpStatus.OK);
@@ -27,7 +28,7 @@ public class SiswaController {
         return ResponseEntity.ok(siswaDTO);
     }
 
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<SiswaDTO> createSiswa(@RequestBody SiswaDTO siswaRequestDTO) {
         SiswaDTO createdSiswa = siswaService.createSiswa(siswaRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdSiswa);

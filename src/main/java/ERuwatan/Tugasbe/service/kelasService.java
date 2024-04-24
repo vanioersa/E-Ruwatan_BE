@@ -1,62 +1,48 @@
 package ERuwatan.Tugasbe.service;
 
+import ERuwatan.Tugasbe.dto.KelasDTO;
 import ERuwatan.Tugasbe.model.KelasModel;
 import ERuwatan.Tugasbe.repository.KelasRepository;
-import ERuwatan.Tugasbe.dto.KelasDTO;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class kelasService {
+
     @Autowired
     private KelasRepository kelasRepository;
 
-    public List<KelasDTO> getAllKelas() {
-        List<KelasModel> kelasModels = kelasRepository.findAll();
-        return kelasModels.stream().map(this::mapToDTO).collect(Collectors.toList());
+    public List<KelasModel> getAllKelas() {
+        return kelasRepository.findAll();
     }
 
-    public KelasDTO createKelas(KelasDTO kelasDTO) {
-        KelasModel kelas = new KelasModel();
-        BeanUtils.copyProperties(kelasDTO, kelas);
-        kelas = kelasRepository.save(kelas);
-        return mapToDTO(kelas);
+    public KelasModel getKelasById(Long id) {
+        return kelasRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Kelas tidak ditemukan"));
     }
 
-    public KelasDTO getKelasById(Long id) {
-        KelasModel kelasModel = kelasRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Kelas not found with id " + id));
-        return mapToDTO(kelasModel);
+    public KelasModel createKelas(KelasModel kelas) {
+        return kelasRepository.save(kelas);
     }
 
-    public KelasDTO updateKelas(Long id, KelasDTO kelasDTO) {
-        Optional<KelasModel> optionalKelas = kelasRepository.findById(id);
-        if (optionalKelas.isPresent()) {
-            KelasModel kelas = optionalKelas.get();
-            BeanUtils.copyProperties(kelasDTO, kelas, "id");
-            kelas = kelasRepository.save(kelas);
-            return mapToDTO(kelas);
-        }
-        return null;
+    public KelasModel updateKelas(Long id, KelasDTO kelasUpdate) {
+        KelasModel kelasExisting = kelasRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Kelas tidak ditemukan"));
+        updateKelasModel(kelasExisting, kelasUpdate);
+        return kelasRepository.save(kelasExisting);
     }
 
     public void deleteKelas(Long id) {
         kelasRepository.deleteById(id);
     }
 
-    private KelasDTO mapToDTO(KelasModel kelasModel) {
-        KelasDTO dto = new KelasDTO();
-        dto.setId(kelasModel.getId());
-        dto.setNama_kelas(kelasModel.getNama_kelas());
-        dto.setKelas(kelasModel.getKelas());
-        // Set other properties as needed
-        return dto;
+    private void updateKelasModel(KelasModel kelasExisting, KelasDTO kelasUpdate) {
+        // Copy properties from kelasUpdate to kelasExisting, excluding id or other non-updatable fields
+        if (kelasUpdate.getNama_kelas() != null) {
+            kelasExisting.setNama_kelas(kelasUpdate.getNama_kelas());
+        }
+        // Add other fields as necessary
     }
-
 }

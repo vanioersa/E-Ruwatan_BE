@@ -1,5 +1,6 @@
 package ERuwatan.Tugasbe.controller;
 
+import ERuwatan.Tugasbe.model.KelasModel;
 import ERuwatan.Tugasbe.service.kelasService;
 import ERuwatan.Tugasbe.dto.KelasDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,46 +8,55 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @RestController
 @RequestMapping("/kelas")
+@CrossOrigin // Menambahkan dukungan CORS (sesuaikan nilai jika perlu)
 public class kelasController {
     @Autowired
     private kelasService kelasService;
 
-    @GetMapping
-    public ResponseEntity<List<KelasDTO>> getAllData() {
-        List<KelasDTO> kelasDTOS = kelasService.getAllKelas();
-        return new ResponseEntity<>(kelasDTOS, HttpStatus.OK);
+    @GetMapping("/all")
+    public ResponseEntity<List<KelasModel>> getAllData() {
+        List<KelasModel> kelasDTOS = kelasService.getAllKelas();
+        return ResponseEntity.ok(kelasDTOS);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<KelasDTO> getKelasById(@PathVariable Long id) {
-        KelasDTO kelasDTO = kelasService.getKelasById(id);
-        return ResponseEntity.ok(kelasDTO);
+    public ResponseEntity<KelasModel> getKelasById(@PathVariable Long id) {
+        try {
+            KelasModel kelasDTO = kelasService.getKelasById(id);
+            return ResponseEntity.ok(kelasDTO);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @PostMapping
-    public ResponseEntity<KelasDTO> createKelas(@RequestBody KelasDTO kelasDTO) {
-        KelasDTO createdKelas = kelasService.createKelas(kelasDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdKelas);
+    @PostMapping("/add")
+    public ResponseEntity<KelasModel> createKelas(@RequestBody KelasModel kelasModel) {
+        KelasModel createdKelas = kelasService.createKelas(kelasModel);
+        return new ResponseEntity<>(createdKelas, HttpStatus.CREATED);
     }
-
 
     @PutMapping("/{id}")
-    public ResponseEntity<KelasDTO> updateData(@PathVariable Long id, @RequestBody KelasDTO kelasDTO) {
-        KelasDTO updatedKelas = kelasService.updateKelas(id, kelasDTO);
-        if (updatedKelas != null) {
+    public ResponseEntity<KelasModel> updateKelas(@PathVariable Long id, @RequestBody KelasDTO kelasRequestDTO) {
+        try {
+            KelasModel updatedKelas = kelasService.updateKelas(id, kelasRequestDTO);
             return new ResponseEntity<>(updatedKelas, HttpStatus.OK);
-        } else {
+        } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteKelas(@PathVariable Long id) {
-        kelasService.deleteKelas(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        try {
+            kelasService.deleteKelas(id);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
