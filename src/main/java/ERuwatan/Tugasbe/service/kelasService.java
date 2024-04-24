@@ -1,12 +1,13 @@
 package ERuwatan.Tugasbe.service;
 
 import ERuwatan.Tugasbe.model.KelasModel;
-import ERuwatan.Tugasbe.repository.kelasRepository;
-import ERuwatan.Tugasbe.dto.kelasDTO;
+import ERuwatan.Tugasbe.repository.KelasRepository;
+import ERuwatan.Tugasbe.dto.KelasDTO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -14,27 +15,27 @@ import java.util.stream.Collectors;
 @Service
 public class kelasService {
     @Autowired
-    private kelasRepository kelasRepository;
+    private KelasRepository kelasRepository;
 
-    public List<kelasDTO> getAllKelas() {
+    public List<KelasDTO> getAllKelas() {
         List<KelasModel> kelasModels = kelasRepository.findAll();
         return kelasModels.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
-    public kelasDTO createKelas(kelasDTO kelasDTO) {
+    public KelasDTO createKelas(KelasDTO kelasDTO) {
         KelasModel kelas = new KelasModel();
         BeanUtils.copyProperties(kelasDTO, kelas);
         kelas = kelasRepository.save(kelas);
         return mapToDTO(kelas);
     }
 
-    public kelasDTO getKelasById(Long id) {
-        KelasModel kelasModel = kelasRepository.findById(id).orElseThrow(() -> new RuntimeException("Movie not found"));
+    public KelasDTO getKelasById(Long id) {
+        KelasModel kelasModel = kelasRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Kelas not found with id " + id));
         return mapToDTO(kelasModel);
     }
 
-
-    public kelasDTO updateKelas(Long id, kelasDTO kelasDTO) {
+    public KelasDTO updateKelas(Long id, KelasDTO kelasDTO) {
         Optional<KelasModel> optionalKelas = kelasRepository.findById(id);
         if (optionalKelas.isPresent()) {
             KelasModel kelas = optionalKelas.get();
@@ -49,8 +50,8 @@ public class kelasService {
         kelasRepository.deleteById(id);
     }
 
-    private kelasDTO mapToDTO(KelasModel kelasModel) {
-        kelasDTO dto = new kelasDTO();
+    private KelasDTO mapToDTO(KelasModel kelasModel) {
+        KelasDTO dto = new KelasDTO();
         dto.setId(kelasModel.getId());
         dto.setNama_kelas(kelasModel.getNama_kelas());
         dto.setKelas(kelasModel.getKelas());

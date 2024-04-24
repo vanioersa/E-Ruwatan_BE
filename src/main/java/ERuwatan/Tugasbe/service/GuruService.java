@@ -3,7 +3,7 @@ package ERuwatan.Tugasbe.service;
 import ERuwatan.Tugasbe.dto.GuruDTO;
 import ERuwatan.Tugasbe.model.GuruModel;
 import ERuwatan.Tugasbe.model.KelasModel;
-import ERuwatan.Tugasbe.repository.kelasRepository;
+import ERuwatan.Tugasbe.repository.KelasRepository;
 import ERuwatan.Tugasbe.repository.GuruRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ public class GuruService {
     private GuruRepository guruRepository;
 
     @Autowired
-    private kelasRepository kelasRepository;
+    private KelasRepository kelasRepository;
 
     public List<GuruDTO> getAllGuru() {
         List<GuruModel> guruModels = guruRepository.findAll();

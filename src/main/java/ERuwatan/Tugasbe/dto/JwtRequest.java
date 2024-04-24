@@ -42,4 +42,3 @@ public class JwtRequest implements Serializable {
         this.role = role;
     }
 }
-

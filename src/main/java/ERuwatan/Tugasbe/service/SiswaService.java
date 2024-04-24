@@ -1,12 +1,11 @@
 package ERuwatan.Tugasbe.service;
 
-import ERuwatan.Tugasbe.dto.GuruDTO;
 import ERuwatan.Tugasbe.dto.SiswaDTO;
-import ERuwatan.Tugasbe.model.GuruModel;
 import ERuwatan.Tugasbe.model.KelasModel;
 import ERuwatan.Tugasbe.model.SiswaModel;
+import ERuwatan.Tugasbe.repository.KelasRepository;
 import ERuwatan.Tugasbe.repository.SiswaRepository;
-import ERuwatan.Tugasbe.repository.kelasRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +18,7 @@ public class SiswaService {
     private SiswaRepository siswaRepository;
 
     @Autowired
-    private kelasRepository kelasRepository;
+    private KelasRepository kelasRepository;
 
     public List<SiswaDTO> getAllSiswa() {
         List<SiswaModel> siswaModels = siswaRepository.findAll();
@@ -27,35 +26,22 @@ public class SiswaService {
     }
 
     public SiswaDTO getSiswaById(Long id) {
-        SiswaModel siswaModel = siswaRepository.findById(id).orElseThrow(() -> new RuntimeException("Movie not found"));
+        SiswaModel siswaModel = siswaRepository.findById(id).orElseThrow(() -> new RuntimeException("Siswa tidak ditemukan"));
         return mapToDTO(siswaModel);
     }
 
     public SiswaDTO createSiswa(SiswaDTO siswaDTO) {
         SiswaModel siswa = new SiswaModel();
-        siswa.setNama_siswa(siswaDTO.getNama_siswa());
-
-        Long kelasId = Long.parseLong(siswaDTO.getKelasId());
-        KelasModel kelas = kelasRepository.findById(kelasId)
-                .orElseThrow(() -> new RuntimeException("Kelas not found"));
-        siswa.setKelasModel(kelas);
-
+        mapDTOToSiswaModel(siswaDTO, siswa);
         siswa = siswaRepository.save(siswa);
         return mapToDTO(siswa);
     }
 
     public SiswaDTO updateSiswa(Long id, SiswaDTO siswaDTO) {
-        SiswaModel siswaModel = siswaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Siswa not found"));
-        siswaModel.setNama_siswa(siswaDTO.getNama_siswa());
-
-        Long kelasId = Long.parseLong(siswaDTO.getKelasId());
-        KelasModel kelas = kelasRepository.findById(kelasId)
-                .orElseThrow(() -> new RuntimeException("Kelas not found"));
-        siswaModel.setKelasModel(kelas);
-
-        siswaModel = siswaRepository.save(siswaModel);
-        return mapToDTO(siswaModel);
+        SiswaModel siswaLama = siswaRepository.findById(id).orElseThrow(() -> new RuntimeException("Siswa tidak ditemukan"));
+        mapDTOToSiswaModel(siswaDTO, siswaLama);
+        siswaLama = siswaRepository.save(siswaLama);
+        return mapToDTO(siswaLama);
     }
 
     public void deleteById(Long id) {
@@ -64,11 +50,19 @@ public class SiswaService {
 
     private SiswaDTO mapToDTO(SiswaModel siswaModel) {
         SiswaDTO dto = new SiswaDTO();
-        dto.setId(siswaModel.getId());
-        dto.setNama_siswa(siswaModel.getNama_siswa());
-        dto.setKelasId(String.valueOf(siswaModel.getKelasModel().getId())); // Assuming ID needs to be stored as String
-        dto.setKelasId(siswaModel.getKelasModel().getNama_kelas()); // Assuming you need to keep the class name
-
+        BeanUtils.copyProperties(siswaModel, dto);
+        if (siswaModel.getKelasModel() != null) {
+            dto.setKelasId(siswaModel.getKelasModel().getId());
+        }
         return dto;
+    }
+
+    private void mapDTOToSiswaModel(SiswaDTO dto, SiswaModel model) {
+        BeanUtils.copyProperties(dto, model);
+        if (dto.getKelasId() != null) {
+            KelasModel kelas = kelasRepository.findById(dto.getKelasId())
+                    .orElseThrow(() -> new RuntimeException("Kelas tidak ditemukan"));
+            model.setKelasModel(kelas);
+        }
     }
 }

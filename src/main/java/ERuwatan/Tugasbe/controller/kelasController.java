@@ -1,8 +1,7 @@
 package ERuwatan.Tugasbe.controller;
 
-import ERuwatan.Tugasbe.model.KelasModel;
 import ERuwatan.Tugasbe.service.kelasService;
-import ERuwatan.Tugasbe.dto.kelasDTO;
+import ERuwatan.Tugasbe.dto.KelasDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,27 +17,27 @@ public class kelasController {
     private kelasService kelasService;
 
     @GetMapping
-    public ResponseEntity<List<kelasDTO>> getAllData() {
-        List<kelasDTO> kelasDTOS = kelasService.getAllKelas();
+    public ResponseEntity<List<KelasDTO>> getAllData() {
+        List<KelasDTO> kelasDTOS = kelasService.getAllKelas();
         return new ResponseEntity<>(kelasDTOS, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<kelasDTO> getKelasById(@PathVariable Long id) {
-        kelasDTO kelasDTO = kelasService.getKelasById(id);
+    public ResponseEntity<KelasDTO> getKelasById(@PathVariable Long id) {
+        KelasDTO kelasDTO = kelasService.getKelasById(id);
         return ResponseEntity.ok(kelasDTO);
     }
 
     @PostMapping
-    public ResponseEntity<kelasDTO> createKelas(@RequestBody kelasDTO kelasDTO) {
-        kelasDTO createdKelas = kelasService.createKelas(kelasDTO);
+    public ResponseEntity<KelasDTO> createKelas(@RequestBody KelasDTO kelasDTO) {
+        KelasDTO createdKelas = kelasService.createKelas(kelasDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdKelas);
     }
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<kelasDTO> updateData(@PathVariable Long id, @RequestBody kelasDTO kelasDTO) {
-        kelasDTO updatedKelas = kelasService.updateKelas(id, kelasDTO);
+    public ResponseEntity<KelasDTO> updateData(@PathVariable Long id, @RequestBody KelasDTO kelasDTO) {
+        KelasDTO updatedKelas = kelasService.updateKelas(id, kelasDTO);
         if (updatedKelas != null) {
             return new ResponseEntity<>(updatedKelas, HttpStatus.OK);
         } else {

@@ -1,7 +1,6 @@
 package ERuwatan.Tugasbe.controller;
 
 import ERuwatan.Tugasbe.dto.SiswaDTO;
-import ERuwatan.Tugasbe.dto.kelasDTO;
 import ERuwatan.Tugasbe.service.SiswaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

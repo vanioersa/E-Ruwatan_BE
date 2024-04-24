@@ -3,21 +3,11 @@ package ERuwatan.Tugasbe.dto;
 public class SiswaDTO {
     private Long id;
 
-    private String nama_siswa;
-
-    private Long NISN;
-
-    private String tempat;
-
-    private String kelasId;
-
-    private String alamat;
-
     public SiswaDTO() {
 
     }
 
-    public SiswaDTO(Long id, String nama_siswa, Long NISN, String tempat, String kelasId, String alamat) {
+    public SiswaDTO(Long id, String nama_siswa, Long NISN, String tempat, Long kelasId, String alamat) {
         this.id = id;
         this.nama_siswa = nama_siswa;
         this.NISN = NISN;
@@ -58,11 +48,11 @@ public class SiswaDTO {
         this.tempat = tempat;
     }
 
-    public String getKelasId() {
+    public Long getKelasId() {
         return kelasId;
     }
 
-    public void setKelasId(String kelasId) {
+    public void setKelasId(Long kelasId) {
         this.kelasId = kelasId;
     }
 
@@ -73,4 +63,10 @@ public class SiswaDTO {
     public void setAlamat(String alamat) {
         this.alamat = alamat;
     }
+
+    private String nama_siswa;
+    private Long NISN;
+    private String tempat;
+    private Long kelasId;
+    private String alamat;
 }

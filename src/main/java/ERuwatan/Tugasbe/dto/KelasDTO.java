@@ -1,6 +1,6 @@
 package ERuwatan.Tugasbe.dto;
 
-public class kelasDTO {
+public class KelasDTO {
     private Long id;
 
 private String nama_kelas;
@@ -9,11 +9,11 @@ private String nama_kelas;
         return id;
     }
 
-    public kelasDTO() {
+    public KelasDTO() {
 
     }
 
-    public kelasDTO(Long id, String nama_kelas, Long kelas) {
+    public KelasDTO(Long id, String nama_kelas, Long kelas) {
         this.id = id;
         this.nama_kelas = nama_kelas;
         this.kelas = kelas;
