@@ -7,6 +7,8 @@ import ERuwatan.Tugasbe.repository.KelasRepository;
 import ERuwatan.Tugasbe.repository.SiswaRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -44,8 +46,9 @@ public class SiswaService {
         return mapToDTO(siswaLama);
     }
 
-    public void deleteById(Long id) {
+    public ResponseEntity<Void> deleteById(Long id) {
         siswaRepository.deleteById(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     private SiswaDTO mapToDTO(SiswaModel siswaModel) {
