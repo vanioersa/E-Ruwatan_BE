@@ -67,20 +67,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/kelas/all",
             "/kelas/by-id/{id}",
 
-            // Mapel
-//            "/tugas_akhir/api/mapel/all",
-//            "/tugas_akhir/api/mapel/by-id/{id}",
-
-            // Murid
-            "/murid/all",
-            "/murid/by-id/{id}",
+            // Siswa
+            "/siswa/all",
+            "/siswa/by-id/{id}",
     };
 
     private static final String[] AUTH_AUTHORIZATION = {
             "/guru/**",
             "/kelas/**",
-//            "/mapel/**",
-            "/murid/**",
+            "/siswa/**",
     };
 
     @Override
