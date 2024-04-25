@@ -4,10 +4,12 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "Kelas")
-public class KelasModel {
+public class Kelas {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String kelas;
+    private String nama_kelas;
 
     public Long getId() {
         return id;
@@ -17,6 +19,14 @@ public class KelasModel {
         this.id = id;
     }
 
+    public String getKelas() {
+        return kelas;
+    }
+
+    public void setKelas(String kelas) {
+        this.kelas = kelas;
+    }
+
     public String getNama_kelas() {
         return nama_kelas;
     }
@@ -24,18 +34,4 @@ public class KelasModel {
     public void setNama_kelas(String nama_kelas) {
         this.nama_kelas = nama_kelas;
     }
-
-    public Long getKelas() {
-        return kelas;
-    }
-
-    public void setKelas(Long kelas) {
-        this.kelas = kelas;
-    }
-
-    @Column
-    private String nama_kelas;
-
-    private Long kelas;
-
 }

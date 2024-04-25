@@ -5,7 +5,6 @@ import ERuwatan.Tugasbe.model.UserModel;
 import ERuwatan.Tugasbe.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -52,7 +51,7 @@ public class JwtUserDetailsService implements UserDetailsService {
         }
         if (user != null) {
             List<SimpleGrantedAuthority> roles = Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().toUpperCase()));
-            return new User(user.getUsername(), user.getPassword(), roles);
+            return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), roles);
         } else {
             throw new UsernameNotFoundException("User not found with username or email: " + usernameOrEmail);
         }
