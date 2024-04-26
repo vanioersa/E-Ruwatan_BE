@@ -4,7 +4,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "Guru")
-public class GuruModel {
+public class Guru {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,7 +23,7 @@ public class GuruModel {
 
     @ManyToOne
     @JoinColumn(name = "kelas_id")
-    private KelasModel kelasModel;
+    private Kelas kelasModel;
 
     public Long getId() {
         return id;
@@ -65,11 +65,11 @@ public class GuruModel {
         this.tempat_lahir = tempat_lahir;
     }
 
-    public KelasModel getKelasModel() {
+    public Kelas getKelasModel() {
         return kelasModel;
     }
 
-    public void setKelasModel(KelasModel kelasModel) {
+    public void setKelasModel(Kelas kelasModel) {
         this.kelasModel = kelasModel;
     }
 }

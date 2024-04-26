@@ -1,9 +1,7 @@
 package ERuwatan.Tugasbe.controller;
 
 import ERuwatan.Tugasbe.dto.GuruDTO;
-import ERuwatan.Tugasbe.dto.SiswaDTO;
-import ERuwatan.Tugasbe.model.GuruModel;
-import ERuwatan.Tugasbe.service.GuruService;
+import ERuwatan.Tugasbe.service.GuruSer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +11,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/guru")
-public class GuruController {
+public class GuruCont {
     @Autowired
-    private GuruService guruService;
+    private GuruSer guruService;
 
     @GetMapping("/all")
     public ResponseEntity<List<GuruDTO>> getAllGuru() {

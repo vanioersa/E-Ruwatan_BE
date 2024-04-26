@@ -3,28 +3,15 @@ package ERuwatan.Tugasbe.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "Siswa")
-public class SiswaModel {
+public class Siswa {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
-    private String nama_siswa;
-
-    @Column
-    private Long NISN;
-
-    @Column
-    private String tempat;
-
     @ManyToOne
     @JoinColumn(name = "kelas_id")
-    private KelasModel kelasModel;
-
-    @Column
-    private String alamat;
+    private Kelas kelas;
 
     public Long getId() {
         return id;
@@ -32,6 +19,14 @@ public class SiswaModel {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Kelas getKelas() {
+        return kelas;
+    }
+
+    public void setKelas(Kelas kelas) {
+        this.kelas = kelas;
     }
 
     public String getNama_siswa() {
@@ -42,12 +37,12 @@ public class SiswaModel {
         this.nama_siswa = nama_siswa;
     }
 
-    public Long getNISN() {
-        return NISN;
+    public String getNisn() {
+        return nisn;
     }
 
-    public void setNISN(Long NISN) {
-        this.NISN = NISN;
+    public void setNisn(String nisn) {
+        this.nisn = nisn;
     }
 
     public String getTempat() {
@@ -58,14 +53,6 @@ public class SiswaModel {
         this.tempat = tempat;
     }
 
-    public KelasModel getKelasModel() {
-        return kelasModel;
-    }
-
-    public void setKelasModel(KelasModel kelasModel) {
-        this.kelasModel = kelasModel;
-    }
-
     public String getAlamat() {
         return alamat;
     }
@@ -73,4 +60,9 @@ public class SiswaModel {
     public void setAlamat(String alamat) {
         this.alamat = alamat;
     }
+
+    private String nama_siswa;
+    private String nisn;
+    private String tempat;
+    private String alamat;
 }

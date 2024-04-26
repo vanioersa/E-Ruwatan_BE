@@ -1,10 +1,10 @@
 package ERuwatan.Tugasbe.service;
 
 import ERuwatan.Tugasbe.dto.GuruDTO;
-import ERuwatan.Tugasbe.model.GuruModel;
-import ERuwatan.Tugasbe.model.KelasModel;
-import ERuwatan.Tugasbe.repository.KelasRepository;
-import ERuwatan.Tugasbe.repository.GuruRepository;
+import ERuwatan.Tugasbe.model.Guru;
+import ERuwatan.Tugasbe.model.Kelas;
+import ERuwatan.Tugasbe.repository.KelasRepo;
+import ERuwatan.Tugasbe.repository.GuruRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,24 +12,24 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class GuruService {
+public class GuruSer {
     @Autowired
-    private GuruRepository guruRepository;
+    private GuruRepo guruRepository;
 
     @Autowired
-    private KelasRepository kelasRepository;
+    private KelasRepo kelasRepository;
 
     public List<GuruDTO> getAllGuru() {
-        List<GuruModel> guruModels = guruRepository.findAll();
+        List<Guru> guruModels = guruRepository.findAll();
         return guruModels.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
     public GuruDTO createGuru(GuruDTO guruDTO) {
-        GuruModel guru = new GuruModel();
+        Guru guru = new Guru();
         guru.setNama_guru(guru.getNama_guru());
 
         Long kelasId = Long.parseLong(guruDTO.getKelasId());
-        KelasModel kelas = kelasRepository.findById(kelasId)
+        Kelas kelas = kelasRepository.findById(kelasId)
                 .orElseThrow(() -> new RuntimeException("Kelas not found"));
         guru.setKelasModel(kelas);
 
@@ -38,17 +38,17 @@ public class GuruService {
     }
 
     public GuruDTO getGuruById(Long id) {
-        GuruModel guruModel = guruRepository.findById(id).orElseThrow(() -> new RuntimeException("Movie not found"));
+        Guru guruModel = guruRepository.findById(id).orElseThrow(() -> new RuntimeException("Movie not found"));
         return mapToDTO(guruModel);
     }
 
     public GuruDTO updateGuru(Long id, GuruDTO guruDTO) {
-        GuruModel guruModel = guruRepository.findById(id)
+        Guru guruModel = guruRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Siswa not found"));
         guruModel.setNama_guru(guruDTO.getNama_guru());
 
         Long kelasId = Long.parseLong(guruDTO.getKelasId());
-        KelasModel kelas = kelasRepository.findById(kelasId)
+        Kelas kelas = kelasRepository.findById(kelasId)
                 .orElseThrow(() -> new RuntimeException("Kelas not found"));
         guruModel.setKelasModel(kelas);
 
@@ -60,7 +60,7 @@ public class GuruService {
         guruRepository.deleteById(id);
     }
 
-    private GuruDTO mapToDTO(GuruModel guruModel) {
+    private GuruDTO mapToDTO(Guru guruModel) {
         GuruDTO dto = new GuruDTO();
         dto.setId(guruModel.getId());
         dto.setNama_guru(guruModel.getNama_guru());

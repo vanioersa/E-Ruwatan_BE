@@ -2,18 +2,16 @@ package ERuwatan.Tugasbe.dto;
 
 public class SiswaDTO {
     private Long id;
+    private Long KelasId;
+    private String nama_siswa;
+    private String nisn;
 
-    public SiswaDTO() {
-
+    public String getTempat() {
+        return tempat;
     }
 
-    public SiswaDTO(Long id, String nama_siswa, Long NISN, String tempat, Long kelasId, String alamat) {
-        this.id = id;
-        this.nama_siswa = nama_siswa;
-        this.NISN = NISN;
+    public void setTempat(String tempat) {
         this.tempat = tempat;
-        this.kelasId = kelasId;
-        this.alamat = alamat;
     }
 
     public Long getId() {
@@ -24,6 +22,14 @@ public class SiswaDTO {
         this.id = id;
     }
 
+    public Long getKelasId() {
+        return KelasId;
+    }
+
+    public void setKelasId(Long kelasId) {
+        KelasId = kelasId;
+    }
+
     public String getNama_siswa() {
         return nama_siswa;
     }
@@ -32,28 +38,12 @@ public class SiswaDTO {
         this.nama_siswa = nama_siswa;
     }
 
-    public Long getNISN() {
-        return NISN;
+    public String getNisn() {
+        return nisn;
     }
 
-    public void setNISN(Long NISN) {
-        this.NISN = NISN;
-    }
-
-    public String getTempat() {
-        return tempat;
-    }
-
-    public void setTempat(String tempat) {
-        this.tempat = tempat;
-    }
-
-    public Long getKelasId() {
-        return kelasId;
-    }
-
-    public void setKelasId(Long kelasId) {
-        this.kelasId = kelasId;
+    public void setNisn(String nisn) {
+        this.nisn = nisn;
     }
 
     public String getAlamat() {
@@ -64,9 +54,6 @@ public class SiswaDTO {
         this.alamat = alamat;
     }
 
-    private String nama_siswa;
-    private Long NISN;
     private String tempat;
-    private Long kelasId;
     private String alamat;
 }
