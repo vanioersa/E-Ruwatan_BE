@@ -3,8 +3,6 @@ package ERuwatan.Tugasbe.controller;
 import ERuwatan.Tugasbe.dto.GuruDTO;
 import ERuwatan.Tugasbe.service.GuruSer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,40 +11,30 @@ import java.util.List;
 @RequestMapping("/guru")
 public class GuruCont {
     @Autowired
-    private GuruSer guruService;
+    private GuruSer guruSer;
 
-    @GetMapping("/all")
-    public ResponseEntity<List<GuruDTO>> getAllGuru() {
-        List<GuruDTO> guruDTOS = guruService.getAllGuru();
-        return new ResponseEntity<>(guruDTOS, HttpStatus.OK);
+    @PostMapping("/add")
+    public GuruDTO createGuru(@RequestBody GuruDTO guruDTO) {
+        return guruSer.createGuru(guruDTO);
     }
 
     @GetMapping("/by-id/{id}")
-    public ResponseEntity<GuruDTO> getGuruById(@PathVariable Long id) {
-        GuruDTO guruDTO = guruService.getGuruById(id);
-        return ResponseEntity.ok(guruDTO);
+    public GuruDTO getGuruById(@PathVariable Long id) {
+        return guruSer.getGuruById(id);
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<GuruDTO> createSiswa(@RequestBody GuruDTO guruDTO) {
-        GuruDTO createdGuru = guruService.createGuru(guruDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdGuru);
+    @GetMapping("/all")
+    public List<GuruDTO> getAllGurus() {
+        return guruSer.getAllGurus();
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<GuruDTO> updateguru(@PathVariable Long id, @RequestBody GuruDTO guruDTO) {
-        GuruDTO updatedGuru = guruService.updateGuru(id, guruDTO);
-        if (updatedGuru != null) {
-            return new ResponseEntity<>(updatedGuru, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @PutMapping("/ubah/{id}")
+    public GuruDTO updateGuru(@PathVariable Long id, @RequestBody GuruDTO guruDTO) {
+        return guruSer.updateGuru(id, guruDTO);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteGuru(@PathVariable Long id) {
-        guruService.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    @DeleteMapping("/hapus/{id}")
+    public void deleteGuru(@PathVariable Long id) {
+        guruSer.deleteGuru(id);
     }
-
 }

@@ -3,6 +3,7 @@ package ERuwatan.Tugasbe.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -31,7 +32,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-
         auth.userDetailsService(jwtUserDetailsService).passwordEncoder(passwordEncoder());
     }
 
@@ -57,7 +57,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/swagger-ui/**",
 
             // API controller
-            "/login", "/register",
+            "/login",
+            "/register",
 
             // Guru
             "/guru/all",
@@ -83,13 +84,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.cors().and().csrf().disable()
                 .authorizeRequests()
                 .antMatchers(AUTH_WHITELIST).permitAll()
-                .antMatchers(AUTH_AUTHORIZATION).hasRole("ADMIN")
-                .antMatchers(AUTH_AUTHORIZATION).hasAnyRole( "ADMIN")
-                .anyRequest()
-                .authenticated().and()
-                .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
+                .antMatchers(HttpMethod.POST, "/login", "/register").permitAll()
+                .antMatchers(AUTH_AUTHORIZATION).hasAnyRole("MURID", "GURU")
+                .anyRequest().authenticated()
+                .and()
+                .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                .and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }

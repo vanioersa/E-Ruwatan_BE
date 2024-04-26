@@ -9,21 +9,10 @@ public class Guru {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
-    private String nama_guru;
-
-    @Column
-    private Long nip;
-
-    @Column
-    private String Mapel;
-
-    @Column
-    private String tempat_lahir;
-
     @ManyToOne
     @JoinColumn(name = "kelas_id")
-    private Kelas kelasModel;
+    private Kelas kelas;
+    private String nama_Guru;
 
     public Long getId() {
         return id;
@@ -33,28 +22,28 @@ public class Guru {
         this.id = id;
     }
 
-    public String getNama_guru() {
-        return nama_guru;
+    public Kelas getKelas() {
+        return kelas;
     }
 
-    public void setNama_guru(String nama_guru) {
-        this.nama_guru = nama_guru;
+    public void setKelas(Kelas kelas) {
+        this.kelas = kelas;
     }
 
-    public Long getNip() {
+    public String getNama_Guru() {
+        return nama_Guru;
+    }
+
+    public void setNama_Guru(String nama_Guru) {
+        this.nama_Guru = nama_Guru;
+    }
+
+    public String getNip() {
         return nip;
     }
 
-    public void setNip(Long nip) {
+    public void setNip(String nip) {
         this.nip = nip;
-    }
-
-    public String getMapel() {
-        return Mapel;
-    }
-
-    public void setMapel(String mapel) {
-        Mapel = mapel;
     }
 
     public String getTempat_lahir() {
@@ -65,11 +54,16 @@ public class Guru {
         this.tempat_lahir = tempat_lahir;
     }
 
-    public Kelas getKelasModel() {
-        return kelasModel;
+    public String getMapel() {
+        return mapel;
     }
 
-    public void setKelasModel(Kelas kelasModel) {
-        this.kelasModel = kelasModel;
+    public void setMapel(String mapel) {
+        this.mapel = mapel;
     }
+
+    private String nip;
+    private String tempat_lahir;
+    private String mapel;
+
 }
