@@ -58,7 +58,7 @@ public class JwtAuthenticationController {
 
         final String token = jwtTokenUtil.generateToken(userDetails);
 
-        String role = user.getRole().toLowerCase(); // assuming role is in lowercase
+        String role = user.getRole().toLowerCase();
         String redirectUrl = role.equals("murid") ? "/dashboard_murid" : (role.equals("guru") ? "/dashboard_guru" : "/dashboard_default");
 
         return ResponseEntity.ok(new JwtResponse(token, user, redirectUrl));

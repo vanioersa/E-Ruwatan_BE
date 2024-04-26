@@ -2,19 +2,15 @@ package ERuwatan.Tugasbe.dto;
 
 public class GuruDTO {
     private Long id;
-
+    private Long kelasId;
     private String nama_guru;
 
-    private Long nip;
+    public String getNip() {
+        return nip;
+    }
 
-    private String mapel;
-
-    private String kelasId;
-
-    private String tempat_lahir;
-
-    public GuruDTO() {
-
+    public void setNip(String nip) {
+        this.nip = nip;
     }
 
     public Long getId() {
@@ -25,20 +21,20 @@ public class GuruDTO {
         this.id = id;
     }
 
+    public Long getKelasId() {
+        return kelasId;
+    }
+
+    public void setKelasId(Long kelasId) {
+        this.kelasId = kelasId;
+    }
+
     public String getNama_guru() {
         return nama_guru;
     }
 
     public void setNama_guru(String nama_guru) {
         this.nama_guru = nama_guru;
-    }
-
-    public Long getNip() {
-        return nip;
-    }
-
-    public void setNip(Long nip) {
-        this.nip = nip;
     }
 
     public String getMapel() {
@@ -49,14 +45,6 @@ public class GuruDTO {
         this.mapel = mapel;
     }
 
-    public String getKelasId() {
-        return kelasId;
-    }
-
-    public void setKelasId(String kelasId) {
-        this.kelasId = kelasId;
-    }
-
     public String getTempat_lahir() {
         return tempat_lahir;
     }
@@ -65,12 +53,7 @@ public class GuruDTO {
         this.tempat_lahir = tempat_lahir;
     }
 
-    public GuruDTO(Long id, String nama_guru, Long nip, String mapel, String kelasId, String tempat_lahir) {
-        this.id = id;
-        this.nama_guru = nama_guru;
-        this.nip = nip;
-        this.mapel = mapel;
-        this.kelasId = kelasId;
-        this.tempat_lahir = tempat_lahir;
-    }
+    private String nip;
+    private String mapel;
+    private String tempat_lahir;
 }
