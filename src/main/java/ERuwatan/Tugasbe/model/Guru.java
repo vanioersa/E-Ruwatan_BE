@@ -12,7 +12,7 @@ public class Guru {
     @ManyToOne
     @JoinColumn(name = "kelas_id")
     private Kelas kelas;
-    private String nama_Guru;
+    private String nama_guru;
 
     public Long getId() {
         return id;
@@ -30,12 +30,12 @@ public class Guru {
         this.kelas = kelas;
     }
 
-    public String getNama_Guru() {
-        return nama_Guru;
+    public String getNama_guru() {
+        return nama_guru;
     }
 
-    public void setNama_Guru(String nama_Guru) {
-        this.nama_Guru = nama_Guru;
+    public void setNama_guru(String nama_guru) {
+        this.nama_guru = nama_guru;
     }
 
     public String getNip() {
