@@ -67,6 +67,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             // Kelas
             "/kelas/all",
             "/kelas/by-id/{id}",
+            "/kelas/import",
 
             // Siswa
             "/siswa/all",

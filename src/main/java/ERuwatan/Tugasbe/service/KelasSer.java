@@ -1,6 +1,7 @@
 package ERuwatan.Tugasbe.service;
 
 import ERuwatan.Tugasbe.dto.KelasDTO;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -10,4 +11,5 @@ public interface KelasSer {
     List<KelasDTO> getAllKelas();
     KelasDTO updateKelas(Long id, KelasDTO kelasDTO);
     void deleteKelas(Long id);
+    void importKelas(MultipartFile file);
 }
