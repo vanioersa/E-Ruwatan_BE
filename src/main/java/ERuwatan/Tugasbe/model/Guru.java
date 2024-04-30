@@ -12,6 +12,7 @@ public class Guru {
     @ManyToOne
     @JoinColumn(name = "kelas_id")
     private Kelas kelas;
+
     private String nama_guru;
 
     public Long getId() {
