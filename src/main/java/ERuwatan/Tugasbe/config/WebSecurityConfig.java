@@ -72,12 +72,23 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             // Siswa
             "/siswa/all",
             "/siswa/by-id/{id}",
+
+            // piket
+            "/piket/all",
+            "/piket/by-id/{id}",
+
+            // kbm
+            "/kbm/all",
+            "kbm/by-id/{id}"
+
     };
 
     private static final String[] AUTH_AUTHORIZATION = {
             "/guru/**",
             "/kelas/**",
             "/siswa/**",
+            "/piket/**",
+            "/kbm/**",
     };
 
     @Override
