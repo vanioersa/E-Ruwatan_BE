@@ -7,10 +7,7 @@ public class PiketDTO {
     private Long kelasId;
     private Long siswaId;
     private String tanggal;
-    private String masuk;
-    private String izin;
-    private String sakit;
-    private String alpha;
+    private String status;
 
     public Long getId() {
         return id;
@@ -18,6 +15,14 @@ public class PiketDTO {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public Long getKelasId() {
@@ -42,37 +47,5 @@ public class PiketDTO {
 
     public void setTanggal(String tanggal) {
         this.tanggal = tanggal;
-    }
-
-    public String getMasuk() {
-        return masuk;
-    }
-
-    public void setMasuk(String masuk) {
-        this.masuk = masuk;
-    }
-
-    public String getIzin() {
-        return izin;
-    }
-
-    public void setIzin(String izin) {
-        this.izin = izin;
-    }
-
-    public String getSakit() {
-        return sakit;
-    }
-
-    public void setSakit(String sakit) {
-        this.sakit = sakit;
-    }
-
-    public String getAlpha() {
-        return alpha;
-    }
-
-    public void setAlpha(String alpha) {
-        this.alpha = alpha;
     }
 }
