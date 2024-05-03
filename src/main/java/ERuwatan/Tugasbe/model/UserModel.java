@@ -20,6 +20,56 @@ public class UserModel {
     @Column
     @JsonIgnore
     private String password;
+    @Column
+    private String alamat;
+    @Column
+    private String gender;
+    @Column
+    private String telepon;
+    @Column
+    private String status_nikah;
+    @Column
+    private String image;
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String getAlamat() {
+        return alamat;
+    }
+
+    public void setAlamat(String alamat) {
+        this.alamat = alamat;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getTelepon() {
+        return telepon;
+    }
+
+    public void setTelepon(String telepon) {
+        this.telepon = telepon;
+    }
+
+    public String getStatus_nikah() {
+        return status_nikah;
+    }
+
+    public void setStatus_nikah(String status_nikah) {
+        this.status_nikah = status_nikah;
+    }
 
     public long getId() {
         return id;

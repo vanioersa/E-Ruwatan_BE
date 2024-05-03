@@ -69,7 +69,6 @@ public class JwtAuthenticationController {
                 UserModel newUser = userDetailsService.save(userDTO);
                 List<UserModel> users = userDao.findAll();
                 return ResponseEntity.status(HttpStatus.CREATED).body(users);
-//                return ResponseEntity.ok("User registered successfully");
             } else {
                 throw new IllegalArgumentException("Username or email is required");
             }
@@ -84,6 +83,8 @@ public class JwtAuthenticationController {
     @GetMapping("/users")
     public ResponseEntity<List<UserModel>> getAllUsers() {
         List<UserModel> users = userDao.findAll();
+        // Clear password field or replace with empty string before returning response
+        users.forEach(user -> user.setPassword(""));
         return ResponseEntity.ok(users);
     }
 
