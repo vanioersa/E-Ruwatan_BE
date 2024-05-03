@@ -56,7 +56,7 @@ public class JwtTokenUtil implements Serializable {
         List<SimpleGrantedAuthority> validRoles = new ArrayList<>();
 
         for (GrantedAuthority role : roles) {
-            if (role.getAuthority().equals("ROLE_MURID") || role.getAuthority().equals("ROLE_GURU")) {
+            if (role.getAuthority().equals("ROLE_ADMIN") || role.getAuthority().equals("ROLE_GURU")) {
                 validRoles.add((SimpleGrantedAuthority) role);
             }
         }

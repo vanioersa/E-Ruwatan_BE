@@ -44,6 +44,14 @@ public class JwtUserDetailsService implements UserDetailsService {
         }
     }
 
+    public List<UserModel> findAllUsers() {
+        return userDao.findAll();
+    }
+
+    public void deleteUser(long userId) {
+        userDao.deleteById(userId);
+    }
+
     public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
         UserModel user = userDao.findByUsername(usernameOrEmail);
         if (user == null) {
