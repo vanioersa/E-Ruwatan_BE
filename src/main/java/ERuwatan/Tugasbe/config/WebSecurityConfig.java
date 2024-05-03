@@ -59,6 +59,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             // API controller
             "/login",
             "/register",
+            "/users",
+            "/users/hapus/{id}",
 
             // Guru
             "/guru/all",
@@ -79,8 +81,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
             // kbm
             "/kbm/all",
-            "kbm/by-id/{id}"
-
+            "/kbm/by-id/{id}",
     };
 
     private static final String[] AUTH_AUTHORIZATION = {
@@ -97,7 +98,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(AUTH_WHITELIST).permitAll()
                 .antMatchers(HttpMethod.POST, "/login", "/register").permitAll()
-                .antMatchers(AUTH_AUTHORIZATION).hasAnyRole("MURID", "GURU")
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)

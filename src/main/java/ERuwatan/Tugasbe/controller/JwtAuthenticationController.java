@@ -15,12 +15,10 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -59,7 +57,7 @@ public class JwtAuthenticationController {
         final String token = jwtTokenUtil.generateToken(userDetails);
 
         String role = user.getRole().toLowerCase();
-        String redirectUrl = role.equals("murid") ? "/dashboard_murid" : (role.equals("guru") ? "/dashboard_guru" : "/dashboard_default");
+        String redirectUrl = role.equals("ADMIN") ? "/dashboard_admin" : (role.equals("GURU") ? "/dashboard_guru" : "/dashboard_default");
 
         return ResponseEntity.ok(new JwtResponse(token, user, redirectUrl));
     }
@@ -69,7 +67,9 @@ public class JwtAuthenticationController {
         try {
             if ((userDTO.getUsername() != null && !userDTO.getUsername().isEmpty()) || (userDTO.getEmail() != null && !userDTO.getEmail().isEmpty())) {
                 UserModel newUser = userDetailsService.save(userDTO);
-                return ResponseEntity.ok("User registered successfully");
+                List<UserModel> users = userDao.findAll();
+                return ResponseEntity.status(HttpStatus.CREATED).body(users);
+//                return ResponseEntity.ok("User registered successfully");
             } else {
                 throw new IllegalArgumentException("Username or email is required");
             }
@@ -78,6 +78,23 @@ public class JwtAuthenticationController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Collections.singletonMap("error", "Registration failed: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<List<UserModel>> getAllUsers() {
+        List<UserModel> users = userDao.findAll();
+        return ResponseEntity.ok(users);
+    }
+
+    @DeleteMapping("/users/hapus/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable("id") long userId) {
+        try {
+            userDetailsService.deleteUser(userId);
+            return ResponseEntity.ok("User deleted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "Failed to delete user: " + e.getMessage()));
         }
     }
 
