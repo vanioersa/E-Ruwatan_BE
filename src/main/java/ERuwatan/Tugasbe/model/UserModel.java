@@ -28,7 +28,7 @@ public class UserModel {
     private String telepon;
     @Column
     private String status_nikah;
-
+// geter & sheter
     public String getAlamat() {
         return alamat;
     }
