@@ -36,7 +36,6 @@ public class JwtUserDetailsService implements UserDetailsService {
                     newUser.setGender(user.getGender());
                     newUser.setTelepon(user.getTelepon());
                     newUser.setStatus_nikah(user.getStatus_nikah());
-                    newUser.setImage(user.getImage());
                     return userDao.save(newUser);
                 } else {
                     throw new IllegalArgumentException("Username or email is already in use");
