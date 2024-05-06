@@ -48,6 +48,29 @@ public class JwtUserDetailsService implements UserDetailsService {
         }
     }
 
+    public UserModel updateUser(long userId, UserDTO userDTO) {
+        try {
+            UserModel user = userDao.findById(userId);
+            if (user != null) {
+                user.setUsername(userDTO.getUsername());
+                user.setEmail(userDTO.getEmail());
+                if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
+                    user.setPassword(bcryptEncoder.encode(userDTO.getPassword()));
+                }
+                user.setRole(userDTO.getRole());
+                user.setAlamat(userDTO.getAlamat());
+                user.setGender(userDTO.getGender());
+                user.setTelepon(userDTO.getTelepon());
+                user.setStatus_nikah(userDTO.getStatus_nikah());
+                return userDao.save(user);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Failed to update user: " + e.getMessage());
+        }
+    }
+
     public List<UserModel> findAllUsers() {
         return userDao.findAll();
     }

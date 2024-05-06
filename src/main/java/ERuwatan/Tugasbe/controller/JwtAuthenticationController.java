@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -86,6 +87,40 @@ public class JwtAuthenticationController {
         // Clear password field or replace with empty string before returning response
         users.forEach(user -> user.setPassword(""));
         return ResponseEntity.ok(users);
+    }
+
+    @PutMapping("/users/update/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable("id") long userId, @RequestBody UserDTO userDTO) {
+        try {
+            UserModel updatedUser = userDetailsService.updateUser(userId, userDTO);
+            if (updatedUser != null) {
+                // Clear password field or replace with empty string before returning response
+                updatedUser.setPassword("");
+                return ResponseEntity.ok(updatedUser);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "Failed to update user: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/users/by-id/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable("id") long userId) {
+        try {
+            UserModel user = userDao.findById(userId);
+            if (user != null) {
+                // Clear password field or replace with empty string before returning response
+                user.setPassword("");
+                return ResponseEntity.ok(user);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "Failed to retrieve user: " + e.getMessage()));
+        }
     }
 
     @DeleteMapping("/users/hapus/{id}")

@@ -60,6 +60,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/login",
             "/register",
             "/users",
+            "/users/update/{id}",
+            "/users/by-id/{id}",
             "/users/hapus/{id}",
 
             // Guru
