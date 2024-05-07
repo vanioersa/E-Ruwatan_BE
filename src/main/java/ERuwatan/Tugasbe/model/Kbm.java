@@ -8,9 +8,17 @@ public class Kbm {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    public UserModel getNama() {
+        return nama;
+    }
+
+    public void setNama(UserModel nama) {
+        this.nama = nama;
+    }
+
     @ManyToOne
     @JoinColumn(name = "guru_id", nullable = false)
-    private Guru nama;
+    private UserModel nama;
 
     @ManyToOne
     @JoinColumn(name = "kelas_id")
@@ -26,14 +34,6 @@ public class Kbm {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Guru getNama() {
-        return nama;
-    }
-
-    public void setNama(Guru nama) {
-        this.nama = nama;
     }
 
     public Kelas getKelas() {

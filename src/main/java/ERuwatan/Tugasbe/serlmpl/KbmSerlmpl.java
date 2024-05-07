@@ -4,9 +4,11 @@ import ERuwatan.Tugasbe.dto.KbmDTO;
 import ERuwatan.Tugasbe.model.Guru;
 import ERuwatan.Tugasbe.model.Kbm;
 import ERuwatan.Tugasbe.model.Kelas;
+import ERuwatan.Tugasbe.model.UserModel;
 import ERuwatan.Tugasbe.repository.GuruRepo;
 import ERuwatan.Tugasbe.repository.KbmRepo;
 import ERuwatan.Tugasbe.repository.KelasRepo;
+import ERuwatan.Tugasbe.repository.UserRepository;
 import ERuwatan.Tugasbe.service.KbmSer;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +22,7 @@ import java.util.stream.Collectors;
 public class KbmSerlmpl implements KbmSer {
 
     @Autowired
-    private GuruRepo guruRepo;
+    private UserRepository userRepository;
 
     @Autowired
     private KbmRepo kbmRepo;
@@ -32,8 +34,8 @@ public class KbmSerlmpl implements KbmSer {
     public KbmDTO createKbm(KbmDTO kbmDTO) {
         Kbm kbm = new Kbm();
         BeanUtils.copyProperties(kbmDTO, kbm);
-        Optional<Guru> guruOptional = guruRepo.findById(kbmDTO.getNamaId());
-        guruOptional.ifPresent(kbm::setNama);
+        Optional<UserModel> userModelOptional = userRepository.findById(kbmDTO.getNamaId());
+        userModelOptional.ifPresent(kbm::setNama);
         Optional<Kelas> kelasOptional = kelasRepo.findById(kbmDTO.getKelasId());
         kelasOptional.ifPresent(kbm::setKelas);
         return convertToDTO(kbmRepo.save(kbm));
@@ -56,8 +58,8 @@ public class KbmSerlmpl implements KbmSer {
         if (optionalKbm.isPresent()) {
             Kbm kbm = optionalKbm.get();
             BeanUtils.copyProperties(kbmDTO, kbm);
-            Optional<Guru> guruOptional = guruRepo.findById(kbmDTO.getNamaId());
-            guruOptional.ifPresent(kbm::setNama);
+            Optional<UserModel> userModelOptional = userRepository.findById(kbmDTO.getNamaId());
+            userModelOptional.ifPresent(kbm::setNama);
             Optional<Kelas> kelasOptional = kelasRepo.findById(kbmDTO.getKelasId());
             kelasOptional.ifPresent(kbm::setKelas);
             kbm.setId(id);
