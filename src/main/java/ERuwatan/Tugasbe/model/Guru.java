@@ -15,6 +15,9 @@ public class Guru {
 
     private String nama_guru;
 
+    public Guru() {
+    }
+
     public Long getId() {
         return id;
     }

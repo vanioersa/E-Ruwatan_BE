@@ -1,5 +1,6 @@
 package ERuwatan.Tugasbe.serlmpl;
 
+import ERuwatan.Tugasbe.dto.KelasDTO;
 import ERuwatan.Tugasbe.dto.PiketDTO;
 import ERuwatan.Tugasbe.model.Piket;
 import ERuwatan.Tugasbe.model.Kelas;
@@ -8,10 +9,18 @@ import ERuwatan.Tugasbe.repository.PiketRepo;
 import ERuwatan.Tugasbe.repository.KelasRepo;
 import ERuwatan.Tugasbe.repository.SiswaRepo;
 import ERuwatan.Tugasbe.service.PiketSer;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -77,5 +86,48 @@ public class PiketSerImpl implements PiketSer {
         piketDTO.setKelasId(piket.getKelas() != null ? piket.getKelas().getId() : null);
         piketDTO.setSiswaId(piket.getSiswa() != null ? piket.getSiswa().getId() : null);
         return piketDTO;
+    }
+
+    @Override
+
+    public void importPiketan(MultipartFile file) {
+        try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0);
+
+            // Mulai dari baris kedua, lewati baris header
+            int startRow = 1;
+
+            // Iterasi baris
+            for (int i = startRow; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+
+                // Baca data dari kolom
+                String status = getCellValue(row.getCell(0));
+                String tanggal = getCellValue(row.getCell(1));
+
+                // Buat objek KelasDTO
+                PiketDTO piketDTO = new PiketDTO();
+                piketDTO.setStatus(status);
+                piketDTO.setTanggal(tanggal);
+
+                // Simpan data ke dalam database
+                createPiket(piketDTO);
+            }
+        } catch (IOException e) {
+            // Tangani exception jika terjadi kesalahan dalam memproses file
+            throw new RuntimeException("Terjadi kesalahan saat memproses file: " + e.getMessage());
+        }
+    }
+
+    private String getCellValue(Cell cell) {
+        if (cell != null) {
+            CellType cellType = cell.getCellType();
+            if (cellType == CellType.STRING) {
+                return cell.getStringCellValue();
+            } else if (cellType == CellType.NUMERIC) {
+                return String.valueOf((int) cell.getNumericCellValue());
+            }
+        }
+        return "";
     }
 }
