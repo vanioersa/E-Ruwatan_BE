@@ -9,15 +9,6 @@ public class UserDTO {
     private String gender;
     private String telepon;
     private String status_nikah;
-    private String image;
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
 
     public String getAlamat() {
         return alamat;

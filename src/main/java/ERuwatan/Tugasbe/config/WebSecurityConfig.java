@@ -61,6 +61,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/data/api/excel/**",
             "/register",
             "/users",
+            "/users/update/{id}",
+            "/users/by-id/{id}",
             "/users/hapus/{id}",
 
             // Guru

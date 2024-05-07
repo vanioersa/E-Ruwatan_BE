@@ -28,17 +28,7 @@ public class UserModel {
     private String telepon;
     @Column
     private String status_nikah;
-    @Column
-    private String image;
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
-
+// geter & sheter
     public String getAlamat() {
         return alamat;
     }

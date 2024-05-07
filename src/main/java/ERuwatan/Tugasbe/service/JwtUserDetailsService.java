@@ -36,7 +36,6 @@ public class JwtUserDetailsService implements UserDetailsService {
                     newUser.setGender(user.getGender());
                     newUser.setTelepon(user.getTelepon());
                     newUser.setStatus_nikah(user.getStatus_nikah());
-                    newUser.setImage(user.getImage());
                     return userDao.save(newUser);
                 } else {
                     throw new IllegalArgumentException("Username or email is already in use");
@@ -46,6 +45,29 @@ public class JwtUserDetailsService implements UserDetailsService {
             }
         } catch (Exception e) {
             throw new IllegalArgumentException("Registration failed: " + e.getMessage());
+        }
+    }
+
+    public UserModel updateUser(long userId, UserDTO userDTO) {
+        try {
+            UserModel user = userDao.findById(userId);
+            if (user != null) {
+                user.setUsername(userDTO.getUsername());
+                user.setEmail(userDTO.getEmail());
+                if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
+                    user.setPassword(bcryptEncoder.encode(userDTO.getPassword()));
+                }
+                user.setRole(userDTO.getRole());
+                user.setAlamat(userDTO.getAlamat());
+                user.setGender(userDTO.getGender());
+                user.setTelepon(userDTO.getTelepon());
+                user.setStatus_nikah(userDTO.getStatus_nikah());
+                return userDao.save(user);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Failed to update user: " + e.getMessage());
         }
     }
 
