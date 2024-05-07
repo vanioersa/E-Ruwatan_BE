@@ -3,7 +3,10 @@ package ERuwatan.Tugasbe.controller;
 import ERuwatan.Tugasbe.dto.PiketDTO;
 import ERuwatan.Tugasbe.service.PiketSer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -36,5 +39,10 @@ public class PiketCont {
     @DeleteMapping("/hapus/{id}")
     public void deletePiket(@PathVariable Long id) {
         piketSer.deletePiket(id);
+    }
+
+    @PostMapping("/import")
+    public void importPiketan(@RequestParam("file") MultipartFile file) {
+        piketSer.importPiketan(file);
     }
 }

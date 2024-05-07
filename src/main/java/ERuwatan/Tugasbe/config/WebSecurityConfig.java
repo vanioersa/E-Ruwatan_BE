@@ -58,6 +58,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
             // API controller
             "/login",
+            "/data/api/excel/**",
             "/register",
             "/users",
             "/users/hapus/{id}",

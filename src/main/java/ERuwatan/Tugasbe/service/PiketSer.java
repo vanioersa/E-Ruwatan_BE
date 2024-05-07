@@ -1,6 +1,8 @@
 package ERuwatan.Tugasbe.service;
 
 import ERuwatan.Tugasbe.dto.PiketDTO;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 public interface PiketSer {
@@ -9,4 +11,5 @@ public interface PiketSer {
     List<PiketDTO> getAllPikets();
     PiketDTO updatePiket(Long id, PiketDTO piketDTO);
     void deletePiket(Long id);
+    void importPiketan(MultipartFile file);
 }
