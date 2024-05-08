@@ -27,6 +27,10 @@ public class SiswaService {
         return siswaModels.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
+    public List<SiswaModel> getSiswaByKelasId(Long kelasId){
+        return siswaRepository.getSiswaByKelasId(kelasId);
+    }
+
     public SiswaDTO getSiswaById(Long id) {
         SiswaModel siswaModel = siswaRepository.findById(id).orElseThrow(() -> new RuntimeException("Siswa tidak ditemukan"));
         return mapToDTO(siswaModel);
