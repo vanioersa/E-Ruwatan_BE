@@ -36,6 +36,6 @@ public class KbmCont {
 
     @DeleteMapping("/hapus/{id}")
     public void deletKbm(@PathVariable Long id) {
-        kbmSer.deletKbm(id);
+        kbmSer.deleteKbm(id);
     }
 }

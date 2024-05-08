@@ -8,17 +8,9 @@ public class Kbm {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    public UserModel getNama() {
-        return nama;
-    }
-
-    public void setNama(UserModel nama) {
-        this.nama = nama;
-    }
-
     @ManyToOne
-    @JoinColumn(name = "guru_id", nullable = false)
-    private UserModel nama;
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserModel userModel;
 
     @ManyToOne
     @JoinColumn(name = "kelas_id")
@@ -27,6 +19,7 @@ public class Kbm {
     private String jam_masuk;
     private String jam_pulang;
     private String materi;
+    private String keterangan;
 
     public Long getId() {
         return id;
@@ -34,6 +27,14 @@ public class Kbm {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public UserModel getUserModel() {
+        return userModel;
+    }
+
+    public void setUserModel(UserModel userModel) {
+        this.userModel = userModel;
     }
 
     public Kelas getKelas() {
@@ -75,6 +76,4 @@ public class Kbm {
     public void setKeterangan(String keterangan) {
         this.keterangan = keterangan;
     }
-
-    private String keterangan;
 }

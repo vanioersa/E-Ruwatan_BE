@@ -8,5 +8,5 @@ public interface KbmSer {
     KbmDTO getKbmById(Long id);
     List<KbmDTO> getAllKbm();
     KbmDTO updateKbm(Long id, KbmDTO kbmDTO);
-    void deletKbm(Long id);
+    void deleteKbm(Long id);
 }

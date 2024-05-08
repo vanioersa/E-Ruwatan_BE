@@ -1,14 +1,12 @@
 package ERuwatan.Tugasbe.serlmpl;
 
 import ERuwatan.Tugasbe.dto.KbmDTO;
-import ERuwatan.Tugasbe.model.Guru;
 import ERuwatan.Tugasbe.model.Kbm;
-import ERuwatan.Tugasbe.model.Kelas;
 import ERuwatan.Tugasbe.model.UserModel;
-import ERuwatan.Tugasbe.repository.GuruRepo;
+import ERuwatan.Tugasbe.model.Kelas;
+import ERuwatan.Tugasbe.repository.UserRepository;
 import ERuwatan.Tugasbe.repository.KbmRepo;
 import ERuwatan.Tugasbe.repository.KelasRepo;
-import ERuwatan.Tugasbe.repository.UserRepository;
 import ERuwatan.Tugasbe.service.KbmSer;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +17,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class KbmSerlmpl implements KbmSer {
+public class KbmSerImpl implements KbmSer {
 
     @Autowired
     private UserRepository userRepository;
@@ -34,15 +32,18 @@ public class KbmSerlmpl implements KbmSer {
     public KbmDTO createKbm(KbmDTO kbmDTO) {
         Kbm kbm = new Kbm();
         BeanUtils.copyProperties(kbmDTO, kbm);
-        Optional<UserModel> userModelOptional = userRepository.findById(kbmDTO.getNamaId());
-        userModelOptional.ifPresent(kbm::setNama);
+
+        Optional<UserModel> userModelOptional = userRepository.findById(kbmDTO.getUserId());
+        userModelOptional.ifPresent(kbm::setUserModel);
+
         Optional<Kelas> kelasOptional = kelasRepo.findById(kbmDTO.getKelasId());
         kelasOptional.ifPresent(kbm::setKelas);
+
         return convertToDTO(kbmRepo.save(kbm));
     }
 
     @Override
-    public KbmDTO   getKbmById(Long id) {
+    public KbmDTO getKbmById(Long id) {
         Optional<Kbm> kbmOptional = kbmRepo.findById(id);
         return kbmOptional.map(this::convertToDTO).orElse(null);
     }
@@ -58,10 +59,13 @@ public class KbmSerlmpl implements KbmSer {
         if (optionalKbm.isPresent()) {
             Kbm kbm = optionalKbm.get();
             BeanUtils.copyProperties(kbmDTO, kbm);
-            Optional<UserModel> userModelOptional = userRepository.findById(kbmDTO.getNamaId());
-            userModelOptional.ifPresent(kbm::setNama);
+
+            Optional<UserModel> userModelOptional = userRepository.findById(kbmDTO.getUserId());
+            userModelOptional.ifPresent(kbm::setUserModel);
+
             Optional<Kelas> kelasOptional = kelasRepo.findById(kbmDTO.getKelasId());
             kelasOptional.ifPresent(kbm::setKelas);
+
             kbm.setId(id);
             return convertToDTO(kbmRepo.save(kbm));
         }
@@ -69,14 +73,14 @@ public class KbmSerlmpl implements KbmSer {
     }
 
     @Override
-    public void deletKbm(Long id) {
+    public void deleteKbm(Long id) {
         kbmRepo.deleteById(id);
     }
 
     private KbmDTO convertToDTO(Kbm kbm) {
         KbmDTO kbmDTO = new KbmDTO();
         BeanUtils.copyProperties(kbm, kbmDTO);
-        kbmDTO.setNamaId(kbm.getNama().getId());
+        kbmDTO.setUserId(kbm.getUserModel().getId());
         kbmDTO.setKelasId(kbm.getKelas() != null ? kbm.getKelas().getId() : null);
         return kbmDTO;
     }

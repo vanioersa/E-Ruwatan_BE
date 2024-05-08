@@ -2,26 +2,27 @@ package ERuwatan.Tugasbe.dto;
 
 public class KbmDTO {
     private Long id;
-    private Long namaId;
+    private Long userId;
     private Long kelasId;
     private String jam_masuk;
     private String jam_pulang;
     private String materi;
+    private String keterangan;
 
     public Long getId() {
         return id;
     }
 
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Long getNamaId() {
-        return namaId;
-    }
-
-    public void setNamaId(Long namaId) {
-        this.namaId = namaId;
     }
 
     public Long getKelasId() {
@@ -63,6 +64,4 @@ public class KbmDTO {
     public void setKeterangan(String keterangan) {
         this.keterangan = keterangan;
     }
-
-    private String keterangan;
 }
