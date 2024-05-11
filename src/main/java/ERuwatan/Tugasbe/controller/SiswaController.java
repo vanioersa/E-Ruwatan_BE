@@ -11,28 +11,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-
 @RequestMapping("/siswa")
 public class SiswaController {
     @Autowired
     private SiswaService siswaService;
-
     @GetMapping("/all")
     public ResponseEntity<List<SiswaDTO>> getAllSiswa() {
         List<SiswaDTO> siswaDTOs = siswaService.getAllSiswa();
         return new ResponseEntity<>(siswaDTOs, HttpStatus.OK);
     }
-
     @GetMapping("/by-id/{id}")
     public ResponseEntity<SiswaDTO> getSiswaById(@PathVariable Long id) {
         SiswaDTO siswaDTO = siswaService.getSiswaById(id);
         return ResponseEntity.ok(siswaDTO);
-    }
-
-    @GetMapping("/by-kelas-id/{kelasId}")
-    public ResponseEntity<List<SiswaModel>> getSiswaByKelasId (@PathVariable Long kelasId){
-        List<SiswaModel> siswaModel = siswaService.getSiswaByKelasId(kelasId);
-        return ResponseEntity.ok(siswaModel);
     }
 
     @PostMapping("/add")
@@ -40,7 +31,6 @@ public class SiswaController {
         SiswaDTO createdSiswa = siswaService.createSiswa(siswaRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdSiswa);
     }
-
     @PutMapping("/{id}")
     public ResponseEntity<SiswaDTO> updateSiswa(@PathVariable Long id, @RequestBody SiswaDTO siswaRequestDTO) {
         SiswaDTO updatedSiswa = siswaService.updateSiswa(id, siswaRequestDTO);
@@ -50,11 +40,9 @@ public class SiswaController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSiswa(@PathVariable Long id) {
         siswaService.deleteById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
 }
