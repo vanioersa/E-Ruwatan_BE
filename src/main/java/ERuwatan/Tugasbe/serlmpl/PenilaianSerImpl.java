@@ -1,8 +1,6 @@
 package ERuwatan.Tugasbe.serlmpl;
 
-import ERuwatan.Tugasbe.dto.KbmDTO;
 import ERuwatan.Tugasbe.dto.PenilaianDTO;
-import ERuwatan.Tugasbe.dto.SiswaDTO;
 import ERuwatan.Tugasbe.model.*;
 import ERuwatan.Tugasbe.repository.KelasRepo;
 import ERuwatan.Tugasbe.repository.PenilaianRepo;
