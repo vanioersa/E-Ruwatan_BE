@@ -63,6 +63,10 @@ public class SiswaSerImpl implements SiswaSer {
         siswaRepo.deleteById(id);
     }
 
+    public List<Siswa> getSiswaByKelasId(Long id) {
+        return siswaRepo.findByKelasId(id);
+    }
+
     private SiswaDTO convertToDTO(Siswa siswa) {
         SiswaDTO siswaDTO = new SiswaDTO();
         BeanUtils.copyProperties(siswa, siswaDTO);
