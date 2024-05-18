@@ -85,6 +85,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             // kbm
             "/kbm/all",
             "/kbm/by-id/{id}",
+
+            // penilaian
+            "/panilaian/all",
+            "/panilaian/by-id/{id}",
     };
 
     private static final String[] AUTH_AUTHORIZATION = {
