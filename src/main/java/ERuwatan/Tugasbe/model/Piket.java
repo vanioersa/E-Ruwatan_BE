@@ -1,5 +1,8 @@
 package ERuwatan.Tugasbe.model;
 
+import ERuwatan.Tugasbe.dto.KelasDTO;
+import ERuwatan.Tugasbe.dto.SiswaDTO;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -60,5 +63,13 @@ public class Piket {
 
     public void setTanggal(String  tanggal) {
         this.tanggal = tanggal;
+    }
+
+    public SiswaDTO getSiswaId() {
+        return null;
+    }
+
+    public KelasDTO getKelasId() {
+        return null;
     }
 }

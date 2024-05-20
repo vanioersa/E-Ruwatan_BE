@@ -17,8 +17,7 @@ public class UserModel {
     private String email;
     @Column
     private String role;
-    @Column
-    @JsonIgnore
+    @Column(name = "password" , unique = true)
     private String password;
     @Column
     private String alamat;
@@ -26,9 +25,12 @@ public class UserModel {
     private String gender;
     @Column
     private String telepon;
+
+    @Column(name = "image")
+    private String image;
     @Column
     private String status_nikah;
-// geter & sheter
+    // geter & sheter
     public String getAlamat() {
         return alamat;
     }
@@ -99,5 +101,13 @@ public class UserModel {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }
