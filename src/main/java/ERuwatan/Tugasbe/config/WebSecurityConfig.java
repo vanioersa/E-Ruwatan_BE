@@ -81,6 +81,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             // piket
             "/piket/all",
             "/piket/by-id/{id}",
+            "/piket/import",
 
             // kbm
             "/kbm/all",

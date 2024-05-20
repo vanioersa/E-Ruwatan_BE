@@ -6,6 +6,9 @@ public class UserDTO {
     private String email;
     private String role;
     private String alamat;
+
+    private String image;
+
     private String gender;
     private String telepon;
     private String status_nikah;
@@ -68,6 +71,14 @@ public class UserDTO {
 
     public String getRole() {
         return role;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public void setRole(String role) {
