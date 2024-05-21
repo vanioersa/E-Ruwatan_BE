@@ -1,7 +1,9 @@
 package ERuwatan.Tugasbe.Excell;
 
 import ERuwatan.Tugasbe.dto.KelasDTO;
+import ERuwatan.Tugasbe.dto.SiswaDTO;
 import ERuwatan.Tugasbe.model.Piket;
+import ERuwatan.Tugasbe.model.Siswa;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -61,50 +63,56 @@ public class DataExcell {
     }
 
     public static List<Piket> exceltoData(InputStream is) {
-
         try {
             Workbook workbook = new XSSFWorkbook(is);
-
             Sheet sheet = workbook.getSheet(SHEET);
-            Iterator<Row> rows = sheet.iterator();
 
-            List<Piket> dataList = new ArrayList<Piket>();
-            int rowNumber = 0;
-            while (rows.hasNext()) {
-                Row currentRow = rows.next();
+            List<Piket> dataList = new ArrayList<>();
 
-                if (rowNumber == 0) {
-                    rowNumber++;
-                    continue;
+            // Mulai dari baris kedua karena baris pertama adalah header
+            for (int rowIdx = 1; rowIdx <= sheet.getLastRowNum(); rowIdx++) {
+                Row currentRow = sheet.getRow(rowIdx);
+                if (currentRow == null) {
+                    continue; // Lewati baris jika kosong
                 }
-
-                Iterator<Cell> cellsInRow = currentRow.iterator();
 
                 Piket data = new Piket();
 
-                int cellIdx = 0;
-                while (cellsInRow.hasNext()) {
-                    Cell currentCell = cellsInRow.next();
-
-                    switch (cellIdx) {
-                        case 0:
-                            data.setId((long) currentCell.getNumericCellValue());
-                            break;
-                        case 1:
-                            data.setTanggal(currentCell.getStringCellValue());
-                            break;
-                        case 2:
-                            data.setStatus(currentCell.getStringCellValue());
-                            break;
-                        default:
-                            break;
-
-                    }
-                    cellIdx++;
-
+                // Mulai dari kolom pertama
+                Cell idCell = currentRow.getCell(0);
+                if (idCell != null) {
+                    data.setId((long) idCell.getNumericCellValue());
                 }
+
+                Cell tanggalCell = currentRow.getCell(1);
+                if (tanggalCell != null) {
+                    data.setTanggal(tanggalCell.getStringCellValue());
+                }
+
+                Cell statusCell = currentRow.getCell(2);
+                if (statusCell != null) {
+                    data.setStatus(statusCell.getStringCellValue());
+                }
+
+                Cell kelasCell = currentRow.getCell(3);
+                if (kelasCell != null) {
+                    // Misalnya, Anda memiliki DTO KelasDTO yang menyimpan informasi kelas
+                    KelasDTO kelasDTO = new KelasDTO();
+                    kelasDTO.setKelas(kelasCell.getStringCellValue());
+                    data.setKelasId(kelasDTO);
+                }
+
+                Cell siswaCell = currentRow.getCell(4);
+                if (siswaCell != null) {
+                    // Misalnya, Anda memiliki DTO SiswaDTO yang menyimpan informasi siswa
+                    SiswaDTO siswaDTO = new SiswaDTO();
+                    siswaDTO.setNama_siswa(siswaCell.getStringCellValue());
+                    data.setSiswaId(siswaDTO);
+                }
+
                 dataList.add(data);
             }
+
             workbook.close();
             return dataList;
         } catch (IOException e) {

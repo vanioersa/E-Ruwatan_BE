@@ -1,5 +1,6 @@
 package ERuwatan.Tugasbe.controller;
 
+import ERuwatan.Tugasbe.Excell.ExcelImportService;
 import ERuwatan.Tugasbe.dto.PiketDTO;
 import ERuwatan.Tugasbe.service.PiketSer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -42,7 +44,10 @@ public class PiketCont {
     }
 
     @PostMapping("/import")
-    public void importPiketan(@RequestParam("file") MultipartFile file) {
-        piketSer.importPiketan(file);
+    public ResponseEntity<String> importData(@RequestParam("file") MultipartFile file) throws IOException {
+        ExcelImportService excelImportService = new ExcelImportService();
+        excelImportService.importDataFromExcel(file);
+        return ResponseEntity.ok("Data imported successfully!");
     }
+
 }
