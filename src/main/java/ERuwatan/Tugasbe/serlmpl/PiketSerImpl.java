@@ -1,5 +1,6 @@
 package ERuwatan.Tugasbe.serlmpl;
 
+import ERuwatan.Tugasbe.dto.DpiketDTO;
 import ERuwatan.Tugasbe.dto.KelasDTO;
 import ERuwatan.Tugasbe.dto.PiketDTO;
 import ERuwatan.Tugasbe.model.Piket;
@@ -19,10 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,10 +39,15 @@ public class PiketSerImpl implements PiketSer {
     public PiketDTO createPiket(PiketDTO piketDTO) {
         Piket piket = new Piket();
         BeanUtils.copyProperties(piketDTO, piket);
+
         Optional<Kelas> kelasOptional = kelasRepo.findById(piketDTO.getKelasId());
         kelasOptional.ifPresent(piket::setKelas);
-        Optional<Siswa> siswaOptional = siswaRepo.findById(piketDTO.getSiswaId());
+
+        DpiketDTO dpiketDTO = (DpiketDTO) piketDTO.getDpiketDTOList();
+        List<Long> siswaId = dpiketDTO.getSiswaId();
+        Optional<Siswa> siswaOptional = siswaRepo.findById(siswaId.get(0)); // Ubah sesuai kebutuhan
         siswaOptional.ifPresent(piket::setSiswa);
+
         return convertToDTO(piketRepo.save(piket));
     }
 
@@ -67,8 +70,12 @@ public class PiketSerImpl implements PiketSer {
             BeanUtils.copyProperties(piketDTO, piket);
             Optional<Kelas> kelasOptional = kelasRepo.findById(piketDTO.getKelasId());
             kelasOptional.ifPresent(piket::setKelas);
-            Optional<Siswa> siswaOptional = siswaRepo.findById(piketDTO.getSiswaId());
+
+            DpiketDTO dpiketDTO = (DpiketDTO) piketDTO.getDpiketDTOList();
+            List<Long> siswaId = dpiketDTO.getSiswaId();
+            Optional<Siswa> siswaOptional = siswaRepo.findById(siswaId.get(0)); // Ubah sesuai kebutuhan
             siswaOptional.ifPresent(piket::setSiswa);
+
             piket.setId(id);
             return convertToDTO(piketRepo.save(piket));
         }
@@ -102,12 +109,12 @@ public class PiketSerImpl implements PiketSer {
                 Row row = sheet.getRow(i);
 
                 // Baca data dari kolom
-                String status = getCellValue(row.getCell(0));
+//                String status = getCellValue(row.getCell(0));
                 String tanggal = getCellValue(row.getCell(1));
 
                 // Buat objek KelasDTO
                 PiketDTO piketDTO = new PiketDTO();
-                piketDTO.setStatus(status);
+//                piketDTO.setStatus(status);
                 piketDTO.setTanggal(tanggal);
 
                 // Simpan data ke dalam database
