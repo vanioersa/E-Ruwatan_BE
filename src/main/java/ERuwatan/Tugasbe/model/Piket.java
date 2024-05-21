@@ -72,4 +72,10 @@ public class Piket {
     public KelasDTO getKelasId() {
         return null;
     }
+
+    public void setSiswaId(SiswaDTO siswaDTO) {
+    }
+
+    public void setKelasId(KelasDTO kelasDTO) {
+    }
 }
