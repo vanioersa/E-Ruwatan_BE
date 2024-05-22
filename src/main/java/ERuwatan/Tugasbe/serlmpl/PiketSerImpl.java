@@ -44,9 +44,13 @@ public class PiketSerImpl implements PiketSer {
         kelasOptional.ifPresent(piket::setKelas);
 
         DpiketDTO dpiketDTO = (DpiketDTO) piketDTO.getDpiketDTOList();
-        List<Long> siswaId = dpiketDTO.getSiswaId();
-        Optional<Siswa> siswaOptional = siswaRepo.findById(siswaId.get(0)); // Ubah sesuai kebutuhan
-        siswaOptional.ifPresent(piket::setSiswa);
+        if (dpiketDTO != null) {
+            List<Long> siswaId = dpiketDTO.getSiswaId();
+            if (siswaId != null && !siswaId.isEmpty()) {
+                Optional<Siswa> siswaOptional = siswaRepo.findById(siswaId.get(0)); // Ubah sesuai kebutuhan
+                siswaOptional.ifPresent(piket::setSiswa);
+            }
+        }
 
         return convertToDTO(piketRepo.save(piket));
     }
@@ -96,7 +100,6 @@ public class PiketSerImpl implements PiketSer {
     }
 
     @Override
-
     public void importPiketan(MultipartFile file) {
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
@@ -109,12 +112,10 @@ public class PiketSerImpl implements PiketSer {
                 Row row = sheet.getRow(i);
 
                 // Baca data dari kolom
-//                String status = getCellValue(row.getCell(0));
                 String tanggal = getCellValue(row.getCell(1));
 
-                // Buat objek KelasDTO
+                // Buat objek PiketDTO
                 PiketDTO piketDTO = new PiketDTO();
-//                piketDTO.setStatus(status);
                 piketDTO.setTanggal(tanggal);
 
                 // Simpan data ke dalam database
