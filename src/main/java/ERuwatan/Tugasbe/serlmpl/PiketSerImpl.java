@@ -43,13 +43,24 @@ public class PiketSerImpl implements PiketSer {
         Optional<Kelas> kelasOptional = kelasRepo.findById(piketDTO.getKelasId());
         kelasOptional.ifPresent(piket::setKelas);
 
-        DpiketDTO dpiketDTO = (DpiketDTO) piketDTO.getDpiketDTOList();
-        if (dpiketDTO != null) {
-            List<Long> siswaId = dpiketDTO.getSiswaId();
+        List<String> status = piketDTO.getStatus();
+        if (status != null && !status.isEmpty()) {
+            piket.setStatus(status.get(0));
+        }
+
+        List<DpiketDTO> dpiketDTOList = piketDTO.getDpiketDTOList();
+        if (dpiketDTOList != null && !dpiketDTOList.isEmpty()) {
+            DpiketDTO dpiketDTO = dpiketDTOList.get(0);
+            List<Long> siswaId = piketDTO.getSiswaId();
             if (siswaId != null && !siswaId.isEmpty()) {
-                Optional<Siswa> siswaOptional = siswaRepo.findById(siswaId.get(0)); // Ubah sesuai kebutuhan
-                siswaOptional.ifPresent(piket::setSiswa);
+                List<Siswa> siswaList = new ArrayList<>();
+                for (Long id : siswaId) {
+                    Optional<Siswa> siswaOptional = siswaRepo.findById(id);
+                    siswaOptional.ifPresent(siswaList::add);
+                }
+                dpiketDTO.setSiswaList(siswaList);
             }
+            piket.setDpiketDTOList(Collections.singletonList(dpiketDTO));
         }
 
         return convertToDTO(piketRepo.save(piket));
@@ -75,8 +86,8 @@ public class PiketSerImpl implements PiketSer {
             Optional<Kelas> kelasOptional = kelasRepo.findById(piketDTO.getKelasId());
             kelasOptional.ifPresent(piket::setKelas);
 
-            DpiketDTO dpiketDTO = (DpiketDTO) piketDTO.getDpiketDTOList();
-            List<Long> siswaId = dpiketDTO.getSiswaId();
+            PiketDTO dpiketDTO = (PiketDTO) piketDTO.getDpiketDTOList();
+            List<Long> siswaId = piketDTO.getSiswaId();
             Optional<Siswa> siswaOptional = siswaRepo.findById(siswaId.get(0)); // Ubah sesuai kebutuhan
             siswaOptional.ifPresent(piket::setSiswa);
 
@@ -95,7 +106,7 @@ public class PiketSerImpl implements PiketSer {
         PiketDTO piketDTO = new PiketDTO();
         BeanUtils.copyProperties(piket, piketDTO);
         piketDTO.setKelasId(piket.getKelas() != null ? piket.getKelas().getId() : null);
-        piketDTO.setSiswaId(piket.getSiswa() != null ? piket.getSiswa().getId() : null);
+        piketDTO.setSiswaId(Collections.singletonList(piket.getSiswa() != null ? piket.getSiswa().getId() : null));
         return piketDTO;
     }
 
