@@ -1,25 +1,21 @@
 package ERuwatan.Tugasbe.dto;
 
+import ERuwatan.Tugasbe.model.Siswa;
+
 import java.util.List;
 
 public class DpiketDTO {
 
-    private List<Long> siswaId;
-    private List<String> status;
+    private Long id;
 
-    public List<Long> getSiswaId() {
-        return siswaId;
+    public Long getId() {
+        return id;
     }
 
-    public void setSiswaId(List<Long> siswaId) {
-        this.siswaId = siswaId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public List<String> getStatus() {
-        return status;
-    }
-
-    public void setStatus(List<String> status) {
-        this.status = status;
+    public void setSiswaList(List<Siswa> siswaList) {
     }
 }

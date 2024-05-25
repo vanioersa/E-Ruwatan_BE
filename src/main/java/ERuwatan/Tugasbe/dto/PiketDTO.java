@@ -3,9 +3,10 @@ package ERuwatan.Tugasbe.dto;
 import java.util.List;
 
 public class PiketDTO {
-    private Long id;
     private Long kelasId;
     private String tanggal;
+    private List<String> status;
+    private List<Long> siswaId;
     private List<DpiketDTO> dpiketDTOList;
 
     public Long getKelasId() {
@@ -24,12 +25,12 @@ public class PiketDTO {
         this.tanggal = tanggal;
     }
 
-    public Long getId() {
-        return id;
+    public List<String> getStatus() {
+        return status;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setStatus(List<String> status) {
+        this.status = status;
     }
 
     public List<DpiketDTO> getDpiketDTOList() {
@@ -40,6 +41,11 @@ public class PiketDTO {
         this.dpiketDTOList = dpiketDTOList;
     }
 
-    public void setSiswaId(Long aLong) {
+    public List<Long> getSiswaId() {
+        return siswaId;
+    }
+
+    public void setSiswaId(List<Long> siswaId) {
+        this.siswaId = siswaId;
     }
 }
