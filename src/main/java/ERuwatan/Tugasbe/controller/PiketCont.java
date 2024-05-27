@@ -1,6 +1,6 @@
 package ERuwatan.Tugasbe.controller;
 
-import ERuwatan.Tugasbe.Excell.ExcelImportService;
+import ERuwatan.Tugasbe.Excell.ExcelPiket;
 import ERuwatan.Tugasbe.dto.PiketDTO;
 import ERuwatan.Tugasbe.service.PiketSer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,8 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import springfox.documentation.service.ResponseMessage;
 
-import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 @RestController
@@ -43,11 +44,23 @@ public class PiketCont {
         piketSer.deletePiket(id);
     }
 
-    @PostMapping("/import")
-    public ResponseEntity<String> importData(@RequestParam("file") MultipartFile file) throws IOException {
-        ExcelImportService excelImportService = new ExcelImportService();
-        excelImportService.importDataFromExcel(file);
-        return ResponseEntity.ok("Data imported successfully!");
-    }
+//    @PostMapping(path = "/upload/importPiket")
+//    public ResponseEntity<ResponseMessage> uploadFile(@RequestPart("file") MultipartFile file) {
+//        String message = "";
+//        if (ExcelPiket.hasExcelFormat(file)) {
+//            try {
+//                ExcelPiket.excelPiket((InputStream) file);
+//              message = "Uploaded the file successfully: " + file.getOriginalFilename();
+//                return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
+//
+//            } catch (Exception e) {
+//                System.out.println(e);
+//                message = "Could not upload the file: " + file.getOriginalFilename() + "!";
+//                return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new ResponseMessage(message));
+//            }
+//        }
+//        message = "Please upload an excel file!";
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
+//    }
 
 }
