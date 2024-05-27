@@ -1,7 +1,7 @@
 package ERuwatan.Tugasbe.serlmpl;
 
+import ERuwatan.Tugasbe.Excell.ExcelPiket;
 import ERuwatan.Tugasbe.dto.DpiketDTO;
-import ERuwatan.Tugasbe.dto.KelasDTO;
 import ERuwatan.Tugasbe.dto.PiketDTO;
 import ERuwatan.Tugasbe.model.Piket;
 import ERuwatan.Tugasbe.model.Kelas;
@@ -10,16 +10,12 @@ import ERuwatan.Tugasbe.repository.PiketRepo;
 import ERuwatan.Tugasbe.repository.KelasRepo;
 import ERuwatan.Tugasbe.repository.SiswaRepo;
 import ERuwatan.Tugasbe.service.PiketSer;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -102,6 +98,11 @@ public class PiketSerImpl implements PiketSer {
         piketRepo.deleteById(id);
     }
 
+    @Override
+    public void importPiketan(MultipartFile file) {
+
+    }
+
     private PiketDTO convertToDTO(Piket piket) {
         PiketDTO piketDTO = new PiketDTO();
         BeanUtils.copyProperties(piket, piketDTO);
@@ -110,43 +111,13 @@ public class PiketSerImpl implements PiketSer {
         return piketDTO;
     }
 
-    @Override
-    public void importPiketan(MultipartFile file) {
-        try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
-            Sheet sheet = workbook.getSheetAt(0);
-
-            // Mulai dari baris kedua, lewati baris header
-            int startRow = 1;
-
-            // Iterasi baris
-            for (int i = startRow; i <= sheet.getLastRowNum(); i++) {
-                Row row = sheet.getRow(i);
-
-                // Baca data dari kolom
-                String tanggal = getCellValue(row.getCell(1));
-
-                // Buat objek PiketDTO
-                PiketDTO piketDTO = new PiketDTO();
-                piketDTO.setTanggal(tanggal);
-
-                // Simpan data ke dalam database
-                createPiket(piketDTO);
-            }
+    public void savePiket(MultipartFile file) {
+        try {
+            List<Piket> piketList = ExcelPiket.excelPiket(file.getInputStream());
+            piketRepo.saveAll(piketList);
         } catch (IOException e) {
-            // Tangani exception jika terjadi kesalahan dalam memproses file
-            throw new RuntimeException("Terjadi kesalahan saat memproses file: " + e.getMessage());
+            throw new RuntimeException("fail to store excel data: " + e.getMessage());
         }
     }
 
-    private String getCellValue(Cell cell) {
-        if (cell != null) {
-            CellType cellType = cell.getCellType();
-            if (cellType == CellType.STRING) {
-                return cell.getStringCellValue();
-            } else if (cellType == CellType.NUMERIC) {
-                return String.valueOf((int) cell.getNumericCellValue());
-            }
-        }
-        return "";
-    }
 }

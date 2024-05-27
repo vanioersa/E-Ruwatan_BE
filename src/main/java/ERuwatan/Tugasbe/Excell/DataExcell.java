@@ -33,7 +33,7 @@ public class DataExcell {
         }
         return true;
     }
-    public static ByteArrayInputStream dataToExcel(List<Piket> dataList) {
+    public static ByteArrayInputStream piketanToExcel(List<Piket> dataList) {
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream();) {
             Sheet sheet = workbook.createSheet(SHEET);
 
@@ -62,23 +62,21 @@ public class DataExcell {
         }
     }
 
-    public static List<Piket> exceltoData(InputStream is) {
+    public static List<Piket> excelPiketan(InputStream is) {
         try {
             Workbook workbook = new XSSFWorkbook(is);
             Sheet sheet = workbook.getSheet(SHEET);
 
             List<Piket> dataList = new ArrayList<>();
 
-            // Mulai dari baris kedua karena baris pertama adalah header
             for (int rowIdx = 1; rowIdx <= sheet.getLastRowNum(); rowIdx++) {
                 Row currentRow = sheet.getRow(rowIdx);
                 if (currentRow == null) {
-                    continue; // Lewati baris jika kosong
+                    continue;
                 }
 
                 Piket data = new Piket();
 
-                // Mulai dari kolom pertama
                 Cell idCell = currentRow.getCell(0);
                 if (idCell != null) {
                     data.setId((long) idCell.getNumericCellValue());
@@ -96,7 +94,6 @@ public class DataExcell {
 
                 Cell kelasCell = currentRow.getCell(3);
                 if (kelasCell != null) {
-                    // Misalnya, Anda memiliki DTO KelasDTO yang menyimpan informasi kelas
                     KelasDTO kelasDTO = new KelasDTO();
                     kelasDTO.setKelas(kelasCell.getStringCellValue());
                     data.setKelasId(kelasDTO);
@@ -104,7 +101,6 @@ public class DataExcell {
 
                 Cell siswaCell = currentRow.getCell(4);
                 if (siswaCell != null) {
-                    // Misalnya, Anda memiliki DTO SiswaDTO yang menyimpan informasi siswa
                     SiswaDTO siswaDTO = new SiswaDTO();
                     siswaDTO.setNama_siswa(siswaCell.getStringCellValue());
                     data.setSiswaId(siswaDTO);
