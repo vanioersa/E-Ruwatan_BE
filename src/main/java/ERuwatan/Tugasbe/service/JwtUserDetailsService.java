@@ -143,4 +143,17 @@ public class JwtUserDetailsService implements UserDetailsService {
 
         return String.format(DOWNLOAD_URL, URLEncoder.encode(fullPath, StandardCharsets.UTF_8));
     }
+
+    public boolean checkPassword(UserModel user, String rawPassword) {
+        return bcryptEncoder.matches(rawPassword, user.getPassword());
+    }
+
+    public void changePassword(UserModel user, String newPassword) {
+        user.setPassword(bcryptEncoder.encode(newPassword));
+        userDao.save(user);
+    }
+
+    public UserModel findByUsername(String username) {
+        return userDao.findByUsername(username);
+    }
 }
