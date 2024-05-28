@@ -98,6 +98,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/siswa/**",
             "/piket/**",
             "/kbm/**",
+            "/ubah-password",
     };
 
     @Override
