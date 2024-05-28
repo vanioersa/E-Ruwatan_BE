@@ -14,6 +14,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.EntityNotFoundException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -108,19 +109,30 @@ public class ExcelPiket {
                             break;
                         case 3:
                             String kelasName = currentCell.getStringCellValue();
-                            KelasDTO kelasDTO = kelasRepo.findByNamaKelas(kelasName);
-                            piket.setKelasId(kelasDTO);
+                            Optional<KelasDTO> optionalKelasDTO = kelasRepo.findByNamaKelas(kelasName);
+                            if (optionalKelasDTO.isPresent()) {
+                                KelasDTO kelasDTO = optionalKelasDTO.get();
+                                piket.setKelasId(kelasDTO);
+                            } else {
+                                throw new EntityNotFoundException("Kelas tidak ditemukan: " + kelasName);
+                            }
                             break;
                         case 4:
                             String siswaName = currentCell.getStringCellValue();
-                            SiswaDTO siswaDTO = siswaRepo.findBySiswa(siswaName);
-                            piket.setSiswaId(siswaDTO);
+                            Optional<SiswaDTO> optionalSiswaDTO = siswaRepo.findBySiswa(siswaName);
+                            if (optionalSiswaDTO.isPresent()) {
+                                SiswaDTO siswaDTO = optionalSiswaDTO.get();
+                                piket.setSiswaId(siswaDTO);
+                            } else {
+                                throw new EntityNotFoundException("Siswa tidak di temukan: " + siswaName);
+                            }
                             break;
                         default:
                             break;
                     }
                     cellIdx++;
                 }
+
                 piketList.add(piket);
             }
             workbook.close();
