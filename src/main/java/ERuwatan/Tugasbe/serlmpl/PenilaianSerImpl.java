@@ -106,21 +106,6 @@ public class PenilaianSerImpl implements PenilaianSer {
 
             PenilaianDTO penilaianDTO = new PenilaianDTO();
 
-            Cell siswaIdCell = currentRow.getCell(0);
-            if (siswaIdCell != null) {
-                try {
-                    if (siswaIdCell.getCellType() == CellType.NUMERIC) {
-                        penilaianDTO.setSiswaId((long) siswaIdCell.getNumericCellValue());
-                    } else if (siswaIdCell.getCellType() == CellType.STRING) {
-                        penilaianDTO.setSiswaId(Long.parseLong(siswaIdCell.getStringCellValue()));
-                    } else {
-                        throw new IllegalStateException("Invalid data type for siswaId");
-                    }
-                } catch (NumberFormatException e) {
-                    throw new IllegalStateException("Invalid data format for siswaId: " + siswaIdCell.getStringCellValue(), e);
-                }
-            }
-
             Cell kelasIdCell = currentRow.getCell(1);
             if (kelasIdCell != null) {
                 try {
