@@ -94,62 +94,76 @@ public class PenilaianSerImpl implements PenilaianSer {
         Sheet sheet = workbook.getSheetAt(0);
         Iterator<Row> rows = sheet.iterator();
 
-        int rowNumber = 0;
+        // Skip header row
+        if (rows.hasNext()) {
+            rows.next();
+        }
+
         while (rows.hasNext()) {
             Row currentRow = rows.next();
-
-            // Skip header
-            if (rowNumber == 0) {
-                rowNumber++;
-                continue;
-            }
-
             PenilaianDTO penilaianDTO = new PenilaianDTO();
 
+            // Kelas ID
             Cell kelasIdCell = currentRow.getCell(1);
             if (kelasIdCell != null) {
-                try {
-                    if (kelasIdCell.getCellType() == CellType.NUMERIC) {
-                        penilaianDTO.setKelasId((long) kelasIdCell.getNumericCellValue());
-                    } else if (kelasIdCell.getCellType() == CellType.STRING) {
-                        String kelasIdString = kelasIdCell.getStringCellValue();
-                        if (StringUtils.isNumeric(kelasIdString)) {
-                            penilaianDTO.setKelasId(Long.parseLong(kelasIdString));
-                        } else {
-                            throw new IllegalStateException("Invalid data format for kelasId: " + kelasIdString);
-                        }
-                    } else {
-                        throw new IllegalStateException("Invalid data type for kelasId");
-                    }
-                } catch (NumberFormatException e) {
-                    throw new IllegalStateException("Invalid data format for kelasId: " + kelasIdCell.toString());
-                }
+                parseKelasIdCell(penilaianDTO, kelasIdCell);
             }
 
+            // Nilai
             Cell nilaiCell = currentRow.getCell(2);
             if (nilaiCell != null) {
-                if (nilaiCell.getCellType() == CellType.NUMERIC) {
-                    penilaianDTO.setNilai(String.valueOf((int) nilaiCell.getNumericCellValue()));
-                } else if (nilaiCell.getCellType() == CellType.STRING) {
-                    penilaianDTO.setNilai(nilaiCell.getStringCellValue());
-                } else {
-                    throw new IllegalStateException("Invalid data type for nilai");
-                }
+                parseNilaiCell(penilaianDTO, nilaiCell);
             }
 
+            // Deskripsi
             Cell deskripsiCell = currentRow.getCell(3);
             if (deskripsiCell != null) {
-                if (deskripsiCell.getCellType() == CellType.STRING) {
-                    penilaianDTO.setDeskripsi(deskripsiCell.getStringCellValue());
-                } else {
-                    throw new IllegalStateException("Invalid data type for deskripsi");
-                }
+                parseDeskripsiCell(penilaianDTO, deskripsiCell);
             }
 
             penilaianList.add(penilaianDTO);
         }
         workbook.close();
         return penilaianList;
+    }
+
+    private void parseKelasIdCell(PenilaianDTO penilaianDTO, Cell kelasIdCell) {
+        switch (kelasIdCell.getCellType()) {
+            case NUMERIC:
+                penilaianDTO.setKelasId((long) kelasIdCell.getNumericCellValue());
+                break;
+            case STRING:
+                String kelasIdString = kelasIdCell.getStringCellValue();
+                if (StringUtils.isNumeric(kelasIdString)) {
+                    penilaianDTO.setKelasId(Long.parseLong(kelasIdString));
+                } else {
+                    throw new IllegalStateException("Invalid data format for kelasId: " + kelasIdString);
+                }
+                break;
+            default:
+                throw new IllegalStateException("Invalid data type for kelasId");
+        }
+    }
+
+    private void parseNilaiCell(PenilaianDTO penilaianDTO, Cell nilaiCell) {
+        switch (nilaiCell.getCellType()) {
+            case NUMERIC:
+                penilaianDTO.setNilai(String.valueOf((int) nilaiCell.getNumericCellValue()));
+                break;
+            case STRING:
+                penilaianDTO.setNilai(nilaiCell.getStringCellValue());
+                break;
+            default:
+                throw new IllegalStateException("Invalid data type for nilai");
+        }
+    }
+
+    private void parseDeskripsiCell(PenilaianDTO penilaianDTO, Cell deskripsiCell) {
+        if (deskripsiCell.getCellType() == CellType.STRING) {
+            penilaianDTO.setDeskripsi(deskripsiCell.getStringCellValue());
+        } else {
+            throw new IllegalStateException("Invalid data type for deskripsi");
+        }
     }
 
     private PenilaianDTO convertToDTO(Penilaian penilaian) {
