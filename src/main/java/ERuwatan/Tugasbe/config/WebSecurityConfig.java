@@ -64,7 +64,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/users/update/{id}",
             "/users/by-id/{id}",
             "/users/hapus/{id}",
-            "/users/upload/image",
 
             // Guru
             "/guru/all",
@@ -100,7 +99,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/piket/**",
             "/kbm/**",
             "/ubah-password",
-            "/upload",
     };
 
     @Override
