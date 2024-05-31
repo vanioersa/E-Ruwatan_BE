@@ -7,6 +7,8 @@ import ERuwatan.Tugasbe.dto.UserDTO;
 import ERuwatan.Tugasbe.model.UserModel;
 import ERuwatan.Tugasbe.repository.UserRepository;
 import ERuwatan.Tugasbe.service.JwtUserDetailsService;
+import com.google.api.client.util.Value;
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,12 +16,20 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -30,6 +40,9 @@ public class JwtAuthenticationController {
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
+
+    @Value("${upload.path}")
+    private String uploadPath;
 
     @Autowired
     private JwtUserDetailsService userDetailsService;
@@ -131,6 +144,29 @@ public class JwtAuthenticationController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Collections.singletonMap("error", "Failed to delete user: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/upload/image/{id}")
+    public ResponseEntity<?> uploadImage (@PathVariable Long id ,@ RequestPart("image") MultipartFile image ){
+        try {
+            UserModel updatedUser = userDetailsService.uploadImage(id,image );
+            return ResponseEntity.ok(updatedUser);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    @PutMapping("/upload/image/{id}")
+    public ResponseEntity<?> updateImage (@PathVariable Long id ,@ RequestPart("image") MultipartFile image ){
+        try {
+            UserModel updatedUser = userDetailsService.uploadImage(id,image );
+            return ResponseEntity.ok(updatedUser);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
