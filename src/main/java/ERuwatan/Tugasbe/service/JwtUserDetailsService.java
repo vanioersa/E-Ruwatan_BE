@@ -5,10 +5,8 @@ import ERuwatan.Tugasbe.model.UserModel;
 import ERuwatan.Tugasbe.repository.UserRepository;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.storage.BlobId;
-import com.google.cloud.storage.BlobInfo;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
+import com.google.cloud.storage.*;
+import javassist.NotFoundException;
 import org.apache.xpath.operations.Mult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,6 +24,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class JwtUserDetailsService implements UserDetailsService {
@@ -130,17 +129,25 @@ public class JwtUserDetailsService implements UserDetailsService {
         }
     }
 
-    public String uploadFoto(MultipartFile multipartFile, String fileName) throws IOException {
+    public UserModel uploadImage(Long id , MultipartFile image ) throws NotFoundException, IOException {
+        UserModel userModelOptional = userDao.findById(id)
+                .orElseThrow(()  -> new ERuwatan.Tugasbe.exception.NotFoundException("Id tidak ditemukan"));
+
+        String fileUrl = uploadFoto(image , "fotoUser_" + id);
+        userModelOptional.setImage(fileUrl);
+
+        return userDao.save(userModelOptional);
+    }
+
+    private String uploadFoto(MultipartFile multipartFile, String fileName) throws IOException {
         String timestamp = String.valueOf(System.currentTimeMillis());
         String folderPath = "user/";
         String fullPath = folderPath + timestamp + "_" + fileName;
         BlobId blobId = BlobId.of("e-ruwatan-c9706.appspot.com", fullPath);
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("media").build();
-        GoogleCredentials credentials = GoogleCredentials.fromStream(
-                new ByteArrayInputStream(System.getenv("FIREBASE_CREDENTIALS").getBytes(StandardCharsets.UTF_8)));
+        Credentials credentials = GoogleCredentials.fromStream(new FileInputStream("./src/main/resources/FirebaseConfig.json"));
         Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
         storage.create(blobInfo, multipartFile.getBytes());
-
         return String.format(DOWNLOAD_URL, URLEncoder.encode(fullPath, StandardCharsets.UTF_8));
     }
 
