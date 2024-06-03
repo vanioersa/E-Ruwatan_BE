@@ -10,5 +10,4 @@ public class TugasBeApplication {
 		SpringApplication.run(TugasBeApplication.class, args);
 		System.out.println("Sistem E-Ruwatan Berhasil dijalankan!!");
 	}
-
 }
