@@ -148,7 +148,7 @@ public class JwtAuthenticationController {
     }
 
     @PostMapping("/upload/image/{id}")
-    public ResponseEntity<?> uploadImage (@PathVariable Long id ,@ RequestPart("image") MultipartFile image ){
+    public ResponseEntity<?> uploadImage (@PathVariable Long id ,@RequestPart("image") MultipartFile image ){
         try {
             UserModel updatedUser = userDetailsService.uploadImage(id,image );
             return ResponseEntity.ok(updatedUser);
@@ -158,8 +158,31 @@ public class JwtAuthenticationController {
             throw new RuntimeException(e);
         }
     }
-    @PutMapping("/upload/image/{id}")
-    public ResponseEntity<?> updateImage (@PathVariable Long id ,@ RequestPart("image") MultipartFile image ){
+    @PutMapping("/edit/image/{id}")
+    public ResponseEntity<?> updateImage (@PathVariable Long id ,@RequestPart("image") MultipartFile image ){
+        try {
+            UserModel updatedUser = userDetailsService.uploadImage(id,image );
+            return ResponseEntity.ok(updatedUser);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @PostMapping("/upload/image_admin/{id}")
+    public ResponseEntity<?> uploadImageAdmin (@PathVariable Long id ,@RequestPart("imageAdmin") MultipartFile image ){
+        try {
+            UserModel updatedUser = userDetailsService.uploadImage(id,image );
+            return ResponseEntity.ok(updatedUser);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    @PutMapping("/edit/image_admin/{id}")
+    public ResponseEntity<?> updateImageAdmin (@PathVariable Long id ,@RequestPart("imageAdmin") MultipartFile image ){
         try {
             UserModel updatedUser = userDetailsService.uploadImage(id,image );
             return ResponseEntity.ok(updatedUser);
