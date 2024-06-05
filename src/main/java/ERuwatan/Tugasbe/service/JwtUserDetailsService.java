@@ -133,7 +133,16 @@ public class JwtUserDetailsService implements UserDetailsService {
         UserModel userModelOptional = userDao.findById(id)
                 .orElseThrow(()  -> new ERuwatan.Tugasbe.exception.NotFoundException("Id tidak ditemukan"));
 
-        String fileUrl = uploadFoto(image , "fotoUser_" + id);
+        String fileUrl = uploadFoto(image , "fotoRoleGuru_" + id);
+        userModelOptional.setImage(fileUrl);
+
+        return userDao.save(userModelOptional);
+    }
+    public UserModel uploadImageAdmin(Long id , MultipartFile image ) throws NotFoundException, IOException {
+        UserModel userModelOptional = userDao.findById(id)
+                .orElseThrow(()  -> new ERuwatan.Tugasbe.exception.NotFoundException("Id tidak ditemukan"));
+
+        String fileUrl = uploadFoto(image , "fotoRoleAdmin_" + id);
         userModelOptional.setImage(fileUrl);
 
         return userDao.save(userModelOptional);
@@ -142,6 +151,18 @@ public class JwtUserDetailsService implements UserDetailsService {
     private String uploadFoto(MultipartFile multipartFile, String fileName) throws IOException {
         String timestamp = String.valueOf(System.currentTimeMillis());
         String folderPath = "user/";
+        String fullPath = folderPath + timestamp + "_" + fileName;
+        BlobId blobId = BlobId.of("e-ruwatan-c9706.appspot.com", fullPath);
+        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("media").build();
+        Credentials credentials = GoogleCredentials.fromStream(new FileInputStream("./src/main/resources/FirebaseConfig.json"));
+        Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
+        storage.create(blobInfo, multipartFile.getBytes());
+        return String.format(DOWNLOAD_URL, URLEncoder.encode(fullPath, StandardCharsets.UTF_8));
+    }
+
+    private String uploadFotoAdmin(MultipartFile multipartFile, String fileName) throws IOException {
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String folderPath = "admin/";
         String fullPath = folderPath + timestamp + "_" + fileName;
         BlobId blobId = BlobId.of("e-ruwatan-c9706.appspot.com", fullPath);
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("media").build();

@@ -173,7 +173,7 @@ public class JwtAuthenticationController {
     @PostMapping("/upload/image_admin/{id}")
     public ResponseEntity<?> uploadImageAdmin (@PathVariable Long id ,@RequestPart("imageAdmin") MultipartFile image ){
         try {
-            UserModel updatedUser = userDetailsService.uploadImage(id,image );
+            UserModel updatedUser = userDetailsService.uploadImageAdmin(id,image );
             return ResponseEntity.ok(updatedUser);
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -184,7 +184,7 @@ public class JwtAuthenticationController {
     @PutMapping("/edit/image_admin/{id}")
     public ResponseEntity<?> updateImageAdmin (@PathVariable Long id ,@RequestPart("imageAdmin") MultipartFile image ){
         try {
-            UserModel updatedUser = userDetailsService.uploadImage(id,image );
+            UserModel updatedUser = userDetailsService.uploadImageAdmin(id,image );
             return ResponseEntity.ok(updatedUser);
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
