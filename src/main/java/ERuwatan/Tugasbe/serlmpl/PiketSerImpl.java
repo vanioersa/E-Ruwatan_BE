@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -93,9 +94,12 @@ public class PiketSerImpl implements PiketSer {
         return null;
     }
 
-    @Override
     public void deletePiket(Long id) {
-        piketRepo.deleteById(id);
+        if (piketRepo.existsById(id)) {
+            piketRepo.deleteById(id);
+        } else {
+            throw new EntityNotFoundException("Piket dengan ID " + id + " tidak ditemukan");
+        }
     }
 
     @Override

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.service.ResponseMessage;
 
+import javax.persistence.EntityNotFoundException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -40,8 +41,15 @@ public class PiketCont {
     }
 
     @DeleteMapping("/hapus/{id}")
-    public void deletePiket(@PathVariable Long id) {
-        piketSer.deletePiket(id);
+    public ResponseEntity<?> deletePiket(@PathVariable Long id) {
+        try {
+            piketSer.deletePiket(id);
+            return ResponseEntity.ok().build();
+        } catch (EntityNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Piket dengan ID " + id + " tidak ditemukan");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Gagal menghapus data: " + e.getMessage());
+        }
     }
 
 //    @PostMapping(path = "/upload/importPiket")
