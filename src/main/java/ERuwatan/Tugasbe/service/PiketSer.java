@@ -1,6 +1,7 @@
 package ERuwatan.Tugasbe.service;
 
 import ERuwatan.Tugasbe.dto.PiketDTO;
+import ERuwatan.Tugasbe.model.Piket;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;

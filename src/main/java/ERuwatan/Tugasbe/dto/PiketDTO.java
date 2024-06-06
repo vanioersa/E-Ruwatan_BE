@@ -4,6 +4,8 @@ import java.util.List;
 
 public class PiketDTO {
     private Long kelasId;
+
+    private Long idPiket;
     private String tanggal;
     private List<String> status;
     private List<Long> siswaId;
@@ -27,6 +29,14 @@ public class PiketDTO {
 
     public List<String> getStatus() {
         return status;
+    }
+
+    public Long getIdPiket() {
+        return idPiket;
+    }
+
+    public void setIdPiket(Long idPiket) {
+        this.idPiket = idPiket;
     }
 
     public void setStatus(List<String> status) {
