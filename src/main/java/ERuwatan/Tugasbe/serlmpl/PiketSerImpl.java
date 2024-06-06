@@ -3,13 +3,16 @@ package ERuwatan.Tugasbe.serlmpl;
 import ERuwatan.Tugasbe.Excell.ExcelPiket;
 import ERuwatan.Tugasbe.dto.DpiketDTO;
 import ERuwatan.Tugasbe.dto.PiketDTO;
+import ERuwatan.Tugasbe.model.Guru;
 import ERuwatan.Tugasbe.model.Piket;
 import ERuwatan.Tugasbe.model.Kelas;
 import ERuwatan.Tugasbe.model.Siswa;
+import ERuwatan.Tugasbe.repository.GuruRepo;
 import ERuwatan.Tugasbe.repository.PiketRepo;
 import ERuwatan.Tugasbe.repository.KelasRepo;
 import ERuwatan.Tugasbe.repository.SiswaRepo;
 import ERuwatan.Tugasbe.service.PiketSer;
+import javassist.NotFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +34,9 @@ public class PiketSerImpl implements PiketSer {
 
     @Autowired
     private SiswaRepo siswaRepo;
+
+    @Autowired
+    private GuruRepo guruRepo;
 
     @Override
     public PiketDTO createPiket(PiketDTO piketDTO) {
@@ -62,6 +68,15 @@ public class PiketSerImpl implements PiketSer {
 
         return convertToDTO(piketRepo.save(piket));
     }
+
+//    @Override
+//    public  Piket tambahPiketanByguru(Long id , Piket piket) throws NotFoundException {
+//        Optional<Guru> guruOptional = guruRepo.findById(id);
+//        if (guruOptional.isEmpty()) {
+//            throw new NotFoundException("id Guru tidak ditemukan : " + id);
+//        }
+//        piket.set
+//    }
 
     @Override
     public PiketDTO getPiketById(Long id) {
@@ -110,6 +125,7 @@ public class PiketSerImpl implements PiketSer {
     private PiketDTO convertToDTO(Piket piket) {
         PiketDTO piketDTO = new PiketDTO();
         BeanUtils.copyProperties(piket, piketDTO);
+        piketDTO.setIdPiket(piket.getId());
         piketDTO.setKelasId(piket.getKelas() != null ? piket.getKelas().getId() : null);
         piketDTO.setSiswaId(Collections.singletonList(piket.getSiswa() != null ? piket.getSiswa().getId() : null));
         return piketDTO;

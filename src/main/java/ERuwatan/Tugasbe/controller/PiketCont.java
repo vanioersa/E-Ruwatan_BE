@@ -2,6 +2,7 @@ package ERuwatan.Tugasbe.controller;
 
 import ERuwatan.Tugasbe.Excell.ExcelPiket;
 import ERuwatan.Tugasbe.dto.PiketDTO;
+import ERuwatan.Tugasbe.model.Piket;
 import ERuwatan.Tugasbe.service.PiketSer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
