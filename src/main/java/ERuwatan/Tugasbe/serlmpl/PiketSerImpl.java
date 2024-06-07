@@ -1,9 +1,7 @@
 package ERuwatan.Tugasbe.serlmpl;
 
 import ERuwatan.Tugasbe.Excell.ExcelPiket;
-import ERuwatan.Tugasbe.dto.DpiketDTO;
 import ERuwatan.Tugasbe.dto.PiketDTO;
-import ERuwatan.Tugasbe.model.Guru;
 import ERuwatan.Tugasbe.model.Piket;
 import ERuwatan.Tugasbe.model.Kelas;
 import ERuwatan.Tugasbe.model.Siswa;
@@ -12,7 +10,6 @@ import ERuwatan.Tugasbe.repository.PiketRepo;
 import ERuwatan.Tugasbe.repository.KelasRepo;
 import ERuwatan.Tugasbe.repository.SiswaRepo;
 import ERuwatan.Tugasbe.service.PiketSer;
-import javassist.NotFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,9 +43,9 @@ public class PiketSerImpl implements PiketSer {
         Optional<Kelas> kelasOptional = kelasRepo.findById(piketDTO.getKelasId());
         kelasOptional.ifPresent(piket::setKelas);
 
-        List<String> status = piketDTO.getStatus();
-        if (status != null && !status.isEmpty()) {
-            piket.setStatus(String.valueOf(status.get(0)));
+        List<String> statusList = piketDTO.getStatus();
+        if (statusList != null && !statusList.isEmpty()) {
+            piket.setStatus(String.join(",", statusList)); // Menggabungkan semua status menjadi satu string
         }
 
         List<Long> siswaIdList = piketDTO.getSiswaId();
@@ -58,20 +55,11 @@ public class PiketSerImpl implements PiketSer {
                 Optional<Siswa> siswaOptional = siswaRepo.findById(id);
                 siswaOptional.ifPresent(siswaList::add);
             }
-            piket.setSiswa((Siswa) siswaList);
+            piket.setSiswaList(siswaList);
         }
 
         return convertToDTO(piketRepo.save(piket));
     }
-
-//    @Override
-//    public  Piket tambahPiketanByguru(Long id , Piket piket) throws NotFoundException {
-//        Optional<Guru> guruOptional = guruRepo.findById(id);
-//        if (guruOptional.isEmpty()) {
-//            throw new NotFoundException("id Guru tidak ditemukan : " + id);
-//        }
-//        piket.set
-//    }
 
     @Override
     public PiketDTO getPiketById(Long id) {
@@ -90,21 +78,25 @@ public class PiketSerImpl implements PiketSer {
         if (optionalPiket.isPresent()) {
             Piket piket = optionalPiket.get();
             BeanUtils.copyProperties(piketDTO, piket);
+
             Optional<Kelas> kelasOptional = kelasRepo.findById(piketDTO.getKelasId());
             kelasOptional.ifPresent(piket::setKelas);
 
-            PiketDTO dpiketDTO = (PiketDTO) piketDTO.getDpiketDTOList();
-            List<Long> siswaId = piketDTO.getSiswaId();
-            Optional<Siswa> siswaOptional = siswaRepo.findById(siswaId.get(0)); // Ubah sesuai kebutuhan
-            siswaOptional.ifPresent(piket::setSiswa);
+            List<Long> siswaIdList = piketDTO.getSiswaId();
+            if (siswaIdList != null && !siswaIdList.isEmpty()) {
+                List<Siswa> siswaList = new ArrayList<>();
+                for (Long siswaId : siswaIdList) {
+                    Optional<Siswa> siswaOptional = siswaRepo.findById(siswaId);
+                    siswaOptional.ifPresent(siswaList::add);
+                }
+                piket.setSiswaList(siswaList);
+            }
 
             piket.setId(id);
             return convertToDTO(piketRepo.save(piket));
         }
         return null;
     }
-
-//    coba
 
     public void deletePiket(Long id) {
         if (piketRepo.existsById(id)) {
@@ -116,7 +108,7 @@ public class PiketSerImpl implements PiketSer {
 
     @Override
     public void importPiketan(MultipartFile file) {
-
+        // Implementation for importing Piketan
     }
 
     private PiketDTO convertToDTO(Piket piket) {
@@ -136,5 +128,4 @@ public class PiketSerImpl implements PiketSer {
             throw new RuntimeException("fail to store excel data: " + e.getMessage());
         }
     }
-
 }

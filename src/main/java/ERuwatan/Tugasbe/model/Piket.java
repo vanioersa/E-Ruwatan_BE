@@ -5,6 +5,8 @@ import ERuwatan.Tugasbe.dto.KelasDTO;
 import ERuwatan.Tugasbe.dto.SiswaDTO;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -26,6 +28,9 @@ public class Piket {
     private String tanggal;
 
     private String status;
+
+    @ManyToMany
+    private List<Siswa> siswaList = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -82,5 +87,12 @@ public class Piket {
     }
 
     public void setDpiketDTOList(List<DpiketDTO> dpiketDTOS) {
+    }
+
+    public void setSiswaList(List<Siswa> siswaList) {
+    }
+
+    public Collection<Object> getSiswaList() {
+        return getSiswaList();
     }
 }
