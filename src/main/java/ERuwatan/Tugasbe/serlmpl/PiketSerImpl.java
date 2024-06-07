@@ -48,22 +48,17 @@ public class PiketSerImpl implements PiketSer {
 
         List<String> status = piketDTO.getStatus();
         if (status != null && !status.isEmpty()) {
-            piket.setStatus(status.get(0));
+            piket.setStatus(String.valueOf(status.get(0)));
         }
 
-        List<DpiketDTO> dpiketDTOList = piketDTO.getDpiketDTOList();
-        if (dpiketDTOList != null && !dpiketDTOList.isEmpty()) {
-            DpiketDTO dpiketDTO = dpiketDTOList.get(0);
-            List<Long> siswaId = piketDTO.getSiswaId();
-            if (siswaId != null && !siswaId.isEmpty()) {
-                List<Siswa> siswaList = new ArrayList<>();
-                for (Long id : siswaId) {
-                    Optional<Siswa> siswaOptional = siswaRepo.findById(id);
-                    siswaOptional.ifPresent(siswaList::add);
-                }
-                dpiketDTO.setSiswaList(siswaList);
+        List<Long> siswaIdList = piketDTO.getSiswaId();
+        if (siswaIdList != null && !siswaIdList.isEmpty()) {
+            List<Siswa> siswaList = new ArrayList<>();
+            for (Long id : siswaIdList) {
+                Optional<Siswa> siswaOptional = siswaRepo.findById(id);
+                siswaOptional.ifPresent(siswaList::add);
             }
-            piket.setDpiketDTOList(Collections.singletonList(dpiketDTO));
+            piket.setSiswa((Siswa) siswaList);
         }
 
         return convertToDTO(piketRepo.save(piket));
@@ -108,6 +103,8 @@ public class PiketSerImpl implements PiketSer {
         }
         return null;
     }
+
+//    coba
 
     public void deletePiket(Long id) {
         if (piketRepo.existsById(id)) {
