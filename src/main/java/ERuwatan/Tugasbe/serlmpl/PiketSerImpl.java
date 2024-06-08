@@ -72,13 +72,33 @@ public class PiketSerImpl implements PiketSer {
         return piketRepo.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
+//    @Override
+//    public PiketDTO updatePiket(Long id, PiketDTO piketDTO) {
+//        Optional<Piket> optionalPiket = piketRepo.findById(id);
+//        if (optionalPiket.isPresent()) {
+//            Piket piket = optionalPiket.get();
+//            BeanUtils.copyProperties(piketDTO, piket);
+//            Optional<Kelas> kelasOptional = kelasRepo.findById(piketDTO.getKelasId());
+//            kelasOptional.ifPresent(piket::setKelas);
+//
+//            PiketDTO dpiketDTO = (PiketDTO) piketDTO.getDpiketDTOList();
+//            List<Long> siswaId = piketDTO.getSiswaId();
+//            Optional<Siswa> siswaOptional = siswaRepo.findById(siswaId.get(0)); // Ubah sesuai kebutuhan
+//            siswaOptional.ifPresent(piket::setSiswa);
+//
+//            piket.setId(id);
+//            return convertToDTO(piketRepo.save(piket));
+//        }
+//        return null;
+//    }
+
     @Override
     public PiketDTO updatePiket(Long id, PiketDTO piketDTO) {
         Optional<Piket> optionalPiket = piketRepo.findById(id);
         if (optionalPiket.isPresent()) {
             Piket piket = optionalPiket.get();
             BeanUtils.copyProperties(piketDTO, piket);
-
+          
             Optional<Kelas> kelasOptional = kelasRepo.findById(piketDTO.getKelasId());
             kelasOptional.ifPresent(piket::setKelas);
 
@@ -92,6 +112,17 @@ public class PiketSerImpl implements PiketSer {
                 piket.setSiswaList(siswaList);
             }
 
+            List<Long> siswaIds = piketDTO.getSiswaId();
+            if (siswaIds != null && !siswaIds.isEmpty()) {
+                Optional<Siswa> siswaOptional = siswaRepo.findById(siswaIds.get(0));
+                if (siswaOptional.isPresent()) {
+                    piket.setSiswa(siswaOptional.get());
+                } else {
+                    throw new IllegalArgumentException("Invalid Siswa ID");
+                }
+            } else {
+                throw new IllegalArgumentException("No Siswa IDs provided");
+            }
             piket.setId(id);
             return convertToDTO(piketRepo.save(piket));
         }
