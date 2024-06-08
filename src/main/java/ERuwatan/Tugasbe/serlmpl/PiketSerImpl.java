@@ -45,20 +45,25 @@ public class PiketSerImpl implements PiketSer {
 
         List<String> statusList = piketDTO.getStatus();
         if (statusList != null && !statusList.isEmpty()) {
-            piket.setStatus(String.join(",", statusList)); // Menggabungkan semua status menjadi satu string
+            piket.setStatus(String.join(",", statusList)); // Merge all status into a single string
         }
 
         List<Long> siswaIdList = piketDTO.getSiswaId();
         if (siswaIdList != null && !siswaIdList.isEmpty()) {
-            List<Siswa> siswaList = new ArrayList<>();
-            for (Long id : siswaIdList) {
-                Optional<Siswa> siswaOptional = siswaRepo.findById(id);
-                siswaOptional.ifPresent(siswaList::add);
-            }
+            List<Siswa> siswaList = siswaIdList.stream()
+                    .map(siswaId -> {
+                        Optional<Siswa> siswaOptional = siswaRepo.findById(siswaId);
+                        return siswaOptional.orElse(null);
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
             piket.setSiswaList(siswaList);
         }
 
-        return convertToDTO(piketRepo.save(piket));
+        Piket savedPiket = piketRepo.save(piket); // Save the Piket object to the database
+
+        return convertToDTO(savedPiket);
     }
 
     @Override
