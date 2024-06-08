@@ -97,8 +97,8 @@ public class PiketSerImpl implements PiketSer {
         Optional<Piket> optionalPiket = piketRepo.findById(id);
         if (optionalPiket.isPresent()) {
             Piket piket = optionalPiket.get();
-            BeanUtils.copyProperties(piketDTO, piket);
-          
+            BeanUtils.copyProperties(piketDTO, piket, "siswaId", "status");
+
             Optional<Kelas> kelasOptional = kelasRepo.findById(piketDTO.getKelasId());
             kelasOptional.ifPresent(piket::setKelas);
 
@@ -110,18 +110,15 @@ public class PiketSerImpl implements PiketSer {
                     siswaOptional.ifPresent(siswaList::add);
                 }
                 piket.setSiswaList(siswaList);
-            }
-
-            List<Long> siswaIds = piketDTO.getSiswaId();
-            if (siswaIds != null && !siswaIds.isEmpty()) {
-                Optional<Siswa> siswaOptional = siswaRepo.findById(siswaIds.get(0));
-                if (siswaOptional.isPresent()) {
-                    piket.setSiswa(siswaOptional.get());
-                } else {
-                    throw new IllegalArgumentException("Invalid Siswa ID");
-                }
             } else {
                 throw new IllegalArgumentException("No Siswa IDs provided");
+            }
+
+            List<String> statusList = piketDTO.getStatus();
+            if (statusList != null && !statusList.isEmpty()) {
+                piket.setStatus(piket.getStatus());
+            } else {
+                throw new IllegalArgumentException("No Status provided");
             }
             piket.setId(id);
             return convertToDTO(piketRepo.save(piket));
