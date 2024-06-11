@@ -1,13 +1,16 @@
 package ERuwatan.Tugasbe.repository;
 
 import ERuwatan.Tugasbe.model.Piket;
+import ERuwatan.Tugasbe.model.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface PiketRepo extends JpaRepository<Piket, Long>{
     @Query(value = "SELECT * FROM piket WHERE kelas_id = :kelas_id" , nativeQuery = true)
     Optional<Piket>findBykelas(Long kelas_id);
 
+    List<Piket> findByStatusId(Long statusId);
 }
