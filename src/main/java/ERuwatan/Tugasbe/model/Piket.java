@@ -1,13 +1,10 @@
 package ERuwatan.Tugasbe.model;
 
-import ERuwatan.Tugasbe.dto.DpiketDTO;
 import ERuwatan.Tugasbe.dto.KelasDTO;
 import ERuwatan.Tugasbe.dto.SiswaDTO;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -21,16 +18,11 @@ public class Piket {
     @JoinColumn(name = "kelas_id")
     private Kelas kelas;
 
-    @ManyToOne
-    @JoinColumn(name = "siswa_id")
-    private Siswa siswa;
+    @OneToOne
+    @JoinColumn(name = "status_id")
+    private Status siswas;
 
     private String tanggal;
-
-    private String status;
-
-    @ManyToMany
-    private List<Siswa> siswaList = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -40,28 +32,12 @@ public class Piket {
         this.id = id;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
     public Kelas getKelas() {
         return kelas;
     }
 
     public void setKelas(Kelas kelas) {
         this.kelas = kelas;
-    }
-
-    public Siswa getSiswa() {
-        return siswa;
-    }
-
-    public void setSiswa(Siswa siswa) {
-        this.siswa = siswa;
     }
 
     public String  getTanggal() {
@@ -86,13 +62,22 @@ public class Piket {
     public void setKelasId(KelasDTO kelasDTO) {
     }
 
-    public void setDpiketDTOList(List<DpiketDTO> dpiketDTOS) {
+    public Status getSiswas() {
+        return siswas;
     }
 
-    public void setSiswaList(List<Siswa> siswaList) {
+    public void setSiswas(Status siswas) {
+        this.siswas = siswas;
     }
 
-    public Collection<Object> getSiswaList() {
-        return getSiswaList();
+    public double getStatus() {
+        return getStatus();
+    }
+
+    public SiswaDTO[] getSiswaDTOList() {
+        return getSiswaDTOList();
+    }
+
+    public void setStatus(String stringCellValue) {
     }
 }

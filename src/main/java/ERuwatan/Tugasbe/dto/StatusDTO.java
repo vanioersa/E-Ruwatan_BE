@@ -1,9 +1,9 @@
 package ERuwatan.Tugasbe.dto;
 
-import java.util.List;
-
-public class DpiketDTO {
+public class StatusDTO {
     private Long id;
+    private String Status;
+    private Long SiswaId;
 
     public Long getId() {
         return id;
@@ -12,4 +12,5 @@ public class DpiketDTO {
     public void setId(Long id) {
         this.id = id;
     }
+
 }
