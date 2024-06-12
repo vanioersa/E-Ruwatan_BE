@@ -31,10 +31,10 @@ public class PiketCont {
         return piketSer.getPiketById(id);
     }
 
-    @GetMapping("/all")
-    public List<PiketDTO> getAllPikets() {
-        return piketSer.getAllPikets();
-    }
+//    @GetMapping("/all")
+//    public List<PiketDTO> getAllPikets() {
+//        return piketSer.getAllPikets();
+//    }
 
     @PutMapping("/ubah/{id}")
     public PiketDTO updatePiket(@PathVariable Long id, @RequestBody PiketDTO piketDTO) {

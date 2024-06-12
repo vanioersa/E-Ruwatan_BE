@@ -44,12 +44,22 @@ public class PiketSerImpl implements PiketSer {
         Optional<Kelas> kelasOptional = kelasRepo.findById(piketDTO.getKelasId());
         kelasOptional.ifPresent(piket::setKelas);
 
-        Optional<Siswa> siswaOptional = siswaRepo.findById(piketDTO.getId());
-        siswaOptional.ifPresent(piket::setSiswa);
+        List<String> statusList = (List<String>) piketDTO.getStatus();
+        if (statusList != null && !statusList.isEmpty()) {
+            String statusString = String.join(",", statusList);
+            piket.setStatus(statusString);
 
-        piket.setTanggal(piketDTO.getTanggal());
+            List<Siswa> siswaList = new ArrayList<>();
+            for (String siswaId : statusList) {
+                Optional<Siswa> siswaOptional = siswaRepo.findById(Long.parseLong(siswaId));
+                siswaOptional.ifPresent(siswaList::add);
+            }
+
+            piket.setSiswa((Siswa) siswaList);
+        }
 
         Piket savedPiket = piketRepo.save(piket);
+
         return convertToDTO(savedPiket);
     }
 
@@ -61,7 +71,7 @@ public class PiketSerImpl implements PiketSer {
 
 //    @Override
 //    public List<PiketDTO> getAllPikets() {
-//        List<Status> pikets = (List<Status>) statusrepo.getSiswa();
+//        List<String> pikets = (List<String>) statusrepo.getSiswa();
 //        return piketRepo.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
 //    }
 
