@@ -16,16 +16,17 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ExcelPiket {
     public static String TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-    static String[] HEADERs = {"tanggal", "status", "kelas", "siswa"};
+    static String[] HEADERsPiketan = {"NO","Tanggal", "Status", "Kelas", "Siswa"};
     static String SHEET = "Sheet1";
+
+    public static boolean hasExcelFormat(MultipartFile file) {
+        return TYPE.equals(file.getContentType());
+    }
 
     private static KelasRepo kelasRepo;
     private static SiswaRepo siswaRepo;
@@ -36,26 +37,22 @@ public class ExcelPiket {
         ExcelPiket.siswaRepo = siswaRepo;
     }
 
-    public static boolean hasExcelFormat(MultipartFile file) {
-        return TYPE.equals(file.getContentType());
-    }
-
     public static ByteArrayInputStream piketToExcel(List<Piket> piketList) throws IOException {
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet(SHEET);
             Row headerRow = sheet.createRow(0);
 
-            for (int col = 0; col < HEADERs.length; col++) {
+            for (int col = 0; col < HEADERsPiketan.length; col++) {
                 Cell cell = headerRow.createCell(col);
-                cell.setCellValue(HEADERs[col]);
+                cell.setCellValue(HEADERsPiketan[col]);
             }
 
             int rowIdx = 1;
             for (Piket piket : piketList) {
                 Row row = sheet.createRow(rowIdx++);
                 row.createCell(0).setCellValue(piket.getTanggal());
-                row.createCell(1).setCellValue(piket.getStatus());
-                row.createCell(2).setCellValue(piket.getKelasId().getNama_kelas());
+                row.createCell(2).setCellValue(piket.getStatus());
+                row.createCell(1).setCellValue(piket.getKelasId().getNama_kelas());
                 row.createCell(3).setCellValue(piket.getSiswaId().getNama_siswa());
             }
 
@@ -90,11 +87,10 @@ public class ExcelPiket {
                     Cell currentCell = cellsInRow.next();
 
                     switch (cellIdx) {
-                        case 0:
-                            piket.setTanggal(currentCell.getStringCellValue());
-                            break;
+
                         case 1:
                             piket.setStatus(currentCell.getStringCellValue());
+                            piket.setTanggal(String.valueOf(new Date()));
                             break;
                         case 2:
                             String kelasName = currentCell.getStringCellValue();

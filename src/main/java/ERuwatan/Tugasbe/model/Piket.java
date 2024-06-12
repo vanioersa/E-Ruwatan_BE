@@ -18,6 +18,8 @@ public class Piket {
     @JoinColumn(name = "kelas_id")
     private Kelas kelas;
 
+    private String status;
+
     @OneToOne
     @JoinColumn(name = "siswa_id")
     private Siswa siswa;
@@ -70,14 +72,16 @@ public class Piket {
     public void setKelasId(KelasDTO kelasDTO) {
     }
 
-    public double getStatus() {
-        return getStatus();
-    }
 
     public SiswaDTO[] getSiswaDTOList() {
         return getSiswaDTOList();
     }
 
-    public void setStatus(String stringCellValue) {
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

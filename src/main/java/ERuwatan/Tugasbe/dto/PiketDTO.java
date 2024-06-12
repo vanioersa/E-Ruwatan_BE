@@ -5,6 +5,8 @@ import java.util.List;
 public class PiketDTO {
     private Long id;
     private Long kelasId;
+
+    private Long siswaId;
     private String tanggal;
     private List<String> status; // Change from String to List<String>
 
@@ -42,6 +44,11 @@ public class PiketDTO {
 
     public void setIdPiket(Long id) {
     }
+
+    public Long getSiswaId() {
+        return siswaId;
+    }
+
 
     public void setSiswaId(List<Long> siswaIdList) {
     }

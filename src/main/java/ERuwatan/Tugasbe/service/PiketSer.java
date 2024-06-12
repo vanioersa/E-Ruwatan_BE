@@ -12,5 +12,5 @@ public interface PiketSer {
 //    List<PiketDTO> getAllPikets();
     PiketDTO updatePiket(Long id, PiketDTO piketDTO);
     void deletePiket(Long id);
-    void importPiketan(MultipartFile file);
+//    void importPiketan(MultipartFile file);
 }
