@@ -1,17 +1,23 @@
 package ERuwatan.Tugasbe.controller;
 
 import ERuwatan.Tugasbe.Excell.ExcelPiket;
+import ERuwatan.Tugasbe.Excell.ExcelPiketSer;
 import ERuwatan.Tugasbe.dto.PiketDTO;
 import ERuwatan.Tugasbe.model.Piket;
 import ERuwatan.Tugasbe.response.ResponseMessage;
 import ERuwatan.Tugasbe.service.PiketSer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -20,6 +26,9 @@ import java.util.List;
 public class PiketCont {
     @Autowired
     private PiketSer piketSer;
+
+    @Autowired
+    private ExcelPiketSer excelPiketSer;
 
     @PostMapping("/add")
     public PiketDTO createPiket(@RequestBody PiketDTO piketDTO) {
@@ -70,6 +79,13 @@ public class PiketCont {
         }
         message = "Please upload an excel file!";
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
+    }
+
+    @GetMapping("/upload/export-piket")
+    public void exportPiket(@RequestParam("tanggal") String tanggal,
+                            @RequestParam("kelas_id") Long kelas_id,
+                            HttpServletResponse response) throws IOException {
+        excelPiketSer.excelExportPiket(tanggal, kelas_id, response);
     }
 
 }
