@@ -4,11 +4,14 @@ import ERuwatan.Tugasbe.dto.KelasDTO;
 import ERuwatan.Tugasbe.dto.SiswaDTO;
 import ERuwatan.Tugasbe.model.Piket;
 import ERuwatan.Tugasbe.model.Siswa;
+import ERuwatan.Tugasbe.repository.SiswaRepo;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
@@ -16,25 +19,26 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+@Service
 public class DataExcell {
 
+    @Autowired
+    private SiswaRepo siswaRepo;
+
     public static String TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-
     static String[] HEADER_DATA = { "No" ,"tanggal", "status", "kelas", "siswa"};
-
     static String SHEET = "Sheet1";
 
     public static boolean hasExcelFormat(MultipartFile file) {
-        if (!TYPE.equals(file.getContentType())) {
-            return false;
-        }
-        return true;
+        return TYPE.equals(file.getContentType());
     }
+
     public static ByteArrayInputStream piketanToExcel(List<Piket> dataList) {
-        try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream();) {
+        try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet(SHEET);
 
             Row headerRow = sheet.createRow(0);
@@ -62,7 +66,7 @@ public class DataExcell {
         }
     }
 
-    public static List<Piket> excelPiketan(InputStream is) {
+    public List<Piket> excelPiketan(InputStream is) {
         try {
             Workbook workbook = new XSSFWorkbook(is);
             Sheet sheet = workbook.getSheet(SHEET);
@@ -77,35 +81,27 @@ public class DataExcell {
 
                 Piket data = new Piket();
 
-                Cell idCell = currentRow.getCell(0);
-                if (idCell != null) {
-                    data.setId((long) idCell.getNumericCellValue());
-                }
-
-                Cell tanggalCell = currentRow.getCell(1);
-                if (tanggalCell != null) {
-                    data.setTanggal(tanggalCell.getStringCellValue());
-                }
-
                 Cell statusCell = currentRow.getCell(2);
                 if (statusCell != null) {
                     data.setStatus(statusCell.getStringCellValue());
                 }
 
-                Cell kelasCell = currentRow.getCell(3);
+                Cell kelasCell = currentRow.getCell(1);
                 if (kelasCell != null) {
                     KelasDTO kelasDTO = new KelasDTO();
                     kelasDTO.setKelas(kelasCell.getStringCellValue());
                     data.setKelasId(kelasDTO);
                 }
 
-                Cell siswaCell = currentRow.getCell(4);
+                Cell siswaCell = currentRow.getCell(3);
                 if (siswaCell != null) {
-                    SiswaDTO siswaDTO = new SiswaDTO();
-                    siswaDTO.setNama_siswa(siswaCell.getStringCellValue());
-                    data.setSiswaId(siswaDTO);
+                    Long siswaId = (long) siswaCell.getNumericCellValue();
+                    Siswa siswa = siswaRepo.findById(siswaId).orElse(null);
+                    if (siswa != null) {
+                        data.setSiswa(siswa);
+                    }
                 }
-
+                data.setTanggal(String.valueOf(new Date()));
                 dataList.add(data);
             }
 
@@ -115,5 +111,4 @@ public class DataExcell {
             throw new RuntimeException("fail to parse Excel file: " + e.getMessage());
         }
     }
-
 }

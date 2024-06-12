@@ -19,8 +19,16 @@ public class Piket {
     private Kelas kelas;
 
     @OneToOne
-    @JoinColumn(name = "status_id")
-    private Status siswas;
+    @JoinColumn(name = "siswa_id")
+    private Siswa siswa;
+
+    public Siswa getSiswa() {
+        return siswa;
+    }
+
+    public void setSiswa(Siswa siswa) {
+        this.siswa = siswa;
+    }
 
     private String tanggal;
 
@@ -60,14 +68,6 @@ public class Piket {
     }
 
     public void setKelasId(KelasDTO kelasDTO) {
-    }
-
-    public Status getSiswas() {
-        return siswas;
-    }
-
-    public void setSiswas(Status siswas) {
-        this.siswas = siswas;
     }
 
     public double getStatus() {
