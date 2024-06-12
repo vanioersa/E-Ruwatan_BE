@@ -6,8 +6,7 @@ public class PiketDTO {
     private Long id;
     private Long kelasId;
     private String tanggal;
-
-    private StatusDTO status;
+    private List<String> status; // Change from String to List<String>
 
     public Long getId() {
         return id;
@@ -33,11 +32,11 @@ public class PiketDTO {
         this.tanggal = tanggal;
     }
 
-    public StatusDTO getStatus() {
+    public List<String> getStatus() { // Getter returns List<String>
         return status;
     }
 
-    public void setStatus(StatusDTO status) {
+    public void setStatus(List<String> status) { // Setter accepts List<String>
         this.status = status;
     }
 
