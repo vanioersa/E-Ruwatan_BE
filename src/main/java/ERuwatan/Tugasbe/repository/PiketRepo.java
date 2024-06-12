@@ -1,7 +1,6 @@
 package ERuwatan.Tugasbe.repository;
 
 import ERuwatan.Tugasbe.model.Piket;
-import ERuwatan.Tugasbe.model.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
