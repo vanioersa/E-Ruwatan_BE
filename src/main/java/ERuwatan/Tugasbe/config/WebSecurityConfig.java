@@ -87,6 +87,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             // kbm
             "/kbm/all",
             "/kbm/by-id/{id}",
+            "/kbm/**",
 
             // penilaian
             "/panilaian/all",
