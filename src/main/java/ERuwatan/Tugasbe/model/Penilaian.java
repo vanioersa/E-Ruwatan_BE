@@ -3,6 +3,7 @@ package ERuwatan.Tugasbe.model;
 import javax.persistence.*;
 
 @Entity
+@Table(name = "penilaian")
 public class Penilaian {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,10 +1,14 @@
 package ERuwatan.Tugasbe.controller;
 
+import ERuwatan.Tugasbe.Excell.ExcelKbmSer;
 import ERuwatan.Tugasbe.dto.KbmDTO;
 import ERuwatan.Tugasbe.service.KbmSer;
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -13,6 +17,9 @@ public class KbmCont {
 
     @Autowired
     private KbmSer kbmSer;
+
+    @Autowired
+    private ExcelKbmSer excelKbmSer;
 
     @PostMapping("/add")
     public KbmDTO createKbm(@RequestBody KbmDTO kbmDTO) {
@@ -37,5 +44,12 @@ public class KbmCont {
     @DeleteMapping("/hapus/{id}")
     public void deletKbm(@PathVariable Long id) {
         kbmSer.deleteKbm(id);
+    }
+
+    @GetMapping("/upload/export-kbm")
+    public void ExportKbm(@RequestParam("kelas_id") Long kelas_id,
+                            @RequestParam("user_id") Long user_id,
+                            HttpServletResponse response) throws IOException, NotFoundException {
+        excelKbmSer.excelExportKbm(kelas_id, user_id, response);
     }
 }

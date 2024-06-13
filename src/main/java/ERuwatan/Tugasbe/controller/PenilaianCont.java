@@ -1,12 +1,15 @@
 
 package ERuwatan.Tugasbe.controller;
 
+import ERuwatan.Tugasbe.Excell.ExcelPenilaianSer;
 import ERuwatan.Tugasbe.dto.PenilaianDTO;
 import ERuwatan.Tugasbe.serlmpl.PenilaianSerImpl;
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
@@ -15,6 +18,9 @@ import java.util.List;
 public class PenilaianCont {
     @Autowired
     private PenilaianSerImpl penilaianSer;
+
+    @Autowired
+    private ExcelPenilaianSer excelPenilaianSer;
 
     @PostMapping("/add")
     private PenilaianDTO createPenilaian (@RequestBody PenilaianDTO penilaianDTO) {
@@ -44,5 +50,12 @@ public class PenilaianCont {
     @PostMapping("/import")
     public void importPenilaianData(@RequestParam("file") MultipartFile file) throws IOException {
         penilaianSer.importData(file);
+    }
+
+    @GetMapping("/upload/export-penilaian")
+    public void ExportPenilaian(@RequestParam("kelas_id") Long kelas_id,
+                          @RequestParam("siswa_id") Long siswa_id,
+                          HttpServletResponse response) throws IOException, NotFoundException {
+        excelPenilaianSer.excelExportPenilaian(kelas_id, siswa_id, response);
     }
 }
