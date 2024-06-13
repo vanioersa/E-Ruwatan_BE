@@ -1,6 +1,7 @@
 package ERuwatan.Tugasbe.serlmpl;
 
 import ERuwatan.Tugasbe.dto.PenilaianDTO;
+import ERuwatan.Tugasbe.exception.NotFoundException;
 import ERuwatan.Tugasbe.model.*;
 import ERuwatan.Tugasbe.repository.KelasRepo;
 import ERuwatan.Tugasbe.repository.PenilaianRepo;
