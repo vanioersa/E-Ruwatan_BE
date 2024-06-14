@@ -1,13 +1,17 @@
 package ERuwatan.Tugasbe.controller;
 
+import ERuwatan.Tugasbe.Excell.ExcelSiswa;
 import ERuwatan.Tugasbe.Excell.ExcelSiswaSer;
 import ERuwatan.Tugasbe.dto.SiswaDTO;
 import ERuwatan.Tugasbe.model.Siswa;
+import ERuwatan.Tugasbe.response.ResponseMessage;
 import ERuwatan.Tugasbe.service.SiswaSer;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -58,4 +62,23 @@ public class SiswaCont {
                           HttpServletResponse response) throws IOException, NotFoundException {
         excelSiswaSer.excelExportSiswa(kelas_id, response);
     }
+
+    @PostMapping(path = "/upload/importSiswa")
+    public ResponseEntity<ResponseMessage> uploadFile(@RequestPart("file") MultipartFile file) {
+        String message = "";
+        if (ExcelSiswa.hasExcelFormat(file)) {
+            try {
+                siswaSer.saveSiswa(file);
+                message = "Uploaded the file successfully: " + file.getOriginalFilename();
+                return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
+            } catch (Exception e) {
+                System.out.println(e);
+                message = "Could not upload the file: " + file.getOriginalFilename() + "!";
+                return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new ResponseMessage(message));
+            }
+        }
+        message = "Please upload an excel file!";
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
+    }
+
 }

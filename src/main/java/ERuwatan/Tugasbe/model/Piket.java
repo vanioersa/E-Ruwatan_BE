@@ -72,7 +72,6 @@ public class Piket {
     public void setKelasId(KelasDTO kelasDTO) {
     }
 
-
     public SiswaDTO[] getSiswaDTOList() {
         return getSiswaDTOList();
     }
