@@ -6,7 +6,6 @@ import ERuwatan.Tugasbe.dto.SiswaDTO;
 import ERuwatan.Tugasbe.model.Piket;
 import ERuwatan.Tugasbe.model.Kelas;
 import ERuwatan.Tugasbe.model.Siswa;
-import ERuwatan.Tugasbe.model.Status;
 import ERuwatan.Tugasbe.repository.GuruRepo;
 import ERuwatan.Tugasbe.repository.PiketRepo;
 import ERuwatan.Tugasbe.repository.KelasRepo;
@@ -20,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
+
 
 @Service
 public class PiketSerImpl implements PiketSer {
@@ -30,9 +29,6 @@ public class PiketSerImpl implements PiketSer {
 
     @Autowired
     private KelasRepo kelasRepo;
-
-    @Autowired
-    private Status statusrepo;
 
     @Autowired
     private SiswaRepo siswaRepo;
@@ -50,7 +46,7 @@ public class PiketSerImpl implements PiketSer {
 
         List<String> statusList = (List<String>) piketDTO.getStatus();
         if (statusList != null && !statusList.isEmpty()) {
-            String statusString = String.join(",", statusList); // Merge all status into a single string
+            String statusString = String.join(",", statusList);
             piket.setStatus(statusString);
 
             List<Siswa> siswaList = new ArrayList<>();
@@ -59,10 +55,10 @@ public class PiketSerImpl implements PiketSer {
                 siswaOptional.ifPresent(siswaList::add);
             }
 
-            piket.setSiswas((Status) siswaList);
+            piket.setSiswa((Siswa) siswaList);
         }
 
-        Piket savedPiket = piketRepo.save(piket); // Save the Piket object to the database
+        Piket savedPiket = piketRepo.save(piket);
 
         return convertToDTO(savedPiket);
     }
@@ -73,11 +69,11 @@ public class PiketSerImpl implements PiketSer {
         return piketOptional.map(this::convertToDTO).orElse(null);
     }
 
-    @Override
-    public List<PiketDTO> getAllPikets() {
-        List<Status> pikets = (List<Status>) statusrepo.getSiswa();
-        return piketRepo.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
-    }
+//    @Override
+//    public List<PiketDTO> getAllPikets() {
+//        List<String> pikets = (List<String>) statusrepo.getSiswa();
+//        return piketRepo.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
+//    }
 
     @Override
     public PiketDTO updatePiket(Long id, PiketDTO piketDTO) {
@@ -146,10 +142,10 @@ public class PiketSerImpl implements PiketSer {
         }
     }
 
-    @Override
-    public void importPiketan(MultipartFile file) {
-        // Implementation for importing Piketan
-    }
+//    @Override
+//    public void importPiketan(MultipartFile file) {
+//        // Implementation for importing Piketan
+//    }
 
     private PiketDTO convertToDTO(Piket piket) {
         PiketDTO piketDTO = new PiketDTO();
