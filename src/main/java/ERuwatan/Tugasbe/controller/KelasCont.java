@@ -1,13 +1,16 @@
 package ERuwatan.Tugasbe.controller;
 
+import ERuwatan.Tugasbe.Excell.ExcelKelasSer;
 import ERuwatan.Tugasbe.dto.KelasDTO;
 import ERuwatan.Tugasbe.service.KelasSer;
+import javassist.NotFoundException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
@@ -16,6 +19,9 @@ import java.util.List;
 public class KelasCont {
     @Autowired
     private KelasSer kelasSer;
+
+    @Autowired
+    private ExcelKelasSer excelKelasSer;
 
     @PostMapping("/import")
     public void importKelas(@RequestParam("file") MultipartFile file) {
@@ -46,4 +52,10 @@ public class KelasCont {
     public void deleteKelas(@PathVariable Long id) {
         kelasSer.deleteKelas(id);
     }
+
+//    @GetMapping("/upload/export-siswa")
+//    public void exportSiswa(@RequestParam("kelas_id") String kelas,
+//                            HttpServletResponse response) throws IOException, NotFoundException {
+//        excelKelasSer.excelExportKelas(kelas, response);
+//    }
 }
