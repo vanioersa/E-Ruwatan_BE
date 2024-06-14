@@ -1,5 +1,6 @@
 package ERuwatan.Tugasbe.serlmpl;
 
+import ERuwatan.Tugasbe.Excell.ExcelSiswa;
 import ERuwatan.Tugasbe.dto.SiswaDTO;
 import ERuwatan.Tugasbe.model.Kelas;
 import ERuwatan.Tugasbe.model.Siswa;
@@ -10,7 +11,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -58,6 +62,29 @@ public class SiswaSerImpl implements SiswaSer {
         return null;
     }
 
+    public void saveSiswa(MultipartFile file) {
+        try {
+            List<SiswaDTO> siswaDTOList = ExcelSiswa.excelToSiswa(file.getInputStream());
+
+            // Konversi SiswaDTO menjadi Siswa sebelum menyimpan ke dalam repositori
+            List<Siswa> siswaList = new ArrayList<>();
+            for (SiswaDTO siswaDTO : siswaDTOList) {
+                Siswa siswa = new Siswa();
+                siswa.setId(siswaDTO.getId());
+                siswa.setKelas(kelasRepo.findById(siswaDTO.getKelasId()).orElse(null));
+                siswa.setNama_siswa(siswaDTO.getNama_siswa());
+                siswa.setNisn(siswaDTO.getNisn());
+                // tambahkan atribut lainnya jika ada
+
+                siswaList.add(siswa);
+            }
+
+            // Pastikan siswaRepo menerima List<Siswa> untuk disimpan
+            siswaRepo.saveAll(siswaList);
+        } catch (IOException e) {
+            throw new RuntimeException("fail to store excel data: " + e.getMessage());
+        }
+    }
     @Override
     public void deleteSiswa(Long id) {
         siswaRepo.deleteById(id);

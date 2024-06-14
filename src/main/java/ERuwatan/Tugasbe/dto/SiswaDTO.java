@@ -1,10 +1,15 @@
 package ERuwatan.Tugasbe.dto;
 
+import java.util.List;
+
 public class SiswaDTO {
     private Long id;
     private Long KelasId;
     private String nama_siswa;
     private String nisn;
+
+    public static void saveAll(List<SiswaDTO> datasiswa) {
+    }
 
     public String getTempat() {
         return tempat;
