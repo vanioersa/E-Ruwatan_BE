@@ -1,14 +1,21 @@
 package ERuwatan.Tugasbe.controller;
 
+import ERuwatan.Tugasbe.Excell.ExcelKbm;
 import ERuwatan.Tugasbe.Excell.ExcelKbmSer;
+import ERuwatan.Tugasbe.Excell.ExcelPiket;
 import ERuwatan.Tugasbe.dto.KbmDTO;
+import ERuwatan.Tugasbe.response.ResponseMessage;
 import ERuwatan.Tugasbe.service.KbmSer;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 @RestController
@@ -52,4 +59,23 @@ public class KbmCont {
                             HttpServletResponse response) throws IOException, NotFoundException {
         excelKbmSer.excelExportKbm(kelas_id, user_id, response);
     }
+
+//    @PostMapping(path = "/upload/import-kbm")
+//    public ResponseEntity<ResponseMessage> uploadFile(@RequestPart("file") MultipartFile file) {
+//        String message = "";
+//        if (ExcelKbm.hasExcelFormat(file)) {
+//            try {
+//                ExcelKbm.excelKbm((InputStream) file);
+//                message = "Uploaded the file successfully: " + file.getOriginalFilename();
+//                return ResponseEntity.status(HttpStatus.OK).body(new ERuwatan.Tugasbe.response.ResponseMessage(message));
+//
+//            } catch (Exception e) {
+//                System.out.println(e);
+//                message = "Could not upload the file: " + file.getOriginalFilename() + "!";
+//                return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new ResponseMessage(message));
+//            }
+//        }
+//        message = "Please upload an excel file!";
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
+//    }
 }
