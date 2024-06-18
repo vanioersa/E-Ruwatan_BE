@@ -34,4 +34,12 @@ public class Kelas {
     public void setNama_kelas(String nama_kelas) {
         this.nama_kelas = nama_kelas;
     }
+    @Override
+    public String toString() {
+        return "Kelas{" +
+                "id=" + id +
+                ", kelas='" + kelas + '\'' +
+                ", nama_kelas='" + nama_kelas + '\'' +
+                '}';
+    }
 }

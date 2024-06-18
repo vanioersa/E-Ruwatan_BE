@@ -6,6 +6,7 @@ import ERuwatan.Tugasbe.model.Kelas;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface KelasRepo extends JpaRepository<Kelas, Long> {
@@ -14,5 +15,7 @@ public interface KelasRepo extends JpaRepository<Kelas, Long> {
 
     @Query(value = "SELECT * FROM siswa WHERE nama_kelas = :namaKelas" , nativeQuery = true)
     Optional<KelasDTO> findByNamaKelas(String namaKelas);
+
+    List<Kelas> findByKelas(Kelas kelas);
 
 }
