@@ -23,11 +23,6 @@ public class KelasCont {
     @Autowired
     private ExcelKelasSer excelKelasSer;
 
-    @PostMapping("/import")
-    public void importKelas(@RequestParam("file") MultipartFile file) {
-        kelasSer.importKelas(file);
-    }
-
     @PostMapping("/add")
     public KelasDTO createKelas(@RequestBody KelasDTO kelasDTO) {
         return kelasSer.createKelas(kelasDTO);
@@ -53,9 +48,20 @@ public class KelasCont {
         kelasSer.deleteKelas(id);
     }
 
-//    @GetMapping("/upload/export-siswa")
-//    public void exportSiswa(@RequestParam("kelas_id") String kelas,
-//                            HttpServletResponse response) throws IOException, NotFoundException {
-//        excelKelasSer.excelExportKelas(kelas, response);
-//    }
+    @GetMapping("/upload/export-kelas")
+    public void exportKelas(
+                            HttpServletResponse response) throws IOException, NotFoundException {
+        excelKelasSer.excelExportKelas(response);
+    }
+
+
+    @PostMapping("/upload/import")
+    public String importKelas(@RequestPart("file") MultipartFile file) {
+        try {
+            excelKelasSer.importKelasFromExcel(file);
+            return "Import berhasil!";
+        } catch (IOException e) {
+            return "Terjadi kesalahan: " + e.getMessage();
+        }
+    }
 }
