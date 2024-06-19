@@ -22,42 +22,60 @@ import java.util.*;
 
 public class ExcelPenilaian {
 
-//    public static String TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-//    static String[] HEADERsPenilaian = {"NO","Nama Siswa", "Kelas", "Nilai Siswa", "Deskripsi"};
-//    static String SHEET = "Sheet1";
-//
-//    public static boolean hasExcelFormat(MultipartFile file) {
-//        return TYPE.equals(file.getContentType());
-//    }
-//    private static KelasRepo kelasRepo;
-//    private static SiswaRepo siswaRepo;
-//
-//    public static ByteArrayInputStream penilaianToExcel(List<Penilaian> penilaianList) throws IOException {
-//        try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-//            Sheet sheet = workbook.createSheet(SHEET);
-//            Row headerRow = sheet.createRow(0);
-//
-//            for (int col = 0; col < HEADERsPenilaian.length; col++) {
-//                Cell cell = headerRow.createCell(col);
-//                cell.setCellValue(HEADERsPenilaian[col]);
-//            }
-//
-//            int rowIdx = 1;
-//            for (Penilaian penilaian : penilaianList) {
-//                Row row = sheet.createRow(rowIdx++);
-//                row.createCell(1).setCellValue(penilaian.getSiswaId().getNama_siswa());
-//                row.createCell(2).setCellValue(penilaian.getKelasId().getNama_kelas());
-//                row.createCell(3).setCellValue(penilaian.getNilai());
-//                row.createCell(4).setCellValue(penilaian.getDeskripsi());
-//            }
-//
-//            workbook.write(out);
-//            return new ByteArrayInputStream(out.toByteArray());
-//        } catch (IOException e) {
-//            throw new RuntimeException("fail to import data to Excel file: " + e.getMessage());
-//        }
-//    }
-//
+    public static String TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    static String[] HEADERsPenilaian = {"NO","Nama Siswa", "Kelas", "Nilai Siswa", "Deskripsi"};
+
+    static String[] HEADERsTemplate = {"NO", "ID", "KELAS ID", "NAMA SISWA", "NISN", "TEMPAT", "ALAMAT"};
+
+    static String SHEET = "Sheet1";
+
+    public static boolean hasExcelFormat(MultipartFile file) {
+        return TYPE.equals(file.getContentType());
+    }
+    private static KelasRepo kelasRepo;
+    private static SiswaRepo siswaRepo;
+
+    public static ByteArrayInputStream penilaianToExcel(List<Penilaian> penilaianList) throws IOException {
+        try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            Sheet sheet = workbook.createSheet(SHEET);
+            Row headerRow = sheet.createRow(0);
+
+            for (int col = 0; col < HEADERsPenilaian.length; col++) {
+                Cell cell = headerRow.createCell(col);
+                cell.setCellValue(HEADERsPenilaian[col]);
+            }
+
+            int rowIdx = 1;
+            for (Penilaian penilaian : penilaianList) {
+                Row row = sheet.createRow(rowIdx++);
+                row.createCell(1).setCellValue(penilaian.getSiswa().getNama_siswa());
+                row.createCell(2).setCellValue(penilaian.getKelas().getNama_kelas());
+                row.createCell(3).setCellValue(penilaian.getNilai());
+                row.createCell(4).setCellValue(penilaian.getDeskripsi());
+            }
+
+            workbook.write(out);
+            return new ByteArrayInputStream(out.toByteArray());
+        } catch (IOException e) {
+            throw new RuntimeException("fail to import data to Excel file: " + e.getMessage());
+        }
+    }
+
+    public static ByteArrayInputStream templateToExcel() throws IOException {
+        try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            Sheet sheet = workbook.createSheet(SHEET);
+            Row headerRow = sheet.createRow(0);
+            for (int col = 0; col < HEADERsTemplate.length; col++) {
+                Cell cell = headerRow.createCell(col);
+                cell.setCellValue(HEADERsTemplate[col]);
+            }
+            workbook.write(out);
+            return new ByteArrayInputStream(out.toByteArray());
+        } catch (IOException e) {
+            throw new RuntimeException("fail to import data to Excel file: " + e.getMessage());
+        }
+    }
+
 //    public static List<Penilaian> excelPenilaian(InputStream is) {
 //        try {
 //            Workbook workbook = new XSSFWorkbook(is);
@@ -88,7 +106,7 @@ public class ExcelPenilaian {
 //                            Optional<SiswaDTO> optionalSiswaDTO = siswaRepo.findBySiswa(siswaName);
 //                            if (optionalSiswaDTO.isPresent()) {
 //                                SiswaDTO siswaDTO = optionalSiswaDTO.get();
-//                                penilaian.setSiswaId(siswaDTO);
+//                                penilaian.setSiswa(siswaDTO);
 //                            } else {
 //                                throw new EntityNotFoundException("Siswa tidak ditemukan: " + siswaName);
 //                            }
@@ -98,7 +116,7 @@ public class ExcelPenilaian {
 //                            Optional<KelasDTO> optionalKelasDTO = kelasRepo.findByNamaKelas(kelasName);
 //                            if (optionalKelasDTO.isPresent()) {
 //                                KelasDTO kelasDTO = optionalKelasDTO.get();
-//                                penilaian.setKelasId(kelasDTO);
+//                                penilaian.setKelas(kelasDTO);
 //                            } else {
 //                                throw new EntityNotFoundException("Kelas tidak ditemukan: " + kelasName);
 //                            }

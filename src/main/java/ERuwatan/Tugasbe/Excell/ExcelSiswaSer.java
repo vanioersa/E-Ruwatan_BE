@@ -59,7 +59,9 @@ public class ExcelSiswaSer {
             cell3.setCellValue(siswa.getTempat());
 
             Cell cell4 = row.createCell(4);
-            cell4.setCellValue(siswa.getKelas().getNama_kelas());
+            String kelas = siswa.getKelas().getKelas();
+            String nama_kelas = siswa.getKelas().getNama_kelas();
+            cell4.setCellValue(nama_kelas);
 
             Cell cell5 = row.createCell(5);
             cell5.setCellValue(siswa.getAlamat());
@@ -75,6 +77,7 @@ public class ExcelSiswaSer {
         workbook.write(response.getOutputStream());
         workbook.close();
     }
+//    aaaaaaa
 
     public void importSiswaFromExcel(MultipartFile file) throws IOException {
         try (InputStream inputStream = file.getInputStream()) {

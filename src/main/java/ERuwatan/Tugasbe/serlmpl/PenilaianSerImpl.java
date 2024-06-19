@@ -58,22 +58,13 @@ public class PenilaianSerImpl implements PenilaianSer {
     }
 
     @Override
-    public PenilaianDTO updatePenilaian(Long id, PenilaianDTO penilaianDTO) {
-        Optional<Penilaian> penilaianOptional = penilaianRepo.findById(id);
-        if (penilaianOptional.isPresent()) {
-            Penilaian penilaian = penilaianOptional.get();
-            BeanUtils.copyProperties(penilaianDTO, penilaian);
-
-            Optional<Siswa> siswaOptional = siswaRepo.findById(penilaianDTO.getSiswaId());
-            siswaOptional.ifPresent(penilaian::setSiswa);
-
-            Optional<Kelas> kelasOptional = kelasRepo.findById(penilaianDTO.getKelasId());
-            kelasOptional.ifPresent(penilaian::setKelas);
-
-            penilaian.setId(id);
-            return convertToDTO(penilaianRepo.save(penilaian));
-        }
-        return null;
+    public Penilaian updatePenilaian(Long id, PenilaianDTO penilaianDTO) {
+     Penilaian update = penilaianRepo.findById(id).orElseThrow(()-> new NotFoundException("Id Not Found"));
+     update.setDeskripsi(penilaianDTO.getDeskripsi());
+     update.setKelas(kelasRepo.findById(penilaianDTO.getKelasId()).orElseThrow(()-> new NotFoundException("Id Kelas Not Found")));
+     update.setNilai(penilaianDTO.getNilai());
+     update.setSiswa(siswaRepo.findById(penilaianDTO.getSiswaId()).orElseThrow(()-> new NotFoundException("Id Siswa Not Found ")));
+     return penilaianRepo.save(update);
     }
 
     @Override
