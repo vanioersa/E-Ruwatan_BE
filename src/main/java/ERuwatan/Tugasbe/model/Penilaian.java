@@ -31,10 +31,6 @@ public class Penilaian {
         return siswa;
     }
 
-    public void setSiswa(Siswa siswa) {
-        this.siswa = siswa;
-    }
-
     public Kelas getKelas() {
         return kelas;
     }
@@ -60,4 +56,10 @@ public class Penilaian {
     }
 
     private String deskripsi;
+
+    public void setSiswa(String siswa) {
+    }
+
+    public void setSiswa(Siswa siswa) {
+    }
 }

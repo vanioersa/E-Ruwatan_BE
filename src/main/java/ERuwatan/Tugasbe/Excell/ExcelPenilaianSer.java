@@ -1,6 +1,7 @@
 package ERuwatan.Tugasbe.Excell;
 
 import ERuwatan.Tugasbe.model.*;
+import ERuwatan.Tugasbe.repository.KelasRepo;
 import ERuwatan.Tugasbe.repository.PenilaianRepo;
 import ERuwatan.Tugasbe.repository.SiswaRepo;
 import ERuwatan.Tugasbe.repository.UserRepository;
@@ -22,6 +23,9 @@ import java.util.Optional;
 public class ExcelPenilaianSer {
     @Autowired
     private PenilaianRepo penilaianRepo;
+
+    @Autowired
+    private KelasRepo kelasRepo;
 
     public void excelExportPenilaian(Long kelas_id, Long siswa_id, HttpServletResponse response) throws IOException, NotFoundException {
         Workbook workbook = new XSSFWorkbook();
@@ -66,48 +70,61 @@ public class ExcelPenilaianSer {
         workbook.close();
     }
 
-//    public void importPenilaianFromExcel(MultipartFile file) throws IOException {
-//        try (InputStream inputStream = file.getInputStream()) {
-//            Workbook workbook = new XSSFWorkbook(inputStream);
-//            Sheet sheet = workbook.getSheetAt(0);
-//            Iterator<Row> rows = sheet.iterator();
-//
-//            // Skip header row
-//            if (rows.hasNext()) {
-//                rows.next();
-//            }
-//
-//            while (rows.hasNext()) {
-//                Row currentRow = rows.next();
-//                Penilaian penilaian = new Penilaian();
-//
-//                // Handle Nama Siswa
-//                Cell cell1 = currentRow.getCell(1);
-//                if (cell1 != null && cell1.getCellType() == CellType.STRING) {
-//                    penilaian.setSiswa(cell1.getStringCellValue());
-//                }
-//
-//                // Handle Kelas
-//                Cell cell2 = currentRow.getCell(2);
-//                if (cell2 != null && cell2.getCellType() == CellType.STRING) {
-//                    penilaian.setKelas(cell2.getStringCellValue());
-//                }
-//
-//                // Handle Nilai
-//                Cell cell3 = currentRow.getCell(3);
-//                if (cell3 != null && cell3.getCellType() == CellType.STRING) {
-//                    penilaian.setNilai(cell3.getStringCellValue());
-//                }
-//
-//                // Handle Deskripsi
-//                Cell cell4 = currentRow.getCell(3);
-//                if (cell4 != null && cell4.getCellType() == CellType.STRING) {
-//                    penilaian.setDeskripsi(cell3.getStringCellValue());
-//                }
-//                // Save the Siswa entity to the repository
-//                penilaianRepo.save(penilaian);
-//            }
-//        }
-//    }
+    public void importPenilaianFromExcel(MultipartFile file) throws IOException {
+        try (InputStream inputStream = file.getInputStream()) {
+            Workbook workbook = new XSSFWorkbook(inputStream);
+            Sheet sheet = workbook.getSheetAt(0);
+            Iterator<Row> rows = sheet.iterator();
+
+            // Skip header row
+            if (rows.hasNext()) {
+                rows.next();
+            }
+
+            while (rows.hasNext()) {
+                Row currentRow = rows.next();
+                Penilaian penilaian = new Penilaian();
+
+                // Handle Nama Siswa
+                Cell cell1 = currentRow.getCell(1);
+                if (cell1 != null && cell1.getCellType() == CellType.STRING) {
+                    penilaian.setSiswa(cell1.getStringCellValue());
+                }
+
+                // Handle Kelas
+                Cell cell2 = currentRow.getCell(4);
+                if (cell2 != null) {
+                    if (cell2.getCellType() == CellType.NUMERIC) {
+                        Kelas kelas = kelasRepo.findById((long) cell2.getNumericCellValue())
+                                .orElseThrow(() -> new ERuwatan.Tugasbe.exception.NotFoundException("Id " + cell2.getNumericCellValue() + " not found"));
+                        penilaian.setKelas(kelas);
+                    } else if (cell2.getCellType() == CellType.STRING) {
+                        try {
+                            Long kelasId = Long.valueOf(cell2.getStringCellValue());
+                            Kelas kelas = kelasRepo.findById(kelasId)
+                                    .orElseThrow(() -> new ERuwatan.Tugasbe.exception.NotFoundException("Id " + kelasId + " not found"));
+                            penilaian.setKelas(kelas);
+                        } catch (NumberFormatException e) {
+                            throw new IllegalArgumentException("Invalid Kelas ID: " + cell2.getStringCellValue());
+                        }
+                    }
+                }
+
+                // Handle Nilai
+                Cell cell3 = currentRow.getCell(3);
+                if (cell3 != null && cell3.getCellType() == CellType.STRING) {
+                    penilaian.setNilai(cell3.getStringCellValue());
+                }
+
+                // Handle Deskripsi
+                Cell cell4 = currentRow.getCell(3);
+                if (cell4 != null && cell4.getCellType() == CellType.STRING) {
+                    penilaian.setDeskripsi(cell3.getStringCellValue());
+                }
+                // Save the Siswa entity to the repository
+                penilaianRepo.save(penilaian);
+            }
+        }
+    }
 
 }

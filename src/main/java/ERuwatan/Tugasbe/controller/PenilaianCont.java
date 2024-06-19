@@ -7,6 +7,8 @@ import ERuwatan.Tugasbe.model.Penilaian;
 import ERuwatan.Tugasbe.serlmpl.PenilaianSerImpl;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -48,9 +50,16 @@ public class PenilaianCont {
         penilaianSer.deletePenilaian(id);
     }
 
-    @PostMapping("/import")
-    public void importPenilaianData(@RequestParam("file") MultipartFile file) throws IOException {
-        penilaianSer.importData(file);
+    @PostMapping("/upload/importPenilaian")
+    public ResponseEntity<String> importSiswaFromExcel(@RequestPart("file") MultipartFile file) {
+        try {
+            excelPenilaianSer.importPenilaianFromExcel(file);
+            return new ResponseEntity<>("Import successful", HttpStatus.OK);
+        } catch (IOException e) {
+            return new ResponseEntity<>("Import failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>("Import failed: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("/upload/export-penilaian")
