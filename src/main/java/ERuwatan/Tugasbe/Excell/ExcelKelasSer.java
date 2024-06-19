@@ -87,26 +87,12 @@ public class ExcelKelasSer {
                 Row currentRow = rows.next();
                 Kelas kelas = new Kelas();
 
-                // Assuming columns are ID, Kelas, Nama Kelas
-                Cell cell0 = currentRow.getCell(0);
-                if (cell0 != null) {
-                    kelas.setId((long) cell0.getNumericCellValue());
-                }
-
                 Cell cell1 = currentRow.getCell(1);
-                if (cell1 != null) {
                     kelas.setKelas(cell1.getStringCellValue());
-                }
 
                 Cell cell2 = currentRow.getCell(2);
-                if (cell2 != null) {
                     kelas.setNama_kelas(cell2.getStringCellValue());
-                }
 
-                // Set admin ID or perform other admin-related actions
-                // kelas.setAdminId(adminId); // Uncomment if Kelas has an adminId field
-
-                // Save the Kelas entity to the repository
                 kelasRepo.save(kelas);
             }
         }
