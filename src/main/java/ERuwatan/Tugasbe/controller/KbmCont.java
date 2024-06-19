@@ -60,22 +60,17 @@ public class KbmCont {
         excelKbmSer.excelExportKbm(kelas_id, user_id, response);
     }
 
-//    @PostMapping(path = "/upload/import-kbm")
-//    public ResponseEntity<ResponseMessage> uploadFile(@RequestPart("file") MultipartFile file) {
-//        String message = "";
-//        if (ExcelKbm.hasExcelFormat(file)) {
-//            try {
-//                ExcelKbm.excelKbm((InputStream) file);
-//                message = "Uploaded the file successfully: " + file.getOriginalFilename();
-//                return ResponseEntity.status(HttpStatus.OK).body(new ERuwatan.Tugasbe.response.ResponseMessage(message));
-//
-//            } catch (Exception e) {
-//                System.out.println(e);
-//                message = "Could not upload the file: " + file.getOriginalFilename() + "!";
-//                return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new ResponseMessage(message));
-//            }
-//        }
-//        message = "Please upload an excel file!";
-//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
-//    }
+    @PostMapping("/upload/import-KBM")
+    public ResponseEntity<String> importSiswaFromExcel(@RequestPart("file") MultipartFile file, @RequestParam("userId") Long userId) {
+        try {
+            excelKbmSer.importKBMFromExcel(file, userId);
+            return new ResponseEntity<>("Import successful", HttpStatus.OK);
+        } catch (IOException e) {
+            return new ResponseEntity<>("Import failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>("Import failed: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>("Import failed: " + e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
 }

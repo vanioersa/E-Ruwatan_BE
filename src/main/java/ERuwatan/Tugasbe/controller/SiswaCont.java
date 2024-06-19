@@ -63,24 +63,6 @@ public class SiswaCont {
         excelSiswaSer.excelExportSiswa(kelas_id, response);
     }
 
-//    @PostMapping(path = "/upload/importSiswa")
-//    public ResponseEntity<ResponseMessage> uploadFile(@RequestPart("file") MultipartFile file) {
-//        String message = "";
-//        if (ExcelSiswa.hasExcelFormat(file)) {
-//            try {
-//                siswaSer.saveSiswa(file);
-//                message = "Uploaded the file successfully: " + file.getOriginalFilename();
-//                return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
-//            } catch (Exception e) {
-//                System.out.println(e);
-//                message = "Could not upload the file: " + file.getOriginalFilename() + "!";
-//                return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new ResponseMessage(message));
-//            }
-//        }
-//        message = "Please upload an excel file!";
-//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
-//    }
-
     @PostMapping("/upload/import-siswa")
     public ResponseEntity<String> importSiswaFromExcel(@RequestPart("file") MultipartFile file) {
         try {
@@ -92,5 +74,4 @@ public class SiswaCont {
             return new ResponseEntity<>("Import failed: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
-
 }

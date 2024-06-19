@@ -1,20 +1,22 @@
 package ERuwatan.Tugasbe.Excell;
 
 import ERuwatan.Tugasbe.model.Kbm;
+import ERuwatan.Tugasbe.model.Kelas;
 import ERuwatan.Tugasbe.model.UserModel;
 import ERuwatan.Tugasbe.repository.KbmRepo;
+import ERuwatan.Tugasbe.repository.KelasRepo;
 import ERuwatan.Tugasbe.repository.UserRepository;
 import javassist.NotFoundException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +29,9 @@ public class ExcelKbmSer {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private KelasRepo kelasRepo;
+
     private String getNameUser(Long user_id) throws NotFoundException {
         Optional<UserModel> userModel = userRepository.findById(user_id);
         if (userModel.isEmpty()) {
@@ -37,6 +42,12 @@ public class ExcelKbmSer {
     }
 
     public void excelExportKbm(Long kelas_id, Long user_id, HttpServletResponse response) throws IOException, NotFoundException {
+        Optional<Kelas> kelasOptional = kelasRepo.findById(kelas_id);
+        if (kelasOptional.isEmpty()) {
+            throw new NotFoundException("Kelas ID tidak ditemukan");
+        }
+        Kelas kelas = kelasOptional.get();
+
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Export-Kbm");
 
@@ -60,7 +71,7 @@ public class ExcelKbmSer {
             cell1.setCellValue(getNameUser(kbm.getUserModel().getId()));
 
             Cell cell2 = row.createCell(2);
-            cell2.setCellValue(kbm.getKelas().getNama_kelas());
+            cell2.setCellValue(kelas.getNama_kelas());
 
             Cell cell3 = row.createCell(3);
             cell3.setCellValue(kbm.getJam_masuk());
@@ -84,4 +95,77 @@ public class ExcelKbmSer {
         workbook.write(response.getOutputStream());
         workbook.close();
     }
+
+    public void importKBMFromExcel(MultipartFile file, Long userId) throws IOException, NotFoundException {
+        try (InputStream inputStream = file.getInputStream()) {
+            Workbook workbook = new XSSFWorkbook(inputStream);
+            Sheet sheet = workbook.getSheetAt(0);
+            Iterator<Row> rows = sheet.iterator();
+
+            // Skip header row
+            if (rows.hasNext()) {
+                rows.next();
+            }
+
+            while (rows.hasNext()) {
+                Row currentRow = rows.next();
+                Kbm kbm = new Kbm();
+
+                // Handle User ID (cell 1)
+                Cell cell1 = currentRow.getCell(1);
+                if (cell1 != null && cell1.getCellType() == CellType.STRING) {
+                    String username = cell1.getStringCellValue();
+                    UserModel user = userRepository.findByUsername(username);
+                    if (user == null) {
+                        throw new NotFoundException("User dengan username '" + username + "' tidak ditemukan");
+                    }
+                    if (!userId.equals(user.getId())) {
+                        throw new IllegalArgumentException("User ID mismatch");
+                    }
+                    kbm.setUserModel(user);
+                } else {
+                    throw new IllegalArgumentException("User ID not found or invalid format in cell 1");
+                }
+
+                // Handle Kelas (ID)
+                Cell cell2 = currentRow.getCell(2);
+                if (cell2 != null && cell2.getCellType() == CellType.NUMERIC) {
+                    Long kelasId = (long) cell2.getNumericCellValue();
+                    Kelas kelas = kelasRepo.findById(kelasId)
+                            .orElseThrow(() -> new NotFoundException("Kelas dengan ID " + kelasId + " tidak ditemukan"));
+                    kbm.setKelas(kelas);
+                } else {
+                    throw new IllegalArgumentException("Kelas ID not found or invalid format in cell 2");
+                }
+
+                // Handle Jam Masuk
+                Cell cell3 = currentRow.getCell(3);
+                if (cell3 != null && cell3.getCellType() == CellType.STRING) {
+                    kbm.setJam_masuk(cell3.getStringCellValue());
+                }
+
+                // Handle Jam Pulang
+                Cell cell4 = currentRow.getCell(4);
+                if (cell4 != null && cell4.getCellType() == CellType.STRING) {
+                    kbm.setJam_pulang(cell4.getStringCellValue());
+                }
+
+                // Handle Keterangan
+                Cell cell5 = currentRow.getCell(5);
+                if (cell5 != null && cell5.getCellType() == CellType.STRING) {
+                    kbm.setKeterangan(cell5.getStringCellValue());
+                }
+
+                // Handle Materi
+                Cell cell6 = currentRow.getCell(6);
+                if (cell6 != null && cell6.getCellType() == CellType.STRING) {
+                    kbm.setMateri(cell6.getStringCellValue());
+                }
+
+                // Save the Kbm entity to the repository
+                kbmRepo.save(kbm);
+            }
+        }
+    }
+
 }
