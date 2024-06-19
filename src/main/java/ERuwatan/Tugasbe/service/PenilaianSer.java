@@ -13,5 +13,4 @@ public interface PenilaianSer {
     List<PenilaianDTO> getAllPenilaian();
     Penilaian updatePenilaian(Long id, PenilaianDTO penilaianDTO);
     void deletePenilaian(Long id);
-    void importData(MultipartFile file) throws IOException;
 }

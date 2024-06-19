@@ -9,16 +9,10 @@ import ERuwatan.Tugasbe.repository.SiswaRepo;
 import ERuwatan.Tugasbe.service.PenilaianSer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -72,52 +66,52 @@ public class PenilaianSerImpl implements PenilaianSer {
         penilaianRepo.deleteById(id);
     }
 
-    @Override
-    public void importData(MultipartFile file) throws IOException {
-        List<PenilaianDTO> penilaianList = parseExcelFile(file.getInputStream());
-        for (PenilaianDTO penilaianDTO : penilaianList) {
-            createPenilaian(penilaianDTO);
-        }
-    }
+//    @Override
+//    public void importData(MultipartFile file) throws IOException {
+//        List<PenilaianDTO> penilaianList = parseExcelFile(file.getInputStream());
+//        for (PenilaianDTO penilaianDTO : penilaianList) {
+//            createPenilaian(penilaianDTO);
+//        }
+//    }
 
-    private List<PenilaianDTO> parseExcelFile(InputStream inputStream) throws IOException {
-        List<PenilaianDTO> penilaianList = new ArrayList<>();
-        Workbook workbook = new XSSFWorkbook(inputStream);
-        Sheet sheet = workbook.getSheetAt(0);
-        Iterator<Row> rows = sheet.iterator();
-
-        // Skip header row
-        if (rows.hasNext()) {
-            rows.next();
-        }
-
-        while (rows.hasNext()) {
-            Row currentRow = rows.next();
-            PenilaianDTO penilaianDTO = new PenilaianDTO();
-
-            // Kelas ID
-            Cell kelasIdCell = currentRow.getCell(1);
-            if (kelasIdCell != null) {
-                parseKelasIdCell(penilaianDTO, kelasIdCell);
-            }
-
-            // Nilai
-            Cell nilaiCell = currentRow.getCell(2);
-            if (nilaiCell != null) {
-                parseNilaiCell(penilaianDTO, nilaiCell);
-            }
-
-            // Deskripsi
-            Cell deskripsiCell = currentRow.getCell(3);
-            if (deskripsiCell != null) {
-                parseDeskripsiCell(penilaianDTO, deskripsiCell);
-            }
-
-            penilaianList.add(penilaianDTO);
-        }
-        workbook.close();
-        return penilaianList;
-    }
+//    private List<PenilaianDTO> parseExcelFile(InputStream inputStream) throws IOException {
+//        List<PenilaianDTO> penilaianList = new ArrayList<>();
+//        Workbook workbook = new XSSFWorkbook(inputStream);
+//        Sheet sheet = workbook.getSheetAt(0);
+//        Iterator<Row> rows = sheet.iterator();
+//
+//        // Skip header row
+//        if (rows.hasNext()) {
+//            rows.next();
+//        }
+//
+//        while (rows.hasNext()) {
+//            Row currentRow = rows.next();
+//            PenilaianDTO penilaianDTO = new PenilaianDTO();
+//
+//            // Kelas ID
+//            Cell kelasIdCell = currentRow.getCell(1);
+//            if (kelasIdCell != null) {
+//                parseKelasIdCell(penilaianDTO, kelasIdCell);
+//            }
+//
+//            // Nilai
+//            Cell nilaiCell = currentRow.getCell(2);
+//            if (nilaiCell != null) {
+//                parseNilaiCell(penilaianDTO, nilaiCell);
+//            }
+//
+//            // Deskripsi
+//            Cell deskripsiCell = currentRow.getCell(3);
+//            if (deskripsiCell != null) {
+//                parseDeskripsiCell(penilaianDTO, deskripsiCell);
+//            }
+//
+//            penilaianList.add(penilaianDTO);
+//        }
+//        workbook.close();
+//        return penilaianList;
+//    }
 
     private void parseKelasIdCell(PenilaianDTO penilaianDTO, Cell kelasIdCell) {
         switch (kelasIdCell.getCellType()) {

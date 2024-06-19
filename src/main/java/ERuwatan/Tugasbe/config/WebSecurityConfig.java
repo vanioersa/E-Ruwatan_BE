@@ -103,6 +103,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/ubah-password",
             "/upload/image",
             "/upload/importSiswa",
+            "/upload/importPenilaian",
             "/upload/**"
     };
 
