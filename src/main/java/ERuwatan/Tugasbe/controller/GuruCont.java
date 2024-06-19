@@ -1,10 +1,14 @@
 package ERuwatan.Tugasbe.controller;
 
+import ERuwatan.Tugasbe.Excell.ExcelGuruSer;
 import ERuwatan.Tugasbe.dto.GuruDTO;
 import ERuwatan.Tugasbe.service.GuruSer;
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -12,6 +16,9 @@ import java.util.List;
 public class GuruCont {
     @Autowired
     private GuruSer guruSer;
+
+    @Autowired
+    private ExcelGuruSer excelGuruSer;
 
     @PostMapping("/add")
     public GuruDTO createGuru(@RequestBody GuruDTO guruDTO) {
@@ -36,5 +43,11 @@ public class GuruCont {
     @DeleteMapping("/hapus/{id}")
     public void deleteGuru(@PathVariable Long id) {
         guruSer.deleteGuru(id);
+    }
+
+    @GetMapping("/upload/export-guru")
+    public void exportGuru(
+            HttpServletResponse response) throws IOException, NotFoundException {
+        excelGuruSer.excelExportGuru(response);
     }
 }
