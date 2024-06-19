@@ -3,6 +3,7 @@ package ERuwatan.Tugasbe.controller;
 
 import ERuwatan.Tugasbe.Excell.ExcelPenilaianSer;
 import ERuwatan.Tugasbe.dto.PenilaianDTO;
+import ERuwatan.Tugasbe.model.Penilaian;
 import ERuwatan.Tugasbe.serlmpl.PenilaianSerImpl;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class PenilaianCont {
     }
 
     @PutMapping("/ubah/{id}")
-    public PenilaianDTO updatePenilaian(@PathVariable Long id, @RequestBody PenilaianDTO penilaianDTO) {
+    public Penilaian updatePenilaian(@PathVariable Long id, @RequestBody PenilaianDTO penilaianDTO) {
         return penilaianSer.updatePenilaian(id, penilaianDTO);
     }
 

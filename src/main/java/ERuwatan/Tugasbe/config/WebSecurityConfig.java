@@ -102,6 +102,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/kbm/**",
             "/ubah-password",
             "/upload/image",
+            "/upload/importSiswa",
+            "/upload/**"
     };
 
     @Override
