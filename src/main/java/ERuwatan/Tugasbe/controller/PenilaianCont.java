@@ -18,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/panilaian")
+@CrossOrigin(origins = "*")
 public class PenilaianCont {
     @Autowired
     private PenilaianSerImpl penilaianSer;
@@ -36,7 +37,7 @@ public class PenilaianCont {
     }
 
     @GetMapping("/all")
-    public List<PenilaianDTO> getAllPenilaian() {
+    public List<Penilaian> getAllPenilaian() {
         return penilaianSer.getAllPenilaian();
     }
 

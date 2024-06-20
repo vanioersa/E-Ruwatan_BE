@@ -104,6 +104,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/upload/image",
             "/upload/importSiswa",
             "/upload/importPenilaian",
+            "/upload/export-penilaian",
             "/upload/**"
     };
 

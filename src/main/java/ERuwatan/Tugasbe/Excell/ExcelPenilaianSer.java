@@ -4,7 +4,6 @@ import ERuwatan.Tugasbe.model.*;
 import ERuwatan.Tugasbe.repository.KelasRepo;
 import ERuwatan.Tugasbe.repository.PenilaianRepo;
 import ERuwatan.Tugasbe.repository.SiswaRepo;
-import ERuwatan.Tugasbe.repository.UserRepository;
 import javassist.NotFoundException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -17,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ExcelPenilaianSer {
@@ -26,6 +24,9 @@ public class ExcelPenilaianSer {
 
     @Autowired
     private KelasRepo kelasRepo;
+
+    @Autowired
+    private SiswaRepo siswaRepo;
 
     public void excelExportPenilaian(Long kelas_id, Long siswa_id, HttpServletResponse response) throws IOException, NotFoundException {
         Workbook workbook = new XSSFWorkbook();
@@ -36,7 +37,7 @@ public class ExcelPenilaianSer {
         int rowNum = 0;
 
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = {"ID", "Nama Siswa", "Kelas", "Nilai Siswa", "Deskripsi"};
+        String[] headers = {"ID", "Nama Siswa", "Kelas ID", "Nilai Siswa", "Deskripsi"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
@@ -51,7 +52,7 @@ public class ExcelPenilaianSer {
             cell1.setCellValue(penilaian.getSiswa().getNama_siswa());
 
             Cell cell2 = row.createCell(2);
-            cell2.setCellValue(penilaian.getKelas().getNama_kelas());
+            cell2.setCellValue(penilaian.getKelas().getId());
 
             Cell cell3 = row.createCell(3);
             cell3.setCellValue(penilaian.getNilai());
@@ -87,22 +88,35 @@ public class ExcelPenilaianSer {
 
                 // Handle Nama Siswa
                 Cell cell1 = currentRow.getCell(1);
-                if (cell1 != null && cell1.getCellType() == CellType.STRING) {
-                    penilaian.setSiswa(cell1.getStringCellValue());
+                if (cell1 != null) {
+                    if (cell1.getCellType() == CellType.NUMERIC) {
+                        Siswa siswa = siswaRepo.findById((long) cell1.getNumericCellValue())
+                                .orElseThrow(() -> new ERuwatan.Tugasbe.exception.NotFoundException("Id " + cell1.getNumericCellValue() + " not found"));
+                        penilaian.setSiswa(siswa);
+                    } else if (cell1.getCellType() == CellType.STRING) {
+                        try {
+                            Long kelasId = Long.valueOf(cell1.getStringCellValue());
+                            Siswa kelas = siswaRepo.findById(kelasId)
+                                    .orElseThrow(() -> new ERuwatan.Tugasbe.exception.NotFoundException("Id " + kelasId + " not found"));
+                            penilaian.setSiswa(kelas);
+                        } catch (NumberFormatException e) {
+                            throw new IllegalArgumentException("Invalid Kelas ID: " + cell1.getStringCellValue());
+                        }
+                    }
                 }
 
-                // Handle Kelas
-                Cell cell2 = currentRow.getCell(4);
+                // Handle Kelas by ID
+                Cell cell2 = currentRow.getCell(2);
                 if (cell2 != null) {
                     if (cell2.getCellType() == CellType.NUMERIC) {
                         Kelas kelas = kelasRepo.findById((long) cell2.getNumericCellValue())
-                                .orElseThrow(() -> new ERuwatan.Tugasbe.exception.NotFoundException("Id " + cell2.getNumericCellValue() + " not found"));
+                                .orElseThrow(() -> new NotFoundException("Id " + cell2.getNumericCellValue() + " not found"));
                         penilaian.setKelas(kelas);
                     } else if (cell2.getCellType() == CellType.STRING) {
                         try {
                             Long kelasId = Long.valueOf(cell2.getStringCellValue());
                             Kelas kelas = kelasRepo.findById(kelasId)
-                                    .orElseThrow(() -> new ERuwatan.Tugasbe.exception.NotFoundException("Id " + kelasId + " not found"));
+                                    .orElseThrow(() -> new NotFoundException("Id " + kelasId + " not found"));
                             penilaian.setKelas(kelas);
                         } catch (NumberFormatException e) {
                             throw new IllegalArgumentException("Invalid Kelas ID: " + cell2.getStringCellValue());
@@ -112,19 +126,21 @@ public class ExcelPenilaianSer {
 
                 // Handle Nilai
                 Cell cell3 = currentRow.getCell(3);
-                if (cell3 != null && cell3.getCellType() == CellType.STRING) {
-                    penilaian.setNilai(cell3.getStringCellValue());
+                if (cell3 != null && cell3.getCellType() == CellType.NUMERIC) {
+                    penilaian.setNilai(String.valueOf((int) cell3.getNumericCellValue()));
                 }
 
                 // Handle Deskripsi
-                Cell cell4 = currentRow.getCell(3);
+                Cell cell4 = currentRow.getCell(4);
                 if (cell4 != null && cell4.getCellType() == CellType.STRING) {
-                    penilaian.setDeskripsi(cell3.getStringCellValue());
+                    penilaian.setDeskripsi(cell4.getStringCellValue());
                 }
-                // Save the Siswa entity to the repository
+
+                // Save the Penilaian entity to the repository
                 penilaianRepo.save(penilaian);
             }
+        } catch (NotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
-
 }

@@ -47,8 +47,8 @@ public class PenilaianSerImpl implements PenilaianSer {
     }
 
     @Override
-    public List<PenilaianDTO> getAllPenilaian() {
-        return penilaianRepo.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
+    public List<Penilaian> getAllPenilaian() {
+        return penilaianRepo.findAll();
     }
 
     @Override

@@ -10,7 +10,7 @@ import java.util.List;
 public interface PenilaianSer {
     PenilaianDTO createPenilaian(PenilaianDTO penilaianDTO);
     PenilaianDTO getPenilaianById(Long id);
-    List<PenilaianDTO> getAllPenilaian();
+    List<Penilaian> getAllPenilaian();
     Penilaian updatePenilaian(Long id, PenilaianDTO penilaianDTO);
     void deletePenilaian(Long id);
 }
