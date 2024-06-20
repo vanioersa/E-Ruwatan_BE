@@ -1,14 +1,9 @@
 package ERuwatan.Tugasbe.model;
 
-import ERuwatan.Tugasbe.dto.KelasDTO;
-import ERuwatan.Tugasbe.dto.SiswaDTO;
-
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "Piket")
 public class Piket {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,22 +13,22 @@ public class Piket {
     @JoinColumn(name = "kelas_id")
     private Kelas kelas;
 
-    private String status;
+    @ManyToMany
+    @JoinTable(
+            name = "piket_siswa",
+            joinColumns = @JoinColumn(name = "piket_id"),
+            inverseJoinColumns = @JoinColumn(name = "siswa_id")
+    )
+    private List<Siswa> siswa;
 
-    @OneToOne
-    @JoinColumn(name = "siswa_id")
-    private Siswa siswa;
-
-    public Siswa getSiswa() {
-        return siswa;
-    }
-
-    public void setSiswa(Siswa siswa) {
-        this.siswa = siswa;
-    }
+    @ElementCollection
+    @CollectionTable(name = "piket_status", joinColumns = @JoinColumn(name = "piket_id"))
+    @Column(name = "status")
+    private List<String> status;
 
     private String tanggal;
 
+    // Getter dan Setter
     public Long getId() {
         return id;
     }
@@ -50,37 +45,27 @@ public class Piket {
         this.kelas = kelas;
     }
 
-    public String  getTanggal() {
-        return tanggal;
+    public List<Siswa> getSiswa() {
+        return siswa;
     }
 
-    public void setTanggal(String  tanggal) {
-        this.tanggal = tanggal;
+    public void setSiswa(List<Siswa> siswa) {
+        this.siswa = siswa;
     }
 
-    public SiswaDTO getSiswaId() {
-        return null;
-    }
-
-    public KelasDTO getKelasId() {
-        return null;
-    }
-
-    public void setSiswaId(SiswaDTO siswaDTO) {
-    }
-
-    public void setKelasId(KelasDTO kelasDTO) {
-    }
-
-    public SiswaDTO[] getSiswaDTOList() {
-        return getSiswaDTOList();
-    }
-
-    public String getStatus() {
+    public List<String> getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(List<String> status) {
         this.status = status;
+    }
+
+    public String getTanggal() {
+        return tanggal;
+    }
+
+    public void setTanggal(String tanggal) {
+        this.tanggal = tanggal;
     }
 }

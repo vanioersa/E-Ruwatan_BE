@@ -4,10 +4,9 @@ import java.util.List;
 
 public class SiswaDTO {
     private Long id;
-    private Long KelasId;
+    private Long kelasId;
     private String nama_siswa;
     private String nisn;
-
     public static void saveAll(List<SiswaDTO> datasiswa) {
     }
 
@@ -28,11 +27,11 @@ public class SiswaDTO {
     }
 
     public Long getKelasId() {
-        return KelasId;
+        return kelasId;
     }
 
     public void setKelasId(Long kelasId) {
-        KelasId = kelasId;
+        this.kelasId = kelasId;
     }
 
     public String getNama_siswa() {

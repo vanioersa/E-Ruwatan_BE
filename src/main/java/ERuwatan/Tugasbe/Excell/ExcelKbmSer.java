@@ -113,21 +113,34 @@ public class ExcelKbmSer {
 
                 // Handle User ID (cell 1)
                 Cell cell1 = currentRow.getCell(1);
-                if (cell1 != null && cell1.getCellType() == CellType.STRING) {
-                    String username = cell1.getStringCellValue();
-                    UserModel user = userRepository.findByUsername(username);
-                    if (user == null) {
-                        throw new NotFoundException("User dengan username '" + username + "' tidak ditemukan");
+                if (cell1 != null) {
+                    if (cell1.getCellType() == CellType.STRING) {
+                        String username = cell1.getStringCellValue();
+                        UserModel user = userRepository.findByUsername(username);
+                        if (user == null) {
+                            throw new NotFoundException("User dengan username '" + username + "' tidak ditemukan");
+                        }
+                        if (!userId.equals(user.getId())) {
+                            throw new IllegalArgumentException("User ID mismatch");
+                        }
+                        kbm.setUserModel(user);
+                    } else if (cell1.getCellType() == CellType.NUMERIC) {
+                        // Jika User ID berupa angka, langsung gunakan nilai numerik
+                        Long userIdFromExcel = (long) cell1.getNumericCellValue();
+                        UserModel user = userRepository.findById(userIdFromExcel)
+                                .orElseThrow(() -> new NotFoundException("User dengan ID '" + userIdFromExcel + "' tidak ditemukan"));
+                        if (!userId.equals(user.getId())) {
+                            throw new IllegalArgumentException("User ID mismatch");
+                        }
+                        kbm.setUserModel(user);
+                    } else {
+                        throw new IllegalArgumentException("Invalid cell type for User ID in cell 0");
                     }
-                    if (!userId.equals(user.getId())) {
-                        throw new IllegalArgumentException("User ID mismatch");
-                    }
-                    kbm.setUserModel(user);
                 } else {
-                    throw new IllegalArgumentException("User ID not found or invalid format in cell 1");
+                    throw new IllegalArgumentException("User ID not found in cell 0");
                 }
 
-                // Handle Kelas (ID)
+                // Handle Kelas (ID) (cell 2)
                 Cell cell2 = currentRow.getCell(2);
                 if (cell2 != null && cell2.getCellType() == CellType.NUMERIC) {
                     Long kelasId = (long) cell2.getNumericCellValue();
@@ -135,30 +148,30 @@ public class ExcelKbmSer {
                             .orElseThrow(() -> new NotFoundException("Kelas dengan ID " + kelasId + " tidak ditemukan"));
                     kbm.setKelas(kelas);
                 } else {
-                    throw new IllegalArgumentException("Kelas ID not found or invalid format in cell 2");
+                    throw new IllegalArgumentException("Kelas ID not found or invalid format in cell 1");
                 }
 
-                // Handle Jam Masuk
+                // Handle Jam Masuk (cell 3)
                 Cell cell3 = currentRow.getCell(3);
                 if (cell3 != null && cell3.getCellType() == CellType.STRING) {
                     kbm.setJam_masuk(cell3.getStringCellValue());
                 }
 
-                // Handle Jam Pulang
+                // Handle Jam Pulang (cell 4)
                 Cell cell4 = currentRow.getCell(4);
                 if (cell4 != null && cell4.getCellType() == CellType.STRING) {
                     kbm.setJam_pulang(cell4.getStringCellValue());
                 }
 
-                // Handle Keterangan
+                // Handle Keterangan (cell 5)
                 Cell cell5 = currentRow.getCell(5);
                 if (cell5 != null && cell5.getCellType() == CellType.STRING) {
                     kbm.setKeterangan(cell5.getStringCellValue());
                 }
 
-                // Handle Materi
+                // Handle Materi (cell 6)
                 Cell cell6 = currentRow.getCell(6);
-                if (cell6 != null && cell6.getCellType() == CellType.STRING) {
+                if (cell5 != null && cell6.getCellType() == CellType.STRING) {
                     kbm.setMateri(cell6.getStringCellValue());
                 }
 

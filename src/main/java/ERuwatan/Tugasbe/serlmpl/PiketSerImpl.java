@@ -1,12 +1,11 @@
 package ERuwatan.Tugasbe.serlmpl;
 
-import ERuwatan.Tugasbe.Excell.ExcelPiket;
 import ERuwatan.Tugasbe.dto.PiketDTO;
 import ERuwatan.Tugasbe.dto.SiswaDTO;
+import ERuwatan.Tugasbe.dto.SiswaStatusDTO;
 import ERuwatan.Tugasbe.model.Piket;
 import ERuwatan.Tugasbe.model.Kelas;
 import ERuwatan.Tugasbe.model.Siswa;
-import ERuwatan.Tugasbe.repository.GuruRepo;
 import ERuwatan.Tugasbe.repository.PiketRepo;
 import ERuwatan.Tugasbe.repository.KelasRepo;
 import ERuwatan.Tugasbe.repository.SiswaRepo;
@@ -14,53 +13,76 @@ import ERuwatan.Tugasbe.service.PiketSer;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
-import java.io.IOException;
 import java.util.*;
-
+import java.util.stream.Collectors;
 
 @Service
 public class PiketSerImpl implements PiketSer {
-
     @Autowired
     private PiketRepo piketRepo;
-
     @Autowired
     private KelasRepo kelasRepo;
-
     @Autowired
     private SiswaRepo siswaRepo;
 
-    @Autowired
-    private GuruRepo guruRepo;
-
     @Override
     public PiketDTO createPiket(PiketDTO piketDTO) {
-        Piket piket = new Piket();
-        BeanUtils.copyProperties(piketDTO, piket);
+        try {
+            Piket piket = new Piket();
+            BeanUtils.copyProperties(piketDTO, piket);
 
-        Optional<Kelas> kelasOptional = kelasRepo.findById(piketDTO.getKelasId());
-        kelasOptional.ifPresent(piket::setKelas);
-
-        List<String> statusList = (List<String>) piketDTO.getStatus();
-        if (statusList != null && !statusList.isEmpty()) {
-            String statusString = String.join(",", statusList);
-            piket.setStatus(statusString);
-
-            List<Siswa> siswaList = new ArrayList<>();
-            for (String siswaId : statusList) {
-                Optional<Siswa> siswaOptional = siswaRepo.findById(Long.parseLong(siswaId));
-                siswaOptional.ifPresent(siswaList::add);
+            Optional<Kelas> kelasOptional = kelasRepo.findById(piketDTO.getKelasId());
+            if (kelasOptional.isPresent()) {
+                piket.setKelas(kelasOptional.get());
+            } else {
+                throw new EntityNotFoundException("Kelas dengan ID " + piketDTO.getKelasId() + " tidak ditemukan");
             }
 
-            piket.setSiswa((Siswa) siswaList);
+            List<Siswa> siswaList = new ArrayList<>();
+            for (SiswaStatusDTO siswaStatusDTO : piketDTO.getSiswaStatusList()) {
+                Optional<Siswa> siswaOptional = siswaRepo.findById(siswaStatusDTO.getSiswaId());
+                if (siswaOptional.isPresent()) {
+                    siswaList.add(siswaOptional.get());
+                } else {
+                    throw new EntityNotFoundException("Siswa dengan ID " + siswaStatusDTO.getSiswaId() + " tidak ditemukan");
+                }
+            }
+            piket.setSiswa(siswaList); // Set list siswa ke piket
+
+            // Mengonversi status siswa menjadi List<String>
+            List<String> statusList = new ArrayList<>();
+            for (SiswaStatusDTO siswaStatusDTO : piketDTO.getSiswaStatusList()) {
+                statusList.addAll(siswaStatusDTO.getStatusList());
+            }
+            piket.setStatus(statusList);
+            piket.setTanggal(piketDTO.getTanggal()); // Set tanggal
+
+            Piket savedPiket = piketRepo.save(piket);
+            return convertToDTO(savedPiket);
+        } catch (EntityNotFoundException e) {
+            throw new EntityNotFoundException("Error: " + e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException("Terjadi kesalahan: " + e.getMessage(), e);
         }
+    }
 
-        Piket savedPiket = piketRepo.save(piket);
+    private PiketDTO convertToDTO(Piket piket) {
+        PiketDTO piketDTO = new PiketDTO();
+        BeanUtils.copyProperties(piket, piketDTO);
+        piketDTO.setId(piket.getId());
+        piketDTO.setKelasId(piket.getKelas() != null ? piket.getKelas().getId() : null);
 
-        return convertToDTO(savedPiket);
+        List<SiswaStatusDTO> siswaStatusDTOList = new ArrayList<>();
+        for (Siswa siswa : piket.getSiswa()) {
+            SiswaStatusDTO siswaStatusDTO = new SiswaStatusDTO();
+            siswaStatusDTO.setSiswaId(siswa.getId());
+            siswaStatusDTO.setStatusList(piket.getStatus());
+            siswaStatusDTOList.add(siswaStatusDTO);
+        }
+        piketDTO.setSiswaStatusList(siswaStatusDTOList);
+        return piketDTO;
     }
 
     @Override
@@ -69,71 +91,51 @@ public class PiketSerImpl implements PiketSer {
         return piketOptional.map(this::convertToDTO).orElse(null);
     }
 
-//    @Override
-//    public List<PiketDTO> getAllPikets() {
-//        List<String> pikets = (List<String>) statusrepo.getSiswa();
-//        return piketRepo.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
-//    }
-
     @Override
     public PiketDTO updatePiket(Long id, PiketDTO piketDTO) {
-        return null;
+        try {
+            Optional<Piket> piketOptional = piketRepo.findById(id);
+            if (!piketOptional.isPresent()) {
+                throw new EntityNotFoundException("Piket dengan ID " + id + " tidak ditemukan");
+            }
+
+            Piket existingPiket = piketOptional.get();
+            // Perbarui properti Piket dengan data dari PiketDTO
+            BeanUtils.copyProperties(piketDTO, existingPiket, "id", "siswa", "status");
+
+            Optional<Kelas> kelasOptional = kelasRepo.findById(piketDTO.getKelasId());
+            kelasOptional.ifPresent(existingPiket::setKelas);
+
+            List<Siswa> siswaList = new ArrayList<>();
+            for (SiswaStatusDTO siswaStatusDTO : piketDTO.getSiswaStatusList()) {
+                Optional<Siswa> siswaOptional = siswaRepo.findById(siswaStatusDTO.getSiswaId());
+                if (siswaOptional.isPresent()) {
+                    siswaList.add(siswaOptional.get());
+                } else {
+                    throw new EntityNotFoundException("Siswa dengan ID " + siswaStatusDTO.getSiswaId() + " tidak ditemukan");
+                }
+            }
+            existingPiket.setSiswa(siswaList);
+
+            // Mengonversi status menjadi List<String>
+            List<String> statusList = new ArrayList<>();
+            for (SiswaStatusDTO siswaStatusDTO : piketDTO.getSiswaStatusList()) {
+                statusList.addAll(siswaStatusDTO.getStatusList());
+            }
+            existingPiket.setStatus(statusList);
+
+            existingPiket.setTanggal(piketDTO.getTanggal()); // Set tanggal
+
+            Piket updatedPiket = piketRepo.save(existingPiket);
+            return convertToDTO(updatedPiket);
+        } catch (EntityNotFoundException e) {
+            throw new EntityNotFoundException("Error: " + e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException("Terjadi kesalahan: " + e.getMessage(), e);
+        }
     }
 
-//    @Override
-//    public PiketDTO updatePiket(Long id, PiketDTO piketDTO) {
-//        Optional<Piket> optionalPiket = piketRepo.findById(id);
-//        if (optionalPiket.isPresent()) {
-//            Piket piket = optionalPiket.get();
-//            BeanUtils.copyProperties(piketDTO, piket);
-//            Optional<Kelas> kelasOptional = kelasRepo.findById(piketDTO.getKelasId());
-//            kelasOptional.ifPresent(piket::setKelas);
-//
-//            PiketDTO dpiketDTO = (PiketDTO) piketDTO.getDpiketDTOList();
-//            List<Long> siswaId = piketDTO.getSiswaId();
-//            Optional<Siswa> siswaOptional = siswaRepo.findById(siswaId.get(0)); // Ubah sesuai kebutuhan
-//            siswaOptional.ifPresent(piket::setSiswa);
-//
-//            piket.setId(id);
-//            return convertToDTO(piketRepo.save(piket));
-//        }
-//        return null;
-//    }
-
-//    @Override
-//    public PiketDTO updatePiket(Long id, PiketDTO piketDTO) {
-//        Optional<Piket> optionalPiket = piketRepo.findById(id);
-//        if (optionalPiket.isPresent()) {
-//            Piket piket = optionalPiket.get();
-//            BeanUtils.copyProperties(piketDTO, piket, "siswaId", "status");
-//
-//            Optional<Kelas> kelasOptional = kelasRepo.findById(piketDTO.getKelasId());
-//            kelasOptional.ifPresent(piket::setKelas);
-//
-//            List<Long> siswaIdList = (List<Long>) piketDTO.getStatus();
-//            if (siswaIdList != null && !siswaIdList.isEmpty()) {
-//                List<Siswa> siswaList = new ArrayList<>();
-//                for (Long siswaId : siswaIdList) {
-//                    Optional<Siswa> siswaOptional = siswaRepo.findById(siswaId);
-//                    siswaOptional.ifPresent(siswaList::add);
-//                }
-//                piket.setStatus((Status) siswaList);
-//            } else {
-//                throw new IllegalArgumentException("No Siswa IDs provided");
-//            }
-//
-//            List<String> statusList = (List<String>) piketDTO.getStatus();
-//            if (statusList != null && !statusList.isEmpty()) {
-//                piket.setDpiketDTOList(piket.getStatus());
-//            } else {
-//                throw new IllegalArgumentException("No Status provided");
-//            }
-//            piket.setId(id);
-//            return convertToDTO(piketRepo.save(piket));
-//        }
-//        return null;
-//    }
-
+    @Override
     public void deletePiket(Long id) {
         if (piketRepo.existsById(id)) {
             piketRepo.deleteById(id);
@@ -142,33 +144,57 @@ public class PiketSerImpl implements PiketSer {
         }
     }
 
-//    @Override
-//    public void importPiketan(MultipartFile file) {
-//        // Implementation for importing Piketan
-//    }
-
-    private PiketDTO convertToDTO(Piket piket) {
-        PiketDTO piketDTO = new PiketDTO();
-        BeanUtils.copyProperties(piket, piketDTO);
-        piketDTO.setIdPiket(piket.getId());
-        piketDTO.setKelasId(piket.getKelas() != null ? piket.getKelas().getId() : null);
-
-        // Mengambil ID dari setiap siswa dalam piket
-        List<Long> siswaIdList = new ArrayList<>();
-        for (SiswaDTO siswaDTO : piket.getSiswaDTOList()) {
-            siswaIdList.add(siswaDTO.getId());
-        }
-        piketDTO.setSiswaId(siswaIdList);
-
-        return piketDTO;
+    @Override
+    public List<SiswaDTO> getStudentsByClass(Long kelasId) {
+        return null;
     }
 
-    public void savePiket(MultipartFile file) {
-        try {
-            List<Piket> piketList = ExcelPiket.excelPiket(file.getInputStream());
-            piketRepo.saveAll(piketList);
-        } catch (IOException e) {
-            throw new RuntimeException("fail to store excel data: " + e.getMessage());
+    @Override
+    public List<PiketDTO> getPiketByKelas(Long kelasId) {
+        List<Piket> piketList = piketRepo.findByKelasId(kelasId);
+        return piketList.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateStudentStatus(List<PiketDTO> piketDTOList) {
+        for (PiketDTO piketDTO : piketDTOList) {
+            updatePiket(piketDTO.getId(), piketDTO);
         }
+    }
+
+    @Override
+    public PiketDTO addSiswaToPiket(PiketDTO piketDTO) {
+        return createPiket(piketDTO); // Gunakan createPiket untuk menambahkan siswa
+    }
+
+    @Override
+    public List<PiketDTO> getPiketByDateAndClass(String tanggal, Long kelasId) {
+        return null;
+    }
+
+    @Override
+    public boolean deletePiketByDateAndClass(String tanggal, Long kelasId) {
+        try {
+            List<Piket> piketList = piketRepo.findByTanggalAndKelasId(tanggal, kelasId);
+            if (piketList.isEmpty()) {
+                return false;
+            }
+            piketRepo.deleteAll(piketList);
+            return true;
+        } catch (Exception e) {
+            throw new RuntimeException("Terjadi kesalahan saat menghapus piket berdasarkan tanggal dan kelas: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public List<PiketDTO> getAllPiket() {
+        List<Piket> piketList = piketRepo.findAll();
+        List<PiketDTO> piketDTOList = new ArrayList<>();
+        for (Piket piket : piketList) {
+            piketDTOList.add(convertToDTO(piket));
+        }
+        return piketDTOList;
     }
 }

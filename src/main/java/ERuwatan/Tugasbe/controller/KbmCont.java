@@ -1,10 +1,7 @@
 package ERuwatan.Tugasbe.controller;
 
-import ERuwatan.Tugasbe.Excell.ExcelKbm;
 import ERuwatan.Tugasbe.Excell.ExcelKbmSer;
-import ERuwatan.Tugasbe.Excell.ExcelPiket;
 import ERuwatan.Tugasbe.dto.KbmDTO;
-import ERuwatan.Tugasbe.response.ResponseMessage;
 import ERuwatan.Tugasbe.service.KbmSer;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +12,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 @RestController
@@ -55,8 +51,8 @@ public class KbmCont {
 
     @GetMapping("/upload/export-kbm")
     public void ExportKbm(@RequestParam("kelas_id") Long kelas_id,
-                            @RequestParam("user_id") Long user_id,
-                            HttpServletResponse response) throws IOException, NotFoundException {
+                          @RequestParam("user_id") Long user_id,
+                          HttpServletResponse response) throws IOException, NotFoundException {
         excelKbmSer.excelExportKbm(kelas_id, user_id, response);
     }
 
