@@ -41,17 +41,12 @@ public class ExcelKbmSer {
         return user.getUsername();
     }
 
-    public void excelExportKbm(Long kelas_id, Long user_id, HttpServletResponse response) throws IOException, NotFoundException {
-        Optional<Kelas> kelasOptional = kelasRepo.findById(kelas_id);
-        if (kelasOptional.isEmpty()) {
-            throw new NotFoundException("Kelas ID tidak ditemukan");
-        }
-        Kelas kelas = kelasOptional.get();
+    public void excelExportKbm(HttpServletResponse response) throws IOException, NotFoundException {
 
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Export-Kbm");
 
-        List<Kbm> kbmList = kbmRepo.findByKelasIdAndUserId(kelas_id, user_id);
+        List<Kbm> kbmList = kbmRepo.findAll();
 
         int rowNum = 0;
 
@@ -71,7 +66,7 @@ public class ExcelKbmSer {
             cell1.setCellValue(getNameUser(kbm.getUserModel().getId()));
 
             Cell cell2 = row.createCell(2);
-            cell2.setCellValue(kelas.getNama_kelas());
+            cell2.setCellValue(kbm.getKelas().getNama_kelas());
 
             Cell cell3 = row.createCell(3);
             cell3.setCellValue(kbm.getJam_masuk());

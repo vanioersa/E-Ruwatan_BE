@@ -28,11 +28,11 @@ public class ExcelPenilaianSer {
     @Autowired
     private SiswaRepo siswaRepo;
 
-    public void excelExportPenilaian(Long kelas_id, Long siswa_id, HttpServletResponse response) throws IOException, NotFoundException {
+    public void excelExportPenilaian( HttpServletResponse response) throws IOException, NotFoundException {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Export-Penilaian");
 
-        List<Penilaian> penilaianList = penilaianRepo.findByKelasIdAndSiswaId(kelas_id, siswa_id);
+        List<Penilaian> penilaianList = penilaianRepo.findAll();
 
         int rowNum = 0;
 
