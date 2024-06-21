@@ -1,88 +1,77 @@
-//package ERuwatan.Tugasbe.Excell;
-//
-//import ERuwatan.Tugasbe.model.Piket;
-//import ERuwatan.Tugasbe.repository.PiketRepo;
-//import org.apache.poi.ss.usermodel.Cell;
-//import org.apache.poi.ss.usermodel.Row;
-//import org.apache.poi.ss.usermodel.Sheet;
-//import org.apache.poi.ss.usermodel.Workbook;
-//import org.apache.poi.ss.util.CellRangeAddress;
-//import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.stereotype.Service;
-//import org.springframework.web.multipart.MultipartFile;
-//
-//import javax.servlet.http.HttpServletResponse;
-//import java.io.ByteArrayInputStream;
-//import java.io.IOException;
-//import java.text.SimpleDateFormat;
-//import java.util.List;
-//
-//@Service
-//public class ExcelPiketSer {
-//    @Autowired
-//    private PiketRepo piketRepo;
-//
-//    public ByteArrayInputStream loadPiket() throws IOException {
-//        List<Piket> pikets = piketRepo.findAll();
-//        ByteArrayInputStream in = ExcelPiket.piketToExcel(pikets);
-//        return in;
-//    }
-//
-//    public void savePiket(MultipartFile file) {
-//        try {
-//            List<Piket> piketList = ExcelPiket.excelPiket(file.getInputStream());
-//            piketRepo.saveAll(piketList);
-//        } catch (IOException e) {
-//            throw new RuntimeException("fail to store excel data: " + e.getMessage());
-//        }
-//    }
-//
-//    public void excelExportPiket(String tanggal, Long kelas_id, HttpServletResponse response) throws IOException {
-//        Workbook workbook = new XSSFWorkbook();
-//        Sheet sheet = workbook.createSheet("Export-Piket");
-//
-//        List<Piket> absensiList = piketRepo.findByTanggalAndKelasId(tanggal, kelas_id);
-//
-//        int rowNum = 0;
-//
-//        // Header row
-//        Row headerRow = sheet.createRow(rowNum++);
-//        String[] headers = {"ID", "Status", "Tanggal", "Kelas"};
-//        for (int i = 0; i < headers.length; i++) {
-//            Cell cell = headerRow.createCell(i);
-//            cell.setCellValue(headers[i]);
-//        }
-//
-//        // Data rows
-//        for (Piket piket : absensiList) {
-//            Row row = sheet.createRow(rowNum++);
-//            Cell cell0 = row.createCell(0);
-//            cell0.setCellValue(piket.getId());
-//
-//            Cell cell1 = row.createCell(1);
-//            cell1.setCellValue(piket.getTanggal());
-//
-//            Cell cell2 = row.createCell(2);
-//            cell2.setCellValue(piket.getStatus());
-//
-//            Cell cell3 = row.createCell(3);
-//            cell3.setCellValue(piket.getKelas().getNama_kelas()); // Assuming Kelas ID is stored in a field called "kelas"
-//
-////            Cell cell4 = row.createCell(4);
-////            cell4.setCellValue(piket.getSiswa().getNama_siswa()); // Assuming Siswa ID is stored in a field called "siswa"
-//        }
-//
-//        // Adjust column width
-//        for (int i = 0; i < headers.length; i++) {
-//            sheet.autoSizeColumn(i);
-//        }
-//
-//        // Set response headers for Excel download
-//        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-//        response.setHeader("Content-Disposition", "attachment; filename=ExportPiket.xlsx");
-//        workbook.write(response.getOutputStream());
-//        workbook.close();
-//    }
-//
-//}
+package ERuwatan.Tugasbe.Excell;
+
+import ERuwatan.Tugasbe.dto.KelasDTO;
+import ERuwatan.Tugasbe.dto.PiketDTO;
+import ERuwatan.Tugasbe.dto.SiswaDTO;
+import ERuwatan.Tugasbe.dto.SiswaStatusDTO;
+import ERuwatan.Tugasbe.service.PiketSer;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.List;
+
+@Service
+public class ExcelPiketSer {
+    @Autowired
+    private PiketSer piketSer;
+
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+
+    public ResponseEntity<byte[]> exportPiketDataToExcel() {
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Piket Data");
+
+            List<PiketDTO> piketList = piketSer.getAllPiket();
+
+            int rowNum = 0;
+            Row headerRow = sheet.createRow(rowNum++);
+            headerRow.createCell(0).setCellValue("No");
+            headerRow.createCell(1).setCellValue("Kelas");
+            headerRow.createCell(2).setCellValue("Tanggal");
+            headerRow.createCell(3).setCellValue("Nama Siswa");
+            headerRow.createCell(4).setCellValue("Status");
+
+            for (PiketDTO piket : piketList) {
+                for (SiswaStatusDTO siswaStatus : piket.getSiswaStatusList()) {
+                    Row row = sheet.createRow(rowNum++);
+                    row.createCell(0).setCellValue(rowNum - 1 + ".");
+                    KelasDTO kelasDTO = piketSer.getKelasById(piket.getKelasId());
+                    String kelasNamaKelas = kelasDTO.getKelas() + " - " + kelasDTO.getNama_kelas();
+                    row.createCell(1).setCellValue(kelasNamaKelas);
+                    row.createCell(2).setCellValue(dateFormat.format(piket.getTanggal()));
+                    SiswaDTO siswaDTO = piketSer.getSiswaById(siswaStatus.getSiswaId());
+                    row.createCell(3).setCellValue(siswaDTO.getNama_siswa());
+                    row.createCell(4).setCellValue(String.join(", ", siswaStatus.getStatusList()));
+                }
+            }
+
+            // Auto size columns
+            for (int i = 0; i < 5; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+            headers.setContentDispositionFormData("attachment", "piket_data.xlsx");
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(outputStream.toByteArray());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+}

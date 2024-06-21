@@ -1,13 +1,15 @@
 package ERuwatan.Tugasbe.dto;
 
+import java.util.Date;
 import java.util.List;
 
 public class PiketDTO {
     private Long id;
     private Long kelasId;
+    private Date tanggal;
     private List<SiswaStatusDTO> siswaStatusList;
-    private String tanggal;
 
+    // Getter dan Setter
     public Long getId() {
         return id;
     }
@@ -24,6 +26,14 @@ public class PiketDTO {
         this.kelasId = kelasId;
     }
 
+    public Date getTanggal() {
+        return tanggal;
+    }
+
+    public void setTanggal(Date tanggal) {
+        this.tanggal = tanggal;
+    }
+
     public List<SiswaStatusDTO> getSiswaStatusList() {
         return siswaStatusList;
     }
@@ -31,12 +41,5 @@ public class PiketDTO {
     public void setSiswaStatusList(List<SiswaStatusDTO> siswaStatusList) {
         this.siswaStatusList = siswaStatusList;
     }
-
-    public String getTanggal() {
-        return tanggal;
-    }
-
-    public void setTanggal(String tanggal) {
-        this.tanggal = tanggal;
-    }
 }
+

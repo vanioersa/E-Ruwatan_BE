@@ -1,13 +1,16 @@
 package ERuwatan.Tugasbe.serlmpl;
 
+import ERuwatan.Tugasbe.dto.KelasDTO;
 import ERuwatan.Tugasbe.dto.PiketDTO;
 import ERuwatan.Tugasbe.dto.SiswaDTO;
 import ERuwatan.Tugasbe.dto.SiswaStatusDTO;
 import ERuwatan.Tugasbe.model.Piket;
 import ERuwatan.Tugasbe.model.Kelas;
+import ERuwatan.Tugasbe.model.PiketSiswaStatus;
 import ERuwatan.Tugasbe.model.Siswa;
 import ERuwatan.Tugasbe.repository.PiketRepo;
 import ERuwatan.Tugasbe.repository.KelasRepo;
+import ERuwatan.Tugasbe.repository.PiketSiswaStatusRepo;
 import ERuwatan.Tugasbe.repository.SiswaRepo;
 import ERuwatan.Tugasbe.service.PiketSer;
 import org.springframework.beans.BeanUtils;
@@ -15,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,12 +31,22 @@ public class PiketSerImpl implements PiketSer {
     private KelasRepo kelasRepo;
     @Autowired
     private SiswaRepo siswaRepo;
+    @Autowired
+    private PiketSiswaStatusRepo piketSiswaStatusRepo;
+
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 
     @Override
     public PiketDTO createPiket(PiketDTO piketDTO) {
         try {
+            System.out.println("Mulai membuat Piket");
             Piket piket = new Piket();
             BeanUtils.copyProperties(piketDTO, piket);
+            System.out.println("Piket: " + piket);
+
+            if (piketDTO.getKelasId() == null) {
+                throw new IllegalArgumentException("Kelas ID tidak boleh null");
+            }
 
             Optional<Kelas> kelasOptional = kelasRepo.findById(piketDTO.getKelasId());
             if (kelasOptional.isPresent()) {
@@ -40,30 +55,45 @@ public class PiketSerImpl implements PiketSer {
                 throw new EntityNotFoundException("Kelas dengan ID " + piketDTO.getKelasId() + " tidak ditemukan");
             }
 
-            List<Siswa> siswaList = new ArrayList<>();
+            if (piketDTO.getSiswaStatusList() == null || piketDTO.getSiswaStatusList().isEmpty()) {
+                throw new IllegalArgumentException("Siswa status list tidak boleh null atau kosong");
+            }
+
+            List<PiketSiswaStatus> siswaStatusList = new ArrayList<>();
             for (SiswaStatusDTO siswaStatusDTO : piketDTO.getSiswaStatusList()) {
+                if (siswaStatusDTO.getSiswaId() == null) {
+                    throw new IllegalArgumentException("Siswa ID tidak boleh null");
+                }
                 Optional<Siswa> siswaOptional = siswaRepo.findById(siswaStatusDTO.getSiswaId());
                 if (siswaOptional.isPresent()) {
-                    siswaList.add(siswaOptional.get());
+                    PiketSiswaStatus piketSiswaStatus = new PiketSiswaStatus();
+                    piketSiswaStatus.setPiket(piket);
+                    piketSiswaStatus.setSiswa(siswaOptional.get());
+                    piketSiswaStatus.setStatus(String.join(", ", siswaStatusDTO.getStatusList()));
+                    System.out.println("PiketSiswaStatus: " + piketSiswaStatus);
+                    siswaStatusList.add(piketSiswaStatus);
                 } else {
                     throw new EntityNotFoundException("Siswa dengan ID " + siswaStatusDTO.getSiswaId() + " tidak ditemukan");
                 }
             }
-            piket.setSiswa(siswaList); // Set list siswa ke piket
+            piket.setSiswaStatus(siswaStatusList);
 
-            // Mengonversi status siswa menjadi List<String>
-            List<String> statusList = new ArrayList<>();
-            for (SiswaStatusDTO siswaStatusDTO : piketDTO.getSiswaStatusList()) {
-                statusList.addAll(siswaStatusDTO.getStatusList());
+            try {
+                piket.setTanggal(dateFormat.parse(dateFormat.format(piketDTO.getTanggal())));
+            } catch (ParseException e) {
+                throw new RuntimeException("Format tanggal tidak valid: " + piketDTO.getTanggal(), e);
             }
-            piket.setStatus(statusList);
-            piket.setTanggal(piketDTO.getTanggal()); // Set tanggal
 
+            System.out.println("Menyimpan Piket ke database");
             Piket savedPiket = piketRepo.save(piket);
+            System.out.println("Piket berhasil disimpan dengan ID: " + savedPiket.getId());
+
             return convertToDTO(savedPiket);
         } catch (EntityNotFoundException e) {
+            System.out.println("EntityNotFoundException: " + e.getMessage());
             throw new EntityNotFoundException("Error: " + e.getMessage());
         } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
             throw new RuntimeException("Terjadi kesalahan: " + e.getMessage(), e);
         }
     }
@@ -75,13 +105,20 @@ public class PiketSerImpl implements PiketSer {
         piketDTO.setKelasId(piket.getKelas() != null ? piket.getKelas().getId() : null);
 
         List<SiswaStatusDTO> siswaStatusDTOList = new ArrayList<>();
-        for (Siswa siswa : piket.getSiswa()) {
+        for (PiketSiswaStatus piketSiswaStatus : piket.getSiswaStatus()) {
             SiswaStatusDTO siswaStatusDTO = new SiswaStatusDTO();
-            siswaStatusDTO.setSiswaId(siswa.getId());
-            siswaStatusDTO.setStatusList(piket.getStatus());
+            siswaStatusDTO.setSiswaId(piketSiswaStatus.getSiswa().getId());
+            siswaStatusDTO.setStatusList(Arrays.asList(piketSiswaStatus.getStatus().split(", ")));
             siswaStatusDTOList.add(siswaStatusDTO);
         }
         piketDTO.setSiswaStatusList(siswaStatusDTOList);
+
+        try {
+            piketDTO.setTanggal(dateFormat.parse(dateFormat.format(piket.getTanggal())));
+        } catch (ParseException e) {
+            throw new RuntimeException("Format tanggal tidak valid: " + piket.getTanggal(), e);
+        }
+
         return piketDTO;
     }
 
@@ -100,33 +137,35 @@ public class PiketSerImpl implements PiketSer {
             }
 
             Piket existingPiket = piketOptional.get();
-            // Perbarui properti Piket dengan data dari PiketDTO
-            BeanUtils.copyProperties(piketDTO, existingPiket, "id", "siswa", "status");
+            BeanUtils.copyProperties(piketDTO, existingPiket, "id", "siswaStatus");
 
             Optional<Kelas> kelasOptional = kelasRepo.findById(piketDTO.getKelasId());
             kelasOptional.ifPresent(existingPiket::setKelas);
 
-            List<Siswa> siswaList = new ArrayList<>();
+            List<PiketSiswaStatus> siswaStatusList = new ArrayList<>();
             for (SiswaStatusDTO siswaStatusDTO : piketDTO.getSiswaStatusList()) {
                 Optional<Siswa> siswaOptional = siswaRepo.findById(siswaStatusDTO.getSiswaId());
                 if (siswaOptional.isPresent()) {
-                    siswaList.add(siswaOptional.get());
+                    PiketSiswaStatus piketSiswaStatus = new PiketSiswaStatus();
+                    piketSiswaStatus.setPiket(existingPiket);
+                    piketSiswaStatus.setSiswa(siswaOptional.get());
+                    piketSiswaStatus.setStatus(String.join(", ", siswaStatusDTO.getStatusList()));
+                    siswaStatusList.add(piketSiswaStatus);
                 } else {
                     throw new EntityNotFoundException("Siswa dengan ID " + siswaStatusDTO.getSiswaId() + " tidak ditemukan");
                 }
             }
-            existingPiket.setSiswa(siswaList);
+            existingPiket.setSiswaStatus(siswaStatusList);
 
-            // Mengonversi status menjadi List<String>
-            List<String> statusList = new ArrayList<>();
-            for (SiswaStatusDTO siswaStatusDTO : piketDTO.getSiswaStatusList()) {
-                statusList.addAll(siswaStatusDTO.getStatusList());
+            try {
+                existingPiket.setTanggal(dateFormat.parse(dateFormat.format(piketDTO.getTanggal())));
+            } catch (ParseException e) {
+                throw new RuntimeException("Format tanggal tidak valid: " + piketDTO.getTanggal(), e);
             }
-            existingPiket.setStatus(statusList);
-
-            existingPiket.setTanggal(piketDTO.getTanggal()); // Set tanggal
 
             Piket updatedPiket = piketRepo.save(existingPiket);
+            piketSiswaStatusRepo.saveAll(siswaStatusList);
+
             return convertToDTO(updatedPiket);
         } catch (EntityNotFoundException e) {
             throw new EntityNotFoundException("Error: " + e.getMessage());
@@ -136,11 +175,16 @@ public class PiketSerImpl implements PiketSer {
     }
 
     @Override
-    public void deletePiket(Long id) {
-        if (piketRepo.existsById(id)) {
-            piketRepo.deleteById(id);
-        } else {
-            throw new EntityNotFoundException("Piket dengan ID " + id + " tidak ditemukan");
+    public boolean deletePiket(Long id) {
+        try {
+            if (piketRepo.existsById(id)) {
+                piketRepo.deleteById(id);
+                return true;
+            } else {
+                throw new EntityNotFoundException("Piket dengan ID " + id + " tidak ditemukan");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Terjadi kesalahan: " + e.getMessage(), e);
         }
     }
 
@@ -158,6 +202,31 @@ public class PiketSerImpl implements PiketSer {
     }
 
     @Override
+    public SiswaDTO getSiswaById(Long id) {
+        Optional<Siswa> siswaOptional = siswaRepo.findById(id);
+        if (siswaOptional.isPresent()) {
+            SiswaDTO siswaDTO = new SiswaDTO();
+            BeanUtils.copyProperties(siswaOptional.get(), siswaDTO);
+            return siswaDTO;
+        } else {
+            throw new EntityNotFoundException("Siswa dengan ID " + id + " tidak ditemukan");
+        }
+    }
+
+    @Override
+    public KelasDTO getKelasById(Long id) {
+        Optional<Kelas> kelasOptional = kelasRepo.findById(id);
+        if (kelasOptional.isPresent()) {
+            KelasDTO kelasDTO = new KelasDTO();
+            BeanUtils.copyProperties(kelasOptional.get(), kelasDTO);
+            return kelasDTO;
+        } else {
+            throw new EntityNotFoundException("Kelas dengan ID " + id + " tidak ditemukan");
+        }
+    }
+
+
+    @Override
     public void updateStudentStatus(List<PiketDTO> piketDTOList) {
         for (PiketDTO piketDTO : piketDTOList) {
             updatePiket(piketDTO.getId(), piketDTO);
@@ -166,23 +235,34 @@ public class PiketSerImpl implements PiketSer {
 
     @Override
     public PiketDTO addSiswaToPiket(PiketDTO piketDTO) {
-        return createPiket(piketDTO); // Gunakan createPiket untuk menambahkan siswa
+        return createPiket(piketDTO);
     }
 
     @Override
     public List<PiketDTO> getPiketByDateAndClass(String tanggal, Long kelasId) {
-        return null;
+        try {
+            Date parsedDate = dateFormat.parse(tanggal);
+            List<Piket> piketList = piketRepo.findByTanggalAndKelasId(String.valueOf(parsedDate), kelasId);
+            return piketList.stream().map(this::convertToDTO).collect(Collectors.toList());
+        } catch (ParseException e) {
+            throw new RuntimeException("Format tanggal tidak valid: " + tanggal, e);
+        } catch (Exception e) {
+            throw new RuntimeException("Terjadi kesalahan: " + e.getMessage(), e);
+        }
     }
 
     @Override
     public boolean deletePiketByDateAndClass(String tanggal, Long kelasId) {
         try {
-            List<Piket> piketList = piketRepo.findByTanggalAndKelasId(tanggal, kelasId);
+            Date parsedDate = dateFormat.parse(tanggal);
+            List<Piket> piketList = piketRepo.findByTanggalAndKelasId(String.valueOf(parsedDate), kelasId);
             if (piketList.isEmpty()) {
                 return false;
             }
             piketRepo.deleteAll(piketList);
             return true;
+        } catch (ParseException e) {
+            throw new RuntimeException("Format tanggal tidak valid: " + tanggal, e);
         } catch (Exception e) {
             throw new RuntimeException("Terjadi kesalahan saat menghapus piket berdasarkan tanggal dan kelas: " + e.getMessage(), e);
         }
@@ -190,11 +270,11 @@ public class PiketSerImpl implements PiketSer {
 
     @Override
     public List<PiketDTO> getAllPiket() {
-        List<Piket> piketList = piketRepo.findAll();
-        List<PiketDTO> piketDTOList = new ArrayList<>();
-        for (Piket piket : piketList) {
-            piketDTOList.add(convertToDTO(piket));
+        try {
+            List<Piket> piketList = piketRepo.findAll();
+            return piketList.stream().map(this::convertToDTO).collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("Terjadi kesalahan: " + e.getMessage(), e);
         }
-        return piketDTOList;
     }
 }

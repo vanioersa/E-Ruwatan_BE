@@ -1,6 +1,7 @@
 package ERuwatan.Tugasbe.model;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -13,22 +14,12 @@ public class Piket {
     @JoinColumn(name = "kelas_id")
     private Kelas kelas;
 
-    @ManyToMany
-    @JoinTable(
-            name = "piket_siswa",
-            joinColumns = @JoinColumn(name = "piket_id"),
-            inverseJoinColumns = @JoinColumn(name = "siswa_id")
-    )
-    private List<Siswa> siswa;
+    @OneToMany(mappedBy = "piket", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PiketSiswaStatus> siswaStatus;
 
-    @ElementCollection
-    @CollectionTable(name = "piket_status", joinColumns = @JoinColumn(name = "piket_id"))
-    @Column(name = "status")
-    private List<String> status;
+    @Temporal(TemporalType.DATE)
+    private Date tanggal;
 
-    private String tanggal;
-
-    // Getter dan Setter
     public Long getId() {
         return id;
     }
@@ -45,27 +36,19 @@ public class Piket {
         this.kelas = kelas;
     }
 
-    public List<Siswa> getSiswa() {
-        return siswa;
+    public List<PiketSiswaStatus> getSiswaStatus() {
+        return siswaStatus;
     }
 
-    public void setSiswa(List<Siswa> siswa) {
-        this.siswa = siswa;
+    public void setSiswaStatus(List<PiketSiswaStatus> siswaStatus) {
+        this.siswaStatus = siswaStatus;
     }
 
-    public List<String> getStatus() {
-        return status;
-    }
-
-    public void setStatus(List<String> status) {
-        this.status = status;
-    }
-
-    public String getTanggal() {
+    public Date getTanggal() {
         return tanggal;
     }
 
-    public void setTanggal(String tanggal) {
+    public void setTanggal(Date tanggal) {
         this.tanggal = tanggal;
     }
 }

@@ -1,5 +1,6 @@
 package ERuwatan.Tugasbe.service;
 
+import ERuwatan.Tugasbe.dto.KelasDTO;
 import ERuwatan.Tugasbe.dto.PiketDTO;
 import ERuwatan.Tugasbe.dto.SiswaDTO;
 
@@ -9,7 +10,7 @@ public interface PiketSer {
     PiketDTO createPiket(PiketDTO piketDTO);
     PiketDTO getPiketById(Long id);
     PiketDTO updatePiket(Long id, PiketDTO piketDTO);
-    void deletePiket(Long id);
+    boolean deletePiket(Long id);
     List<SiswaDTO> getStudentsByClass(Long kelasId);
     void updateStudentStatus(List<PiketDTO> piketDTOList);
     PiketDTO addSiswaToPiket(PiketDTO piketDTO);
@@ -17,4 +18,8 @@ public interface PiketSer {
     boolean deletePiketByDateAndClass(String tanggal, Long kelasId);
     List<PiketDTO> getAllPiket();
     List<PiketDTO> getPiketByKelas(Long kelasId);
+
+    SiswaDTO getSiswaById(Long siswaId);
+
+    KelasDTO getKelasById(Long kelasId);
 }
