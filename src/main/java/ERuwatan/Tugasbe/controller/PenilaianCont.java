@@ -64,9 +64,8 @@ public class PenilaianCont {
     }
 
     @GetMapping("/upload/export-penilaian")
-    public void ExportPenilaian(@RequestParam("kelas_id") Long kelas_id,
-                          @RequestParam("siswa_id") Long siswa_id,
+    public void ExportPenilaian(
                           HttpServletResponse response) throws IOException, NotFoundException {
-        excelPenilaianSer.excelExportPenilaian(kelas_id, siswa_id, response);
+        excelPenilaianSer.excelExportPenilaian( response);
     }
 }

@@ -50,10 +50,9 @@ public class KbmCont {
     }
 
     @GetMapping("/upload/export-kbm")
-    public void ExportKbm(@RequestParam("kelas_id") Long kelas_id,
-                          @RequestParam("user_id") Long user_id,
+    public void ExportKbm(
                           HttpServletResponse response) throws IOException, NotFoundException {
-        excelKbmSer.excelExportKbm(kelas_id, user_id, response);
+        excelKbmSer.excelExportKbm( response);
     }
 
     @PostMapping("/upload/import-KBM")
