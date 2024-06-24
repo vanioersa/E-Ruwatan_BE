@@ -5,10 +5,7 @@ import ERuwatan.Tugasbe.model.Kelas;
 import ERuwatan.Tugasbe.model.UserModel;
 import ERuwatan.Tugasbe.repository.KelasRepo;
 import ERuwatan.Tugasbe.repository.UserRepository;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -91,10 +88,42 @@ public class ExcelKelasSer {
                     kelas.setKelas(cell1.getStringCellValue());
 
                 Cell cell2 = currentRow.getCell(2);
-                    kelas.setNama_kelas(cell2.getStringCellValue());
+                if (cell2 != null) {
+                    if (cell2.getCellType() == CellType.STRING) {
+                        kelas.setNama_kelas(cell2.getStringCellValue());
+                    } else if (cell2.getCellType() == CellType.NUMERIC) {
+                        kelas.setNama_kelas(String.valueOf(cell2.getNumericCellValue())); // Convert numeric value to string
+                    }
+                }
 
                 kelasRepo.save(kelas);
             }
         }
+    }
+
+    public void downloadKelasTemplate(HttpServletResponse response) throws IOException {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Kelas Template");
+
+        // Creating header
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"No", "Kelas", "Nama Kelas"};
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+        }
+
+        // Adjusting column sizes
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        // Setting response for Excel file
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=KelasTemplate.xlsx");
+
+        // Write workbook to response output stream
+        workbook.write(response.getOutputStream());
+        workbook.close();
     }
 }
