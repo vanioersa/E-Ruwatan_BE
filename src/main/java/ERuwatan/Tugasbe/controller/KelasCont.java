@@ -64,4 +64,9 @@ public class KelasCont {
             return "Terjadi kesalahan: " + e.getMessage();
         }
     }
+
+    @GetMapping("/download/template")
+    public void downloadKelasTemplate(HttpServletResponse response) throws IOException {
+        excelKelasSer.downloadKelasTemplate(response);
+    }
 }
