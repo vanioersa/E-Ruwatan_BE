@@ -68,4 +68,9 @@ public class KbmCont {
             return new ResponseEntity<>("Import failed: " + e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
+
+    @GetMapping("/download/template-kbm")
+    public void downloadKbmTemplate(HttpServletResponse response) throws IOException {
+        excelKbmSer.excelKbmTemplate(response);
+    }
 }

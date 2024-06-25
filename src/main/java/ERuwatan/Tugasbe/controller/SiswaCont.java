@@ -74,4 +74,9 @@ public class SiswaCont {
             return new ResponseEntity<>("Import failed: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+
+    @GetMapping("/download/template")
+    public void downloadSiswaTemplate(HttpServletResponse response) throws IOException {
+        excelSiswaSer.excelSiswaTemplate(response);
+    }
 }
