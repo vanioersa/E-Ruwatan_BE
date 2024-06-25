@@ -143,4 +143,28 @@ public class ExcelPenilaianSer {
             throw new RuntimeException(e);
         }
     }
+
+    public void excelDownloadPenilaianTemplate(HttpServletResponse response) throws IOException {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Penilaian Template");
+
+        int rowNum = 0;
+
+        Row headerRow = sheet.createRow(rowNum++);
+        String[] headers = {"ID", "Nama Siswa", "Kelas ID", "Nilai Siswa", "Deskripsi"};
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+        }
+
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=TemplatePenilaian.xlsx");
+        workbook.write(response.getOutputStream());
+        workbook.close();
+    }
+
 }

@@ -68,4 +68,9 @@ public class PenilaianCont {
                           HttpServletResponse response) throws IOException, NotFoundException {
         excelPenilaianSer.excelExportPenilaian( response);
     }
+
+    @GetMapping("/download/template-penilaian")
+    public void downloadPenilaianTemplate(HttpServletResponse response) throws IOException {
+        excelPenilaianSer.excelDownloadPenilaianTemplate(response);
+    }
 }
