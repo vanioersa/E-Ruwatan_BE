@@ -175,4 +175,27 @@ public class ExcelKbmSer {
             }
         }
     }
+
+    public void excelKbmTemplate(HttpServletResponse response) throws IOException {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("KBM Template");
+
+        int rowNum = 0;
+
+        Row headerRow = sheet.createRow(rowNum++);
+        String[] headers = {"ID", "Nama Guru", "Kelas", "Jam Masuk", "Jam Pulang", "Keterangan", "Materi"};
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+        }
+
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=TemplateKBM.xlsx");
+        workbook.write(response.getOutputStream());
+        workbook.close();
+    }
 }

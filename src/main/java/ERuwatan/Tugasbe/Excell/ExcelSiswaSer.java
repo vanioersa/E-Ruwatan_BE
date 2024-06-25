@@ -142,4 +142,29 @@ public class ExcelSiswaSer {
             }
         }
     }
+
+    public void excelSiswaTemplate(HttpServletResponse response) throws IOException {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Siswa Template");
+
+        int rowNum = 0;
+
+        Row headerRow = sheet.createRow(rowNum++);
+        String[] headers = {"No", "Nama Siswa", "NISN", "Tempat Lahir", "Kelas", "Alamat"};
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+        }
+
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=TemplateSiswa.xlsx");
+        workbook.write(response.getOutputStream());
+        workbook.close();
+    }
+
+
 }
