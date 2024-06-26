@@ -7,5 +7,4 @@ import java.util.Optional;
 
 public interface GuruRepo extends JpaRepository<Guru, Long> {
     Optional<Guru> findById(Long id);
-
 }
