@@ -5,7 +5,10 @@ import ERuwatan.Tugasbe.dto.GuruDTO;
 import ERuwatan.Tugasbe.service.GuruSer;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -49,5 +52,22 @@ public class GuruCont {
     public void exportGuru(
             HttpServletResponse response) throws IOException, NotFoundException {
         excelGuruSer.excelExportGuru(response);
+    }
+
+    @PostMapping("/upload/importGuru")
+    public ResponseEntity<String> importGuruFromExcel(@RequestPart("file") MultipartFile file) {
+        try {
+            excelGuruSer.importGuruFromExcel(file);
+            return new ResponseEntity<>("Import successful", HttpStatus.OK);
+        } catch (IOException e) {
+            return new ResponseEntity<>("Import failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>("Import failed: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/download/template-guru")
+    public void excelDownloadGuruTemplate(HttpServletResponse response) throws IOException {
+        excelGuruSer.excelDownloadGuruTemplate(response);
     }
 }
