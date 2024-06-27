@@ -105,6 +105,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/upload/importSiswa",
             "/upload/importPenilaian",
             "/upload/export-penilaian",
+            "/download/template-penilaian",
             "/upload/**"
     };
 
