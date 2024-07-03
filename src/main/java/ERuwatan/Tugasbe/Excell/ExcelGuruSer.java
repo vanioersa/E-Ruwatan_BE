@@ -178,7 +178,7 @@ public class ExcelGuruSer {
         }
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=TemplatePenilaian.xlsx");
+        response.setHeader("Content-Disposition", "attachment; filename=TemplateGuru.xlsx");
         workbook.write(response.getOutputStream());
         workbook.close();
     }
