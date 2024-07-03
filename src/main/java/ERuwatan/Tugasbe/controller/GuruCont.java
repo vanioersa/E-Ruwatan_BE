@@ -58,4 +58,16 @@ public class GuruCont {
     public void excelDownloadGuruTemplate(HttpServletResponse response) throws IOException {
         excelGuruSer.excelDownloadGuruTemplate(response);
     }
+
+    @PostMapping("/upload/importGuru")
+    public ResponseEntity<String> importSiswaFromExcel(@RequestPart("file") MultipartFile file) {
+        try {
+            excelGuruSer.importGuruFromExcel(file);
+            return new ResponseEntity<>("Import successful", HttpStatus.OK);
+        } catch (IOException e) {
+            return new ResponseEntity<>("Import failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>("Import failed: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
 }
