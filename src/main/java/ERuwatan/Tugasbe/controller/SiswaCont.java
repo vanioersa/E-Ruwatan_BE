@@ -58,9 +58,8 @@ public class SiswaCont {
     }
 
     @GetMapping("/upload/export-siswa")
-    public void ExportSiswa(@RequestParam("kelas_id") Long kelas_id,
-                          HttpServletResponse response) throws IOException, NotFoundException {
-        excelSiswaSer.excelExportSiswa(kelas_id, response);
+    public void ExportSiswa(HttpServletResponse response) throws IOException, NotFoundException {
+        excelSiswaSer.excelExportSiswa(response);
     }
 
     @PostMapping("/upload/import-siswa")
