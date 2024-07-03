@@ -29,11 +29,11 @@ public class ExcelSiswaSer {
     @Autowired
     private KelasRepo kelasRepo;
 
-    public void excelExportSiswa(Long kelas_id, HttpServletResponse response) throws IOException{
+    public void excelExportSiswa(HttpServletResponse response) throws IOException{
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Export-Siswa");
 
-        List<Siswa> siswaList = siswaRepo.findByKelasId(kelas_id);
+        List<Siswa> siswaList = siswaRepo.findAll();
 
         int rowNum = 0;
 

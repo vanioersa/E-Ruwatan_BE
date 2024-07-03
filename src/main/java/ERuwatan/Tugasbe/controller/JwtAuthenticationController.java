@@ -16,20 +16,13 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -70,10 +63,7 @@ public class JwtAuthenticationController {
 
         final String token = jwtTokenUtil.generateToken(userDetails);
 
-        String role = user.getRole().toLowerCase();
-        String redirectUrl = role.equals("ADMIN") ? "/dashboard_admin" : (role.equals("GURU") ? "/dashboard_guru" : "/dashboard_default");
-
-        return ResponseEntity.ok(new JwtResponse(token, user, redirectUrl));
+        return ResponseEntity.ok(new JwtResponse(token, user));
     }
 
     @PostMapping("/register")
@@ -148,9 +138,9 @@ public class JwtAuthenticationController {
     }
 
     @PostMapping("/upload/image/{id}")
-    public ResponseEntity<?> uploadImage (@PathVariable Long id ,@RequestPart("image") MultipartFile image ){
+    public ResponseEntity<?> uploadImage(@PathVariable Long id, @RequestPart("image") MultipartFile image) {
         try {
-            UserModel updatedUser = userDetailsService.uploadImage(id,image );
+            UserModel updatedUser = userDetailsService.uploadImage(id, image);
             return ResponseEntity.ok(updatedUser);
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -158,10 +148,11 @@ public class JwtAuthenticationController {
             throw new RuntimeException(e);
         }
     }
+
     @PutMapping("/edit/image/{id}")
-    public ResponseEntity<?> updateImage (@PathVariable Long id ,@RequestPart("image") MultipartFile image ){
+    public ResponseEntity<?> updateImage(@PathVariable Long id, @RequestPart("image") MultipartFile image) {
         try {
-            UserModel updatedUser = userDetailsService.uploadImage(id,image );
+            UserModel updatedUser = userDetailsService.uploadImage(id, image);
             return ResponseEntity.ok(updatedUser);
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -171,9 +162,9 @@ public class JwtAuthenticationController {
     }
 
     @PostMapping("/upload/image_admin/{id}")
-    public ResponseEntity<?> uploadImageAdmin (@PathVariable Long id ,@RequestPart("imageAdmin") MultipartFile image ){
+    public ResponseEntity<?> uploadImageAdmin(@PathVariable Long id, @RequestPart("imageAdmin") MultipartFile image) {
         try {
-            UserModel updatedUser = userDetailsService.uploadImageAdmin(id,image );
+            UserModel updatedUser = userDetailsService.uploadImageAdmin(id, image);
             return ResponseEntity.ok(updatedUser);
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -181,10 +172,11 @@ public class JwtAuthenticationController {
             throw new RuntimeException(e);
         }
     }
+
     @PutMapping("/edit/image_admin/{id}")
-    public ResponseEntity<?> updateImageAdmin (@PathVariable Long id ,@RequestPart("imageAdmin") MultipartFile image ){
+    public ResponseEntity<?> updateImageAdmin(@PathVariable Long id, @RequestPart("imageAdmin") MultipartFile image) {
         try {
-            UserModel updatedUser = userDetailsService.uploadImageAdmin(id,image );
+            UserModel updatedUser = userDetailsService.uploadImageAdmin(id, image);
             return ResponseEntity.ok(updatedUser);
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
