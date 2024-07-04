@@ -17,7 +17,6 @@ public class Piket {
     @OneToMany(mappedBy = "piket", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PiketSiswaStatus> siswaStatus;
 
-    @Temporal(TemporalType.DATE)
     private Date tanggal;
 
     public Long getId() {

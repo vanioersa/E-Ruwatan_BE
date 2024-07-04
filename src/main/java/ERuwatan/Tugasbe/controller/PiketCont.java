@@ -60,23 +60,6 @@ public class PiketCont {
         }
     }
 
-    @DeleteMapping("/hapus-tanggal")
-    public ResponseEntity<String> deletePiketByDateAndClass(
-            @RequestParam String tanggal, @RequestParam Long kelasId) {
-        try {
-            boolean deleted = piketSer.deletePiketByDateAndClass(tanggal, kelasId);
-            if (deleted) {
-                return ResponseEntity.ok("Piket berhasil dihapus untuk tanggal " + tanggal + " dan kelas dengan ID " + kelasId);
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tidak ada piket yang ditemukan untuk tanggal dan kelas tersebut.");
-            }
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Terjadi kesalahan: " + e.getMessage());
-        }
-    }
-
     @GetMapping("/all")
     public ResponseEntity<List<PiketDTO>> getAllPiket() {
         try {
@@ -84,6 +67,21 @@ public class PiketCont {
             return ResponseEntity.ok(piketList);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @GetMapping("/by-id/{id}")
+    public ResponseEntity<?> getPiketById(@PathVariable Long id) {
+        try {
+            PiketDTO piketDTO = piketSer.getPiketById(id);
+            if (piketDTO == null) {
+                return new ResponseEntity<>("Piket dengan ID " + id + " tidak ditemukan", HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(piketDTO, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>("Piket dengan ID " + id + " tidak ditemukan", HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Terjadi kesalahan: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -97,6 +95,25 @@ public class PiketCont {
             return ResponseEntity.ok(piketList);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deletePiket(@PathVariable Long id) {
+        try {
+            boolean deleted = piketSer.deletePiket(id);
+            if (deleted) {
+                return ResponseEntity.ok("Piket dengan ID " + id + " berhasil dihapus.");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Piket dengan ID " + id + " tidak ditemukan.");
+            }
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Error: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Terjadi kesalahan: " + e.getMessage());
         }
     }
 }

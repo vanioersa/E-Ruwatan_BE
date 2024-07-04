@@ -125,7 +125,10 @@ public class PiketSerImpl implements PiketSer {
     @Override
     public PiketDTO getPiketById(Long id) {
         Optional<Piket> piketOptional = piketRepo.findById(id);
-        return piketOptional.map(this::convertToDTO).orElse(null);
+        if (!piketOptional.isPresent()) {
+            throw new EntityNotFoundException("Piket dengan ID " + id + " tidak ditemukan");
+        }
+        return convertToDTO(piketOptional.get());
     }
 
     @Override
@@ -137,10 +140,8 @@ public class PiketSerImpl implements PiketSer {
             }
 
             Piket existingPiket = piketOptional.get();
-            BeanUtils.copyProperties(piketDTO, existingPiket, "id", "siswaStatus");
-
-            Optional<Kelas> kelasOptional = kelasRepo.findById(piketDTO.getKelasId());
-            kelasOptional.ifPresent(existingPiket::setKelas);
+            existingPiket.setKelas(kelasRepo.findById(piketDTO.getKelasId())
+                    .orElseThrow(() -> new EntityNotFoundException("Kelas dengan ID " + piketDTO.getKelasId() + " tidak ditemukan")));
 
             List<PiketSiswaStatus> siswaStatusList = new ArrayList<>();
             for (SiswaStatusDTO siswaStatusDTO : piketDTO.getSiswaStatusList()) {
@@ -158,8 +159,8 @@ public class PiketSerImpl implements PiketSer {
             existingPiket.setSiswaStatus(siswaStatusList);
 
             try {
-                existingPiket.setTanggal(dateFormat.parse(dateFormat.format(piketDTO.getTanggal())));
-            } catch (ParseException e) {
+                existingPiket.setTanggal(new Date(String.valueOf(piketDTO.getTanggal())));
+            } catch (Exception e) {
                 throw new RuntimeException("Format tanggal tidak valid: " + piketDTO.getTanggal(), e);
             }
 
@@ -168,7 +169,7 @@ public class PiketSerImpl implements PiketSer {
 
             return convertToDTO(updatedPiket);
         } catch (EntityNotFoundException e) {
-            throw new EntityNotFoundException("Error: " + e.getMessage());
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException("Terjadi kesalahan: " + e.getMessage(), e);
         }
@@ -253,19 +254,7 @@ public class PiketSerImpl implements PiketSer {
 
     @Override
     public boolean deletePiketByDateAndClass(String tanggal, Long kelasId) {
-        try {
-            Date parsedDate = dateFormat.parse(tanggal);
-            List<Piket> piketList = piketRepo.findByTanggalAndKelasId(String.valueOf(parsedDate), kelasId);
-            if (piketList.isEmpty()) {
-                return false;
-            }
-            piketRepo.deleteAll(piketList);
-            return true;
-        } catch (ParseException e) {
-            throw new RuntimeException("Format tanggal tidak valid: " + tanggal, e);
-        } catch (Exception e) {
-            throw new RuntimeException("Terjadi kesalahan saat menghapus piket berdasarkan tanggal dan kelas: " + e.getMessage(), e);
-        }
+        return false;
     }
 
     @Override
