@@ -16,6 +16,4 @@ public interface PiketRepo extends JpaRepository<Piket, Long>{
 
     @Query(value = "SELECT * FROM piket WHERE tanggal = :tanggal AND kelas_id = :kelas_id", nativeQuery = true)
     List<Piket> findByTanggalAndKelasId(String tanggal, Long kelas_id);
-    List<Piket> findByTanggal(String tanggal);
-    List<Piket> findByKelasId(Long kelasId);
 }

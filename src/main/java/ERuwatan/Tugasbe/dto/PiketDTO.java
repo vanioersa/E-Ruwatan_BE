@@ -42,4 +42,3 @@ public class PiketDTO {
         this.siswaStatusList = siswaStatusList;
     }
 }
-

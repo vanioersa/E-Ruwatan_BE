@@ -46,20 +46,6 @@ public class PiketCont {
         }
     }
 
-    @PutMapping("/ubah/{id}")
-    public ResponseEntity<?> updatePiket(@PathVariable Long id, @Valid @RequestBody PiketDTO piketDTO) {
-        try {
-            PiketDTO updatedPiketDTO = piketSer.updatePiket(id, piketDTO);
-            return new ResponseEntity<>(updatedPiketDTO, HttpStatus.OK);
-        } catch (EntityNotFoundException e) {
-            return new ResponseEntity<>("Piket dengan ID " + id + " tidak ditemukan", HttpStatus.NOT_FOUND);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Terjadi kesalahan: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @GetMapping("/all")
     public ResponseEntity<List<PiketDTO>> getAllPiket() {
         try {
@@ -85,16 +71,20 @@ public class PiketCont {
         }
     }
 
-    @GetMapping("/by-kelas/{kelasId}")
-    public ResponseEntity<List<PiketDTO>> getPiketByKelas(@PathVariable Long kelasId) {
+    @PutMapping("/edit/{id}")
+    public ResponseEntity<String> editPiket(@PathVariable Long id, @Valid @RequestBody PiketDTO piketDTO) {
         try {
-            List<PiketDTO> piketList = piketSer.getPiketByKelas(kelasId);
-            if (piketList.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-            }
-            return ResponseEntity.ok(piketList);
+            PiketDTO updatedPiket = piketSer.updatePiket(id, piketDTO);
+            return ResponseEntity.ok("Piket berhasil diupdate dengan ID: " + updatedPiket.getId());
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Error: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error: " + e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Terjadi kesalahan: " + e.getMessage());
         }
     }
 
