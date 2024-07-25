@@ -7,10 +7,12 @@ import javax.persistence.*;
 @Entity
 @Table(name = "user")
 public class UserModel {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    @ManyToOne
+    @JoinColumn(name = "kelas_id")
+    private Kelas kelas;
     @Column
     private String username;
     @Column
@@ -25,12 +27,29 @@ public class UserModel {
     private String gender;
     @Column
     private String telepon;
-
     @Column(name = "image")
     private String image;
     @Column
     private String status_nikah;
-    // geter & sheter
+    @Column
+    private String jabatan;
+
+    public String getJabatan() {
+        return jabatan;
+    }
+
+    public void setJabatan(String jabatan) {
+        this.jabatan = jabatan;
+    }
+
+    public Kelas getKelas() {
+        return kelas;
+    }
+
+    public void setKelas(Kelas kelas) {
+        this.kelas = kelas;
+    }
+
     public String getAlamat() {
         return alamat;
     }

@@ -2,16 +2,32 @@ package ERuwatan.Tugasbe.dto;
 
 public class UserDTO {
     private String username;
+    private Long kelasId;
     private String password;
     private String email;
     private String role;
     private String alamat;
-
     private String image;
-
     private String gender;
     private String telepon;
     private String status_nikah;
+    private String jabatan;
+
+    public String getJabatan() {
+        return jabatan;
+    }
+
+    public void setJabatan(String jabatan) {
+        this.jabatan = jabatan;
+    }
+
+    public Long getKelasId() {
+        return kelasId;
+    }
+
+    public void setKelasId(Long kelasId) {
+        this.kelasId = kelasId;
+    }
 
     public String getAlamat() {
         return alamat;

@@ -1,5 +1,6 @@
 package ERuwatan.Tugasbe.controller;
 
+import ERuwatan.Tugasbe.Excell.ExcelUserSer;
 import ERuwatan.Tugasbe.config.JwtTokenUtil;
 import ERuwatan.Tugasbe.dto.JwtRequest;
 import ERuwatan.Tugasbe.dto.JwtResponse;
@@ -20,9 +21,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -42,6 +45,8 @@ public class JwtAuthenticationController {
 
     @Autowired
     private UserRepository userDao;
+    @Autowired
+    private ExcelUserSer excelUserSer;
 
     @PostMapping("/login")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
@@ -87,7 +92,6 @@ public class JwtAuthenticationController {
     @GetMapping("/users")
     public ResponseEntity<List<UserModel>> getAllUsers() {
         List<UserModel> users = userDao.findAll();
-        // Clear password field or replace with empty string before returning response
         users.forEach(user -> user.setPassword(""));
         return ResponseEntity.ok(users);
     }
@@ -97,7 +101,6 @@ public class JwtAuthenticationController {
         try {
             UserModel updatedUser = userDetailsService.updateUser(userId, userDTO);
             if (updatedUser != null) {
-                // Clear password field or replace with empty string before returning response
                 updatedUser.setPassword("");
                 return ResponseEntity.ok(updatedUser);
             } else {
@@ -184,7 +187,37 @@ public class JwtAuthenticationController {
             throw new RuntimeException(e);
         }
     }
+    @GetMapping("/upload/export")
+    public void exportGuru(
+            HttpServletResponse response) throws IOException, NotFoundException {
+        excelUserSer.excelExportGuru(response);
+    }
 
+    @GetMapping("/download/template")
+    public void excelDownloadGuruTemplate(HttpServletResponse response) throws IOException {
+        excelUserSer.excelDownloadGuruTemplate(response);
+    }
+
+    @PostMapping("/upload/import")
+    public ResponseEntity<String> importSiswaFromExcel(@RequestPart("file") MultipartFile file) {
+        try {
+            Map<String, String> passwordMap = excelUserSer.importGuruFromExcel(file);
+            if (!passwordMap.isEmpty()) {
+                // Format the success message to include generated passwords
+                StringBuilder successMsg = new StringBuilder("Import successful. Generated passwords for the following users: ");
+                passwordMap.forEach((username, password) ->
+                        successMsg.append("Username '").append(username).append("' with generated password '").append(password).append("'. ")
+                );
+                return new ResponseEntity<>(successMsg.toString(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Import successful, no new users with generated passwords.", HttpStatus.OK);
+            }
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>("Import failed: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (IOException e) {
+            return new ResponseEntity<>("Import failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     private void authenticate(String username, String password) throws Exception {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));

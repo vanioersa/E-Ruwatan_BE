@@ -1,13 +1,14 @@
 package ERuwatan.Tugasbe.service;
 
 import ERuwatan.Tugasbe.dto.UserDTO;
+import ERuwatan.Tugasbe.model.Kelas;
 import ERuwatan.Tugasbe.model.UserModel;
+import ERuwatan.Tugasbe.repository.KelasRepo;
 import ERuwatan.Tugasbe.repository.UserRepository;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.*;
 import javassist.NotFoundException;
-import org.apache.xpath.operations.Mult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,6 +37,9 @@ public class JwtUserDetailsService implements UserDetailsService {
     @Autowired
     private PasswordEncoder bcryptEncoder;
 
+    @Autowired
+    private KelasRepo kelasRepo;
+
     public UserModel save(UserDTO user) {
         try {
             if ((user.getUsername() != null && !user.getUsername().isEmpty()) || (user.getEmail() != null && !user.getEmail().isEmpty())) {
@@ -49,6 +53,11 @@ public class JwtUserDetailsService implements UserDetailsService {
                     newUser.setGender(user.getGender());
                     newUser.setTelepon(user.getTelepon());
                     newUser.setStatus_nikah(user.getStatus_nikah());
+                    newUser.setJabatan(user.getJabatan());
+                    if (user.getKelasId() != null) {
+                        Optional<Kelas> kelas = kelasRepo.findById(user.getKelasId());
+                        kelas.ifPresent(newUser::setKelas);
+                    }
                     return userDao.save(newUser);
                 } else {
                     throw new IllegalArgumentException("Username or email is already in use");
@@ -75,30 +84,11 @@ public class JwtUserDetailsService implements UserDetailsService {
                 user.setGender(userDTO.getGender());
                 user.setTelepon(userDTO.getTelepon());
                 user.setStatus_nikah(userDTO.getStatus_nikah());
-                return userDao.save(user);
-            } else {
-                return null;
-            }
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Failed to update user: " + e.getMessage());
-        }
-    }
-    public UserModel ubahUser(long id, UserDTO userDTO , MultipartFile image) {
-        try {
-            UserModel user = userDao.findById(id);
-            if (user != null) {
-                user.setUsername(userDTO.getUsername());
-                user.setEmail(userDTO.getEmail());
-                if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
-                    user.setPassword(bcryptEncoder.encode(userDTO.getPassword()));
+                user.setJabatan(userDTO.getJabatan());
+                if (userDTO.getKelasId() != null) {
+                    Optional<Kelas> kelas = kelasRepo.findById(userDTO.getKelasId());
+                    kelas.ifPresent(user::setKelas);
                 }
-                user.setRole(userDTO.getRole());
-                user.setAlamat(userDTO.getAlamat());
-                user.setGender(userDTO.getGender());
-                user.setTelepon(userDTO.getTelepon());
-                user.setStatus_nikah(userDTO.getStatus_nikah());
-                String fileImage = uploadFoto(image , "E-ruwatan-user" + id);
-                user.setImage(fileImage);
                 return userDao.save(user);
             } else {
                 return null;
