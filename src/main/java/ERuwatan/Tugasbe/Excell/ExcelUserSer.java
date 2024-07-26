@@ -35,7 +35,7 @@ public class ExcelUserSer {
         int rowNum = 0;
 
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = {"No", "Nama Guru", "Email", "Jenis Kelamin", "Alamat", "Nomor Telepon", "Status Pernikahan", "Role", "Jabatan"};
+        String[] headers = {"No", "Nama Guru", "Email", "Jenis Kelamin", "Alamat", "Nomor Telepon", "Status Pernikahan", "Role", "Jabatan", "Kelas"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
@@ -71,6 +71,17 @@ public class ExcelUserSer {
 
                 Cell cell8 = row.createCell(8);
                 cell8.setCellValue(guru.getJabatan());
+
+                Cell cell9 = row.createCell(9);
+                if (guru.getKelas() != null) {
+                    String kelas = guru.getKelas().getKelas();
+                    String namaKelas = guru.getKelas().getNama_kelas();
+                    cell9.setCellValue((kelas != null && !kelas.isEmpty() ? kelas : "-") +
+                            " - " +
+                            (namaKelas != null && !namaKelas.isEmpty() ? namaKelas : "-"));
+                } else {
+                    cell9.setCellValue("-");
+                }
             }
         }
 
@@ -90,7 +101,6 @@ public class ExcelUserSer {
         Set<String> existingEmails = new HashSet<>();
         Map<String, String> errorMessages = new HashMap<>();
 
-        // Load existing usernames and emails from the database
         List<UserModel> existingUsers = userRepository.findAll();
         for (UserModel user : existingUsers) {
             existingUsernames.add(user.getUsername());
@@ -102,7 +112,6 @@ public class ExcelUserSer {
             Sheet sheet = workbook.getSheetAt(0);
             Iterator<Row> rows = sheet.iterator();
 
-            // Skip header row
             if (rows.hasNext()) {
                 rows.next();
             }
@@ -136,7 +145,6 @@ public class ExcelUserSer {
                 guru.setRole(getCellValueAsString(currentRow.getCell(7)));
                 guru.setJabatan(getCellValueAsString(currentRow.getCell(8)));
 
-                // Handle password
                 String password = getCellValueAsString(currentRow.getCell(9));
                 if (password == null || password.isEmpty()) {
                     password = generateRandomPassword();
@@ -145,10 +153,7 @@ public class ExcelUserSer {
 
                 if ("GURU".equalsIgnoreCase(guru.getRole())) {
                     userRepository.save(guru);
-                    // Store generated password
                     passwordMap.put(username, password);
-
-                    // Add new username and email to the sets
                     existingUsernames.add(username);
                     existingEmails.add(email);
                 }
@@ -157,7 +162,6 @@ public class ExcelUserSer {
             throw new RuntimeException("Gagal mengimpor data dari file Excel", e);
         }
 
-        // Return error messages if any
         if (!errorMessages.isEmpty()) {
             throw new IllegalArgumentException("Gagal mengimpor data: " + errorMessages);
         }

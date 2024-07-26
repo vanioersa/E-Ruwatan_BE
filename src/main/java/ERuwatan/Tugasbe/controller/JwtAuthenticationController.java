@@ -117,7 +117,6 @@ public class JwtAuthenticationController {
         try {
             UserModel user = userDao.findById(userId);
             if (user != null) {
-                // Clear password field or replace with empty string before returning response
                 user.setPassword("");
                 return ResponseEntity.ok(user);
             } else {
