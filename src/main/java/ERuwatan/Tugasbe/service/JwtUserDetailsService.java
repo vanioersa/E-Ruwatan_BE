@@ -52,12 +52,22 @@ public class JwtUserDetailsService implements UserDetailsService {
                     newUser.setAlamat(user.getAlamat());
                     newUser.setGender(user.getGender());
                     newUser.setTelepon(user.getTelepon());
-                    newUser.setStatus_nikah(user.getStatus_nikah());
                     newUser.setJabatan(user.getJabatan());
-                    if (user.getKelasId() != null) {
+                    newUser.setNik(user.getNik());
+                    newUser.setNip(user.getNip());
+                    newUser.setHobi(user.getHobi());
+                    newUser.setTempat(user.getTempat());
+                    newUser.setTanggal(user.getTanggal());
+
+                    if (user.getKelasId() != null && user.getKelasId() != 0) {
                         Optional<Kelas> kelas = kelasRepo.findById(user.getKelasId());
-                        kelas.ifPresent(newUser::setKelas);
+                        if (kelas.isPresent()) {
+                            newUser.setKelas(kelas.get());
+                        } else {
+                            throw new IllegalArgumentException("Kelas ID '" + user.getKelasId() + "' tidak ditemukan.");
+                        }
                     }
+
                     return userDao.save(newUser);
                 } else {
                     throw new IllegalArgumentException("Username or email is already in use");
@@ -83,15 +93,27 @@ public class JwtUserDetailsService implements UserDetailsService {
                 user.setAlamat(userDTO.getAlamat());
                 user.setGender(userDTO.getGender());
                 user.setTelepon(userDTO.getTelepon());
-                user.setStatus_nikah(userDTO.getStatus_nikah());
                 user.setJabatan(userDTO.getJabatan());
-                if (userDTO.getKelasId() != null) {
+                user.setNik(userDTO.getNik());
+                user.setNip(userDTO.getNip());
+                user.setHobi(userDTO.getHobi());
+                user.setTempat(userDTO.getTempat());
+                user.setTanggal(userDTO.getTanggal());
+
+                if (userDTO.getKelasId() != null && userDTO.getKelasId() != 0) {
                     Optional<Kelas> kelas = kelasRepo.findById(userDTO.getKelasId());
-                    kelas.ifPresent(user::setKelas);
+                    if (kelas.isPresent()) {
+                        user.setKelas(kelas.get());
+                    } else {
+                        throw new IllegalArgumentException("Kelas ID '" + userDTO.getKelasId() + "' tidak ditemukan.");
+                    }
+                } else {
+                    user.setKelas(null);
                 }
+
                 return userDao.save(user);
             } else {
-                return null;
+                throw new IllegalArgumentException("User not found");
             }
         } catch (Exception e) {
             throw new IllegalArgumentException("Failed to update user: " + e.getMessage());

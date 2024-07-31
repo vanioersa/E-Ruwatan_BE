@@ -15,5 +15,5 @@ public interface SiswaSer {
     SiswaDTO updateSiswa(Long id, SiswaDTO siswaDTO);
     void deleteSiswa(Long id);
 
-    void saveSiswa(MultipartFile file);
+//    void saveSiswa(MultipartFile file);
 }

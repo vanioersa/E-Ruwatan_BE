@@ -1,6 +1,7 @@
 package ERuwatan.Tugasbe.Excell;
 
 import ERuwatan.Tugasbe.model.*;
+import ERuwatan.Tugasbe.repository.KelasRepo;
 import ERuwatan.Tugasbe.repository.UserRepository;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -25,17 +26,22 @@ public class ExcelUserSer {
     private UserRepository userRepository;
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+    @Autowired
+    private KelasRepo kelasRepo;
 
     public void excelExportGuru(HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Export-Guru");
 
-        List<UserModel> userModelList = userRepository.findAll(); // Adjust this according to your repository method
+        List<UserModel> userModelList = userRepository.findAll();
+
+        // Sort the list in descending order based on the id
+        userModelList.sort((u1, u2) -> Long.compare(u2.getId(), u1.getId()));
 
         int rowNum = 0;
 
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = {"No", "Nama Guru", "Email", "Jenis Kelamin", "Alamat", "Nomor Telepon", "Status Pernikahan", "Role", "Jabatan", "Kelas"};
+        String[] headers = {"No", "Nama Guru", "Email", "Jenis Kelamin", "Tanggal Lahir", "Tempat Lahir", "Alamat Rumah", "Nomor Telepon", "NIK", "NIP", "Role", "Jabatan", "Waikelas", "Hobi"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
@@ -58,30 +64,42 @@ public class ExcelUserSer {
                 cell3.setCellValue(guru.getGender());
 
                 Cell cell4 = row.createCell(4);
-                cell4.setCellValue(guru.getAlamat());
+                cell4.setCellValue(guru.getTanggal());
 
                 Cell cell5 = row.createCell(5);
-                cell5.setCellValue(guru.getTelepon());
+                cell5.setCellValue(guru.getTempat());
 
                 Cell cell6 = row.createCell(6);
-                cell6.setCellValue(guru.getStatus_nikah());
+                cell6.setCellValue(guru.getAlamat());
 
                 Cell cell7 = row.createCell(7);
-                cell7.setCellValue(guru.getRole());
+                cell7.setCellValue(guru.getTelepon());
 
                 Cell cell8 = row.createCell(8);
-                cell8.setCellValue(guru.getJabatan());
+                cell8.setCellValue(guru.getNik());
 
                 Cell cell9 = row.createCell(9);
+                cell9.setCellValue(guru.getNip());
+
+                Cell cell10 = row.createCell(10);
+                cell10.setCellValue(guru.getRole());
+
+                Cell cell11 = row.createCell(11);
+                cell11.setCellValue(guru.getJabatan());
+
+                Cell cell12 = row.createCell(12);
                 if (guru.getKelas() != null) {
                     String kelas = guru.getKelas().getKelas();
                     String namaKelas = guru.getKelas().getNama_kelas();
-                    cell9.setCellValue((kelas != null && !kelas.isEmpty() ? kelas : "-") +
+                    cell12.setCellValue((kelas != null && !kelas.isEmpty() ? kelas : "-") +
                             " - " +
                             (namaKelas != null && !namaKelas.isEmpty() ? namaKelas : "-"));
                 } else {
-                    cell9.setCellValue("-");
+                    cell12.setCellValue("-");
                 }
+
+                Cell cell13 = row.createCell(13);
+                cell13.setCellValue(guru.getHobi());
             }
         }
 
@@ -125,8 +143,13 @@ public class ExcelUserSer {
                     continue;
                 }
 
+                if (username.length() > 0 && !Character.isUpperCase(username.charAt(0))) {
+                    errorMessages.put(username, "Username harus diawali dengan huruf kapital.");
+                    continue;
+                }
+
                 if (existingUsernames.contains(username)) {
-                    errorMessages.put(username, "Username '" + username + "' sudah ada.");
+                    errorMessages.put(username, " Username '" + username + "' sudah digunakan.");
                     continue;
                 }
 
@@ -139,16 +162,35 @@ public class ExcelUserSer {
                 guru.setUsername(username);
                 guru.setEmail(email);
                 guru.setGender(getCellValueAsString(currentRow.getCell(3)));
-                guru.setAlamat(getCellValueAsString(currentRow.getCell(4)));
-                guru.setTelepon(getCellValueAsString(currentRow.getCell(5)));
-                guru.setStatus_nikah(getCellValueAsString(currentRow.getCell(6)));
-                guru.setRole(getCellValueAsString(currentRow.getCell(7)));
-                guru.setJabatan(getCellValueAsString(currentRow.getCell(8)));
+                guru.setTanggal(getCellValueAsString(currentRow.getCell(4)));
+                guru.setTempat(getCellValueAsString(currentRow.getCell(5)));
+                guru.setAlamat(getCellValueAsString(currentRow.getCell(6)));
+                guru.setTelepon(getCellValueAsString(currentRow.getCell(7)));
+                guru.setNik(getCellValueAsString(currentRow.getCell(8)));
+                guru.setNip(getCellValueAsString(currentRow.getCell(9)));
+                guru.setRole(getCellValueAsString(currentRow.getCell(10)));
+                guru.setJabatan(getCellValueAsString(currentRow.getCell(11)));
 
-                String password = getCellValueAsString(currentRow.getCell(9));
-                if (password == null || password.isEmpty()) {
-                    password = generateRandomPassword();
+                String kelasIdStr = getCellValueAsString(currentRow.getCell(12));
+                if (kelasIdStr != null) {
+                    try {
+                        Long kelasId = Long.parseLong(kelasIdStr);
+                        Kelas kelas = kelasRepo.findById(kelasId).orElse(null);
+                        if (kelas != null) {
+                            guru.setKelas(kelas);
+                        } else {
+                            errorMessages.put(username, "Kelas ID '" + kelasId + "' tidak ditemukan.");
+                            continue;
+                        }
+                    } catch (NumberFormatException e) {
+                        errorMessages.put(username, "Format Kelas ID '" + kelasIdStr + "' tidak valid.");
+                        continue;
+                    }
                 }
+
+                guru.setHobi(getCellValueAsString(currentRow.getCell(13)));
+
+                String password = username.toLowerCase() + "123";
                 guru.setPassword(passwordEncoder.encode(password));
 
                 if ("GURU".equalsIgnoreCase(guru.getRole())) {
@@ -182,18 +224,6 @@ public class ExcelUserSer {
         }
     }
 
-    private String generateRandomPassword() {
-        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        int length = 8;
-
-        StringBuilder password = new StringBuilder(length);
-        for (int i = 0; i < length; i++) {
-            int index = (int) (Math.random() * characters.length());
-            password.append(characters.charAt(index));
-        }
-        return password.toString();
-    }
-
     public void excelDownloadGuruTemplate(HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Guru Template");
@@ -201,7 +231,7 @@ public class ExcelUserSer {
         int rowNum = 0;
 
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = {"No", "Nama Guru", "Email", "Jenis Kelamin", "Alamat", "Nomor Telepon", "Status Pernikahan", "Role", "Jabatan"};
+        String[] headers = {"No", "Nama Guru", "Email", "Jenis Kelamin", "Tanggal Lahir", "Tempat Lahir", "Alamat Rumah", "Nomor Telepon", "NIK", "NIP", "Role", "Jabatan", "Waikelas", "Hobi"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);

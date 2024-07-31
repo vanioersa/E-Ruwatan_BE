@@ -11,6 +11,15 @@ public class Kelas {
     private String kelas;
     private String nama_kelas;
 
+    public Kelas() {
+
+    }
+
+    public Kelas(String kelas, String namaKelas) {
+        this.kelas = kelas;
+        this.nama_kelas = namaKelas;
+    }
+
     public Long getId() {
         return id;
     }
@@ -34,6 +43,7 @@ public class Kelas {
     public void setNama_kelas(String nama_kelas) {
         this.nama_kelas = nama_kelas;
     }
+
     @Override
     public String toString() {
         return "Kelas{" +
