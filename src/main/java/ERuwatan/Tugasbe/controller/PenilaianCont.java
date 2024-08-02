@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/panilaian")
+@RequestMapping("/penilaian")
 @CrossOrigin(origins = "*")
 public class PenilaianCont {
     @Autowired

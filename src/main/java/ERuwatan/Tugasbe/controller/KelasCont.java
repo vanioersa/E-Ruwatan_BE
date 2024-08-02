@@ -7,6 +7,8 @@ import javassist.NotFoundException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,19 +51,18 @@ public class KelasCont {
     }
 
     @GetMapping("/upload/export-kelas")
-    public void exportKelas(
-                            HttpServletResponse response) throws IOException, NotFoundException {
+    public void exportKelas(HttpServletResponse response) throws IOException, NotFoundException {
         excelKelasSer.excelExportKelas(response);
     }
 
-
     @PostMapping("/upload/import")
-    public String importKelas(@RequestPart("file") MultipartFile file) {
+    public ResponseEntity<String> importKelas(@RequestPart("file") MultipartFile file) {
         try {
             excelKelasSer.importKelasFromExcel(file);
-            return "Import berhasil!";
+            return ResponseEntity.ok("Import berhasil!");
         } catch (IOException e) {
-            return "Terjadi kesalahan: " + e.getMessage();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Terjadi kesalahan saat mengimpor data: " + e.getMessage());
         }
     }
 

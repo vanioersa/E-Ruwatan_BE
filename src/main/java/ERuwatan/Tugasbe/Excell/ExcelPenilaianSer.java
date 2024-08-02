@@ -33,20 +33,22 @@ public class ExcelPenilaianSer {
         Sheet sheet = workbook.createSheet("Export-Penilaian");
 
         List<Penilaian> penilaianList = penilaianRepo.findAll();
+        penilaianList.sort((u1, u2) -> Long.compare(u2.getId(), u1.getId()));
 
         int rowNum = 0;
 
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = {"ID", "Nama Siswa", "Kelas ID", "Nilai Siswa", "Deskripsi"};
+        String[] headers = {"No", "Nama Siswa", "Kelas", "Nilai Siswa", "Deskripsi"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
         }
 
+        int no = 1;
         for (Penilaian penilaian : penilaianList) {
             Row row = sheet.createRow(rowNum++);
             Cell cell0 = row.createCell(0);
-            cell0.setCellValue(penilaian.getId());
+            cell0.setCellValue(no++);
 
             Cell cell1 = row.createCell(1);
             cell1.setCellValue(penilaian.getSiswa().getNama_siswa());
@@ -77,7 +79,6 @@ public class ExcelPenilaianSer {
             Sheet sheet = workbook.getSheetAt(0);
             Iterator<Row> rows = sheet.iterator();
 
-            // Skip header row
             if (rows.hasNext()) {
                 rows.next();
             }
@@ -86,7 +87,6 @@ public class ExcelPenilaianSer {
                 Row currentRow = rows.next();
                 Penilaian penilaian = new Penilaian();
 
-                // Handle Nama Siswa
                 Cell cell1 = currentRow.getCell(1);
                 if (cell1 != null) {
                     if (cell1.getCellType() == CellType.NUMERIC) {
@@ -105,7 +105,6 @@ public class ExcelPenilaianSer {
                     }
                 }
 
-                // Handle Kelas by ID
                 Cell cell2 = currentRow.getCell(2);
                 if (cell2 != null) {
                     if (cell2.getCellType() == CellType.NUMERIC) {
@@ -124,19 +123,16 @@ public class ExcelPenilaianSer {
                     }
                 }
 
-                // Handle Nilai
                 Cell cell3 = currentRow.getCell(3);
                 if (cell3 != null && cell3.getCellType() == CellType.NUMERIC) {
                     penilaian.setNilai(String.valueOf((int) cell3.getNumericCellValue()));
                 }
 
-                // Handle Deskripsi
                 Cell cell4 = currentRow.getCell(4);
                 if (cell4 != null && cell4.getCellType() == CellType.STRING) {
                     penilaian.setDeskripsi(cell4.getStringCellValue());
                 }
 
-                // Save the Penilaian entity to the repository
                 penilaianRepo.save(penilaian);
             }
         } catch (NotFoundException e) {
@@ -151,7 +147,7 @@ public class ExcelPenilaianSer {
         int rowNum = 0;
 
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = {"ID", "Nama Siswa", "Kelas ID", "Nilai Siswa", "Deskripsi"};
+        String[] headers = {"No", "Nama Siswa", "Kelas", "Nilai Siswa", "Deskripsi"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);

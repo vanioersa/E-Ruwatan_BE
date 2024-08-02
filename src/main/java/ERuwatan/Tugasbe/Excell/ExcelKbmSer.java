@@ -47,20 +47,22 @@ public class ExcelKbmSer {
         Sheet sheet = workbook.createSheet("Export-Kbm");
 
         List<Kbm> kbmList = kbmRepo.findAll();
+        kbmList.sort((u1, u2) -> Long.compare(u2.getId(), u1.getId()));
 
         int rowNum = 0;
 
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = {"ID", "Nama Guru", "Kelas", "Jam Masuk", "Jam Pulang", "Keterangan", "Materi"};
+        String[] headers = {"No", "Nama Guru", "Kelas", "Jam Masuk", "Jam Pulang", "Keterangan", "Materi"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
         }
 
+        int no = 1;
         for (Kbm kbm : kbmList) {
             Row row = sheet.createRow(rowNum++);
             Cell cell0 = row.createCell(0);
-            cell0.setCellValue(kbm.getId());
+            cell0.setCellValue(no++);
 
             Cell cell1 = row.createCell(1);
             cell1.setCellValue(getNameUser(kbm.getUserModel().getId()));

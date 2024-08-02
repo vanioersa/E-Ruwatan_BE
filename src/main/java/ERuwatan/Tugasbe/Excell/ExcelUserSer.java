@@ -4,6 +4,7 @@ import ERuwatan.Tugasbe.model.*;
 import ERuwatan.Tugasbe.repository.KelasRepo;
 import ERuwatan.Tugasbe.repository.UserRepository;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -13,12 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
-import java.util.List;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class ExcelUserSer {
@@ -31,20 +27,44 @@ public class ExcelUserSer {
 
     public void excelExportGuru(HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Export-Guru");
+        Sheet sheet = workbook.createSheet("Ekspor-Guru");
 
         List<UserModel> userModelList = userRepository.findAll();
-
-        // Sort the list in descending order based on the id
         userModelList.sort((u1, u2) -> Long.compare(u2.getId(), u1.getId()));
 
         int rowNum = 0;
 
+        Row titleRow = sheet.createRow(rowNum++);
+        Cell titleCell = titleRow.createCell(0);
+        titleCell.setCellValue("DATA GURU");
+
+        CellStyle titleStyle = workbook.createCellStyle();
+        Font titleFont = workbook.createFont();
+        titleFont.setFontHeightInPoints((short) 16);
+        titleFont.setBold(true);
+        titleStyle.setFont(titleFont);
+        titleStyle.setAlignment(HorizontalAlignment.CENTER);
+        titleCell.setCellStyle(titleStyle);
+
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 12));
+
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = {"No", "Nama Guru", "Email", "Jenis Kelamin", "Tanggal Lahir", "Tempat Lahir", "Alamat Rumah", "Nomor Telepon", "NIK", "NIP", "Role", "Jabatan", "Waikelas", "Hobi"};
+        String[] headers = {"No", "Nama Guru", "Email", "Jenis Kelamin", "Tanggal Lahir", "Tempat Lahir", "Alamat Rumah", "Nomor Telepon", "NIK", "NIP", "Jabatan", "Waikelas", "Hobi"};
+
+        CellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setFillForegroundColor(IndexedColors.LIME.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setColor(IndexedColors.WHITE.getIndex());
+        headerStyle.setFont(headerFont);
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
         }
 
         int number = 1;
@@ -82,24 +102,21 @@ public class ExcelUserSer {
                 cell9.setCellValue(guru.getNip());
 
                 Cell cell10 = row.createCell(10);
-                cell10.setCellValue(guru.getRole());
+                cell10.setCellValue(guru.getJabatan());
 
                 Cell cell11 = row.createCell(11);
-                cell11.setCellValue(guru.getJabatan());
-
-                Cell cell12 = row.createCell(12);
                 if (guru.getKelas() != null) {
                     String kelas = guru.getKelas().getKelas();
                     String namaKelas = guru.getKelas().getNama_kelas();
-                    cell12.setCellValue((kelas != null && !kelas.isEmpty() ? kelas : "-") +
+                    cell11.setCellValue((kelas != null && !kelas.isEmpty() ? kelas : "-") +
                             " - " +
                             (namaKelas != null && !namaKelas.isEmpty() ? namaKelas : "-"));
                 } else {
-                    cell12.setCellValue("-");
+                    cell11.setCellValue("-");
                 }
 
-                Cell cell13 = row.createCell(13);
-                cell13.setCellValue(guru.getHobi());
+                Cell cell12 = row.createCell(12);
+                cell12.setCellValue(guru.getHobi());
             }
         }
 
@@ -129,6 +146,10 @@ public class ExcelUserSer {
             Workbook workbook = new XSSFWorkbook(inputStream);
             Sheet sheet = workbook.getSheetAt(0);
             Iterator<Row> rows = sheet.iterator();
+
+            if (rows.hasNext()) {
+                rows.next();
+            }
 
             if (rows.hasNext()) {
                 rows.next();
@@ -168,16 +189,15 @@ public class ExcelUserSer {
                 guru.setTelepon(getCellValueAsString(currentRow.getCell(7)));
                 guru.setNik(getCellValueAsString(currentRow.getCell(8)));
                 guru.setNip(getCellValueAsString(currentRow.getCell(9)));
-                guru.setRole(getCellValueAsString(currentRow.getCell(10)));
-                guru.setJabatan(getCellValueAsString(currentRow.getCell(11)));
+                guru.setJabatan(getCellValueAsString(currentRow.getCell(10)));
 
-                String kelasIdStr = getCellValueAsString(currentRow.getCell(12));
+                String kelasIdStr = getCellValueAsString(currentRow.getCell(11));
                 if (kelasIdStr != null) {
                     try {
                         Long kelasId = Long.parseLong(kelasIdStr);
-                        Kelas kelas = kelasRepo.findById(kelasId).orElse(null);
-                        if (kelas != null) {
-                            guru.setKelas(kelas);
+                        Optional<Kelas> kelasOpt = kelasRepo.findById(kelasId);
+                        if (kelasOpt.isPresent()) {
+                            guru.setKelas(kelasOpt.get());
                         } else {
                             errorMessages.put(username, "Kelas ID '" + kelasId + "' tidak ditemukan.");
                             continue;
@@ -188,17 +208,16 @@ public class ExcelUserSer {
                     }
                 }
 
-                guru.setHobi(getCellValueAsString(currentRow.getCell(13)));
+                guru.setHobi(getCellValueAsString(currentRow.getCell(12)));
 
                 String password = username.toLowerCase() + "123";
                 guru.setPassword(passwordEncoder.encode(password));
+                guru.setRole("GURU");
 
-                if ("GURU".equalsIgnoreCase(guru.getRole())) {
-                    userRepository.save(guru);
-                    passwordMap.put(username, password);
-                    existingUsernames.add(username);
-                    existingEmails.add(email);
-                }
+                userRepository.save(guru);
+                passwordMap.put(username, password);
+                existingUsernames.add(username);
+                existingEmails.add(email);
             }
         } catch (Exception e) {
             throw new RuntimeException("Gagal mengimpor data dari file Excel", e);
@@ -226,20 +245,60 @@ public class ExcelUserSer {
 
     public void excelDownloadGuruTemplate(HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Guru Template");
+        Sheet sheet = workbook.createSheet("Templat-Guru");
 
         int rowNum = 0;
 
+        Row titleRow = sheet.createRow(rowNum++);
+        Cell titleCell = titleRow.createCell(0);
+        titleCell.setCellValue("TEMPLAT DATA GURU");
+
+        CellStyle titleStyle = workbook.createCellStyle();
+        Font titleFont = workbook.createFont();
+        titleFont.setFontHeightInPoints((short) 16);
+        titleFont.setBold(true);
+        titleStyle.setFont(titleFont);
+        titleStyle.setAlignment(HorizontalAlignment.CENTER);
+        titleCell.setCellStyle(titleStyle);
+
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 12));
+
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = {"No", "Nama Guru", "Email", "Jenis Kelamin", "Tanggal Lahir", "Tempat Lahir", "Alamat Rumah", "Nomor Telepon", "NIK", "NIP", "Role", "Jabatan", "Waikelas", "Hobi"};
+        String[] headers = {"No", "Nama Guru", "Email", "Jenis Kelamin", "Tanggal Lahir", "Tempat Lahir", "Alamat Rumah", "Nomor Telepon", "NIK", "NIP", "Jabatan", "Waikelas", "Hobi"};
+
+        CellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        headerStyle.setFillForegroundColor(IndexedColors.LIME.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setColor(IndexedColors.WHITE.getIndex());
+        headerStyle.setFont(headerFont);
+
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
         }
 
-        for (int i = 0; i < headers.length; i++) {
-            sheet.autoSizeColumn(i);
-        }
+        int wideColumnWidth = (int) (20 * 256);
+        int narrowColumnWidth = (int) (15 * 256);
+
+        sheet.autoSizeColumn(0);
+        sheet.setColumnWidth(1, wideColumnWidth);
+        sheet.setColumnWidth(2, narrowColumnWidth);
+        sheet.setColumnWidth(3, wideColumnWidth);
+        sheet.setColumnWidth(4, wideColumnWidth);
+        sheet.setColumnWidth(5, wideColumnWidth);
+        sheet.setColumnWidth(6, wideColumnWidth);
+        sheet.setColumnWidth(7, wideColumnWidth);
+        sheet.setColumnWidth(8, narrowColumnWidth);
+        sheet.setColumnWidth(9, narrowColumnWidth);
+        sheet.setColumnWidth(10, narrowColumnWidth);
+        sheet.setColumnWidth(11, narrowColumnWidth);
+        sheet.setColumnWidth(12, narrowColumnWidth);
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=TemplateGuru.xlsx");

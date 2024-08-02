@@ -11,5 +11,4 @@ public interface KelasSer {
     List<KelasDTO> getAllKelas();
     KelasDTO updateKelas(Long id, KelasDTO kelasDTO);
     void deleteKelas(Long id);
-    void importKelas(MultipartFile file);
 }

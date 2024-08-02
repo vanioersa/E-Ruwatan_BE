@@ -23,9 +23,14 @@ public class PiketCont {
     @Autowired
     private ExcelPiketSer excelPiketSer;
 
-    @GetMapping("/export-excel")
+    @GetMapping("/upload/export-piketan")
     public ResponseEntity<byte[]> exportExcel() {
         return excelPiketSer.exportPiketDataToExcel();
+    }
+
+    @GetMapping("/download/template")
+    public ResponseEntity<byte[]> downloadPiketTemplate() {
+        return excelPiketSer.downloadPiketTemplate();
     }
 
     @PostMapping("/add")

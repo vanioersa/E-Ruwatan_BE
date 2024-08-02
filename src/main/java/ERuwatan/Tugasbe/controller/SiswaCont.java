@@ -64,11 +64,11 @@ public class SiswaCont {
     public ResponseEntity<String> importSiswaFromExcel(@RequestPart("file") MultipartFile file) {
         try {
             excelSiswaSer.importSiswaFromExcel(file);
-            return new ResponseEntity<>("Import successful", HttpStatus.OK);
+            return new ResponseEntity<>("Import berhasil", HttpStatus.OK);
         } catch (IOException e) {
-            return new ResponseEntity<>("Import failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Import gagal: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>("Import failed: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Import gagal: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 

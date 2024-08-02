@@ -9,7 +9,6 @@ public class PiketDTO {
     private Date tanggal;
     private List<SiswaStatusDTO> siswaStatusList;
 
-    // Getter dan Setter
     public Long getId() {
         return id;
     }
