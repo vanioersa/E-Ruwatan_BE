@@ -8,6 +8,7 @@ import ERuwatan.Tugasbe.repository.KelasRepo;
 import ERuwatan.Tugasbe.repository.UserRepository;
 import javassist.NotFoundException;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,22 +42,54 @@ public class ExcelKbmSer {
         return user.getUsername();
     }
 
-    public void excelExportKbm(HttpServletResponse response) throws IOException, NotFoundException {
-
+    public void excelExportKbm(Long userId, HttpServletResponse response) throws IOException, NotFoundException {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Export-Kbm");
 
-        List<Kbm> kbmList = kbmRepo.findAll();
-        kbmList.sort((u1, u2) -> Long.compare(u2.getId(), u1.getId()));
-
         int rowNum = 0;
+        Row titleRow = sheet.createRow(rowNum++);
+        Cell titleCell = titleRow.createCell(0);
+        titleCell.setCellValue("DATA KBM");
+
+        CellStyle titleStyle = workbook.createCellStyle();
+        Font titleFont = workbook.createFont();
+        titleFont.setBold(true);
+        titleFont.setFontHeightInPoints((short) 14);
+        titleStyle.setFont(titleFont);
+        titleStyle.setAlignment(HorizontalAlignment.CENTER);
+        titleCell.setCellStyle(titleStyle);
+
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 6));
 
         Row headerRow = sheet.createRow(rowNum++);
         String[] headers = {"No", "Nama Guru", "Kelas", "Jam Masuk", "Jam Pulang", "Keterangan", "Materi"};
+
+        CellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setFillForegroundColor(IndexedColors.LIME.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerStyle.setFont(headerFont);
+
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
         }
+
+        List<Kbm> kbmList;
+        if (userId != null) {
+            kbmList = kbmRepo.findByUserModelId(userId);
+            if (kbmList.isEmpty()) {
+                throw new NotFoundException("No data found for user ID: " + userId);
+            }
+        } else {
+            kbmList = kbmRepo.findAll();
+            if (kbmList.isEmpty()) {
+                throw new NotFoundException("No data found");
+            }
+        }
+        kbmList.sort((u1, u2) -> Long.compare(u2.getId(), u1.getId()));
 
         int no = 1;
         for (Kbm kbm : kbmList) {
@@ -93,13 +126,97 @@ public class ExcelKbmSer {
         workbook.close();
     }
 
+    public void excelExportAllKbm(HttpServletResponse response) throws IOException, NotFoundException {
+        List<Kbm> kbmList = kbmRepo.findAll();
+
+        if (kbmList.isEmpty()) {
+            response.setContentType("text/plain");
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            response.getWriter().write("No data found to export.");
+            return;
+        }
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Export-All-Kbm");
+
+        int rowNum = 0;
+        Row titleRow = sheet.createRow(rowNum++);
+        Cell titleCell = titleRow.createCell(0);
+        titleCell.setCellValue("DATA KBM");
+
+        CellStyle titleStyle = workbook.createCellStyle();
+        Font titleFont = workbook.createFont();
+        titleFont.setBold(true);
+        titleFont.setFontHeightInPoints((short) 14);
+        titleStyle.setFont(titleFont);
+        titleStyle.setAlignment(HorizontalAlignment.CENTER);
+        titleCell.setCellStyle(titleStyle);
+
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 6));
+
+        Row headerRow = sheet.createRow(rowNum++);
+        String[] headers = {"No", "Nama Guru", "Kelas", "Jam Masuk", "Jam Pulang", "Materi", "Keterangan"};
+
+        CellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setFillForegroundColor(IndexedColors.LIME.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerStyle.setFont(headerFont);
+
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        kbmList.sort((u1, u2) -> Long.compare(u2.getId(), u1.getId()));
+
+        int no = 1;
+        for (Kbm kbm : kbmList) {
+            Row row = sheet.createRow(rowNum++);
+            Cell cell0 = row.createCell(0);
+            cell0.setCellValue(no++);
+
+            Cell cell1 = row.createCell(1);
+            cell1.setCellValue(getNameUser(kbm.getUserModel().getId()));
+
+            Cell cell2 = row.createCell(2);
+            cell2.setCellValue(kbm.getKelas().getNama_kelas());
+
+            Cell cell3 = row.createCell(3);
+            cell3.setCellValue(kbm.getJam_masuk());
+
+            Cell cell4 = row.createCell(4);
+            cell4.setCellValue(kbm.getJam_pulang());
+
+            Cell cell5 = row.createCell(5);
+            cell5.setCellValue(kbm.getMateri());
+
+            Cell cell6 = row.createCell(6);
+            cell6.setCellValue(kbm.getKeterangan());
+        }
+
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=ExportAllKBM.xlsx");
+        workbook.write(response.getOutputStream());
+        workbook.close();
+    }
+
     public void importKBMFromExcel(MultipartFile file, Long userId) throws IOException, NotFoundException {
         try (InputStream inputStream = file.getInputStream()) {
             Workbook workbook = new XSSFWorkbook(inputStream);
             Sheet sheet = workbook.getSheetAt(0);
             Iterator<Row> rows = sheet.iterator();
 
-            // Skip header row
+            if (rows.hasNext()) {
+                rows.next();
+            }
+
             if (rows.hasNext()) {
                 rows.next();
             }
@@ -108,7 +225,6 @@ public class ExcelKbmSer {
                 Row currentRow = rows.next();
                 Kbm kbm = new Kbm();
 
-                // Handle User ID (cell 1)
                 Cell cell1 = currentRow.getCell(1);
                 if (cell1 != null) {
                     if (cell1.getCellType() == CellType.STRING) {
@@ -122,7 +238,6 @@ public class ExcelKbmSer {
                         }
                         kbm.setUserModel(user);
                     } else if (cell1.getCellType() == CellType.NUMERIC) {
-                        // Jika User ID berupa angka, langsung gunakan nilai numerik
                         Long userIdFromExcel = (long) cell1.getNumericCellValue();
                         UserModel user = userRepository.findById(userIdFromExcel)
                                 .orElseThrow(() -> new NotFoundException("User dengan ID '" + userIdFromExcel + "' tidak ditemukan"));
@@ -137,7 +252,6 @@ public class ExcelKbmSer {
                     throw new IllegalArgumentException("User ID not found in cell 0");
                 }
 
-                // Handle Kelas (ID) (cell 2)
                 Cell cell2 = currentRow.getCell(2);
                 if (cell2 != null && cell2.getCellType() == CellType.NUMERIC) {
                     Long kelasId = (long) cell2.getNumericCellValue();
@@ -148,31 +262,26 @@ public class ExcelKbmSer {
                     throw new IllegalArgumentException("Kelas ID not found or invalid format in cell 1");
                 }
 
-                // Handle Jam Masuk (cell 3)
                 Cell cell3 = currentRow.getCell(3);
                 if (cell3 != null && cell3.getCellType() == CellType.STRING) {
                     kbm.setJam_masuk(cell3.getStringCellValue());
                 }
 
-                // Handle Jam Pulang (cell 4)
                 Cell cell4 = currentRow.getCell(4);
                 if (cell4 != null && cell4.getCellType() == CellType.STRING) {
                     kbm.setJam_pulang(cell4.getStringCellValue());
                 }
 
-                // Handle Keterangan (cell 5)
                 Cell cell5 = currentRow.getCell(5);
                 if (cell5 != null && cell5.getCellType() == CellType.STRING) {
-                    kbm.setKeterangan(cell5.getStringCellValue());
+                    kbm.setMateri(cell5.getStringCellValue());
                 }
 
-                // Handle Materi (cell 6)
                 Cell cell6 = currentRow.getCell(6);
-                if (cell5 != null && cell6.getCellType() == CellType.STRING) {
-                    kbm.setMateri(cell6.getStringCellValue());
+                if (cell6 != null && cell6.getCellType() == CellType.STRING) {
+                    kbm.setKeterangan(cell6.getStringCellValue());
                 }
 
-                // Save the Kbm entity to the repository
                 kbmRepo.save(kbm);
             }
         }
@@ -180,24 +289,58 @@ public class ExcelKbmSer {
 
     public void excelKbmTemplate(HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("KBM Template");
+        Sheet sheet = workbook.createSheet("Templat-KBM");
 
         int rowNum = 0;
+        Row titleRow = sheet.createRow(rowNum++);
+        Cell titleCell = titleRow.createCell(0);
+        titleCell.setCellValue("TEMPLAT DATA KBM");
+
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 6)); // Merging cells from column 0 to 6 (total 7 columns)
+
+        CellStyle titleStyle = workbook.createCellStyle();
+        Font titleFont = workbook.createFont();
+        titleFont.setBold(true);
+        titleFont.setFontHeightInPoints((short) 14);
+        titleStyle.setFont(titleFont);
+        titleStyle.setAlignment(HorizontalAlignment.CENTER);
+
+        titleCell.setCellStyle(titleStyle);
 
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = {"ID", "Nama Guru", "Kelas", "Jam Masuk", "Jam Pulang", "Keterangan", "Materi"};
+        String[] headers = {"No", "Nama Guru", "Kelas", "Jam Masuk", "Jam Pulang", "Materi", "Keterangan"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
         }
 
+        CellStyle headerStyle = workbook.createCellStyle();
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setColor(IndexedColors.WHITE.getIndex());
+        headerStyle.setFont(headerFont);
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        headerStyle.setFillForegroundColor(IndexedColors.LIME.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
         for (int i = 0; i < headers.length; i++) {
-            sheet.autoSizeColumn(i);
+            headerRow.getCell(i).setCellStyle(headerStyle);
         }
+
+        sheet.setColumnWidth(1, 256 * 20);
+        sheet.setColumnWidth(2, 256 * 20);
+        sheet.setColumnWidth(3, 256 * 20);
+        sheet.setColumnWidth(4, 256 * 20);
+        sheet.setColumnWidth(5, 256 * 15);
+        sheet.setColumnWidth(6, 256 * 15);
+
+        sheet.autoSizeColumn(0);
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=TemplateKBM.xlsx");
         workbook.write(response.getOutputStream());
         workbook.close();
     }
+
 }

@@ -50,9 +50,20 @@ public class KbmCont {
     }
 
     @GetMapping("/upload/export-kbm")
-    public void ExportKbm(
-                          HttpServletResponse response) throws IOException, NotFoundException {
-        excelKbmSer.excelExportKbm( response);
+    public ResponseEntity<?> exportKbm(@RequestParam("userId") Long userId, HttpServletResponse response) {
+        try {
+            excelKbmSer.excelExportKbm(userId, response);
+            return ResponseEntity.ok().build();
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No data found for user ID: " + userId);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error generating the Excel file: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/upload/export-all-kbm")
+    public void exportAllKbm(HttpServletResponse response) throws IOException, NotFoundException {
+        excelKbmSer.excelExportAllKbm(response);
     }
 
     @PostMapping("/upload/import-KBM")

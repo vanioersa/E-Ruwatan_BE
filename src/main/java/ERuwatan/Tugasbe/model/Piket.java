@@ -1,6 +1,7 @@
 package ERuwatan.Tugasbe.model;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -15,8 +16,9 @@ public class Piket {
     private Kelas kelas;
 
     @OneToMany(mappedBy = "piket", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PiketSiswaStatus> siswaStatus;
+    private List<PiketSiswaStatus> siswaStatus = new ArrayList<>();
 
+    @Temporal(TemporalType.DATE)
     private Date tanggal;
 
     public Long getId() {

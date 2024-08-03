@@ -40,9 +40,18 @@ public class PiketSerImpl implements PiketSer {
     public PiketDTO createPiket(PiketDTO piketDTO) {
         try {
             System.out.println("Mulai membuat Piket");
-            Piket piket = new Piket();
-            BeanUtils.copyProperties(piketDTO, piket);
-            System.out.println("Piket: " + piket);
+
+            // Check if a Piket already exists for the same kelasId and tanggal
+            Optional<Piket> existingPiketOptional = piketRepo.findByKelasIdAndTanggal(piketDTO.getKelasId(), dateFormat.parse(dateFormat.format(piketDTO.getTanggal())));
+            Piket piket;
+
+            if (existingPiketOptional.isPresent()) {
+                piket = existingPiketOptional.get();
+                System.out.println("Piket sudah ada dengan ID: " + piket.getId());
+            } else {
+                piket = new Piket();
+                BeanUtils.copyProperties(piketDTO, piket);
+            }
 
             if (piketDTO.getKelasId() == null) {
                 throw new IllegalArgumentException("Kelas ID tidak boleh null");
@@ -64,19 +73,28 @@ public class PiketSerImpl implements PiketSer {
                 if (siswaStatusDTO.getSiswaId() == null) {
                     throw new IllegalArgumentException("Siswa ID tidak boleh null");
                 }
+
                 Optional<Siswa> siswaOptional = siswaRepo.findById(siswaStatusDTO.getSiswaId());
                 if (siswaOptional.isPresent()) {
-                    PiketSiswaStatus piketSiswaStatus = new PiketSiswaStatus();
-                    piketSiswaStatus.setPiket(piket);
-                    piketSiswaStatus.setSiswa(siswaOptional.get());
-                    piketSiswaStatus.setStatus(String.join(", ", siswaStatusDTO.getStatusList()));
-                    System.out.println("PiketSiswaStatus: " + piketSiswaStatus);
-                    siswaStatusList.add(piketSiswaStatus);
+                    // Check if the student is already in the list for this piket
+                    boolean studentExists = piket.getSiswaStatus().stream()
+                            .anyMatch(status -> status.getSiswa().getId().equals(siswaStatusDTO.getSiswaId()));
+
+                    if (!studentExists) {
+                        PiketSiswaStatus piketSiswaStatus = new PiketSiswaStatus();
+                        piketSiswaStatus.setPiket(piket);
+                        piketSiswaStatus.setSiswa(siswaOptional.get());
+                        piketSiswaStatus.setStatus(String.join(", ", siswaStatusDTO.getStatusList()));
+                        siswaStatusList.add(piketSiswaStatus);
+                    } else {
+                        throw new IllegalArgumentException("Siswa dengan ID " + siswaStatusDTO.getSiswaId() + " sudah ada dalam piket untuk tanggal ini");
+                    }
                 } else {
                     throw new EntityNotFoundException("Siswa dengan ID " + siswaStatusDTO.getSiswaId() + " tidak ditemukan");
                 }
             }
-            piket.setSiswaStatus(siswaStatusList);
+
+            piket.getSiswaStatus().addAll(siswaStatusList);
 
             try {
                 piket.setTanggal(dateFormat.parse(dateFormat.format(piketDTO.getTanggal())));

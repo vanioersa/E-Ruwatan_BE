@@ -4,6 +4,7 @@ import ERuwatan.Tugasbe.model.Piket;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,4 +17,6 @@ public interface PiketRepo extends JpaRepository<Piket, Long>{
 
     @Query(value = "SELECT * FROM piket WHERE tanggal = :tanggal AND kelas_id = :kelas_id", nativeQuery = true)
     List<Piket> findByTanggalAndKelasId(String tanggal, Long kelas_id);
+
+    Optional<Piket> findByKelasIdAndTanggal(Long kelasId, Date tanggal);
 }
