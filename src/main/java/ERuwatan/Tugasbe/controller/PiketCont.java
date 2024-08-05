@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -26,6 +28,18 @@ public class PiketCont {
     @GetMapping("/upload/export-piketan")
     public ResponseEntity<byte[]> exportExcel() {
         return excelPiketSer.exportPiketDataToExcel();
+    }
+
+    @PostMapping("/upload/import-piketan")
+    public ResponseEntity<String> importPiketData(@RequestPart("file") MultipartFile file) {
+        try {
+            excelPiketSer.importPiketDataFromExcel(String.valueOf(file));
+            return new ResponseEntity<>("Import berhasil", HttpStatus.OK);
+        } catch (IOException e) {
+            return new ResponseEntity<>("Import gagal: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>("Import gagal: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("/download/template")

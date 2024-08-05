@@ -62,7 +62,7 @@ public class ExcelKbmSer {
         sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 6));
 
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = {"No", "Nama Guru", "Kelas", "Jam Masuk", "Jam Pulang", "Keterangan", "Materi"};
+        String[] headers = {"No", "Nama Guru", "Kelas", "Jam Masuk", "Jam Pulang", "Materi", "Keterangan"};
 
         CellStyle headerStyle = workbook.createCellStyle();
         headerStyle.setFillForegroundColor(IndexedColors.LIME.getIndex());
@@ -101,7 +101,7 @@ public class ExcelKbmSer {
             cell1.setCellValue(getNameUser(kbm.getUserModel().getId()));
 
             Cell cell2 = row.createCell(2);
-            cell2.setCellValue(kbm.getKelas().getNama_kelas());
+            cell2.setCellValue(kbm.getKelas().getKelas() + " - " + kbm.getKelas().getNama_kelas());
 
             Cell cell3 = row.createCell(3);
             cell3.setCellValue(kbm.getJam_masuk());
@@ -110,10 +110,10 @@ public class ExcelKbmSer {
             cell4.setCellValue(kbm.getJam_pulang());
 
             Cell cell5 = row.createCell(5);
-            cell5.setCellValue(kbm.getKeterangan());
+            cell5.setCellValue(kbm.getMateri());
 
             Cell cell6 = row.createCell(6);
-            cell6.setCellValue(kbm.getMateri());
+            cell6.setCellValue(kbm.getKeterangan());
         }
 
         for (int i = 0; i < headers.length; i++) {
@@ -182,7 +182,7 @@ public class ExcelKbmSer {
             cell1.setCellValue(getNameUser(kbm.getUserModel().getId()));
 
             Cell cell2 = row.createCell(2);
-            cell2.setCellValue(kbm.getKelas().getNama_kelas());
+            cell2.setCellValue(kbm.getKelas().getKelas() + " - " + kbm.getKelas().getNama_kelas());
 
             Cell cell3 = row.createCell(3);
             cell3.setCellValue(kbm.getJam_masuk());
@@ -296,7 +296,7 @@ public class ExcelKbmSer {
         Cell titleCell = titleRow.createCell(0);
         titleCell.setCellValue("TEMPLAT DATA KBM");
 
-        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 6)); // Merging cells from column 0 to 6 (total 7 columns)
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 6));
 
         CellStyle titleStyle = workbook.createCellStyle();
         Font titleFont = workbook.createFont();
@@ -342,5 +342,4 @@ public class ExcelKbmSer {
         workbook.write(response.getOutputStream());
         workbook.close();
     }
-
 }

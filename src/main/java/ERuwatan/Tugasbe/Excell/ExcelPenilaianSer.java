@@ -6,6 +6,7 @@ import ERuwatan.Tugasbe.repository.PenilaianRepo;
 import ERuwatan.Tugasbe.repository.SiswaRepo;
 import javassist.NotFoundException;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,21 +29,48 @@ public class ExcelPenilaianSer {
     @Autowired
     private SiswaRepo siswaRepo;
 
-    public void excelExportPenilaian( HttpServletResponse response) throws IOException, NotFoundException {
+    public void excelExportPenilaian(HttpServletResponse response) throws IOException, NotFoundException {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Export-Penilaian");
 
-        List<Penilaian> penilaianList = penilaianRepo.findAll();
-        penilaianList.sort((u1, u2) -> Long.compare(u2.getId(), u1.getId()));
-
         int rowNum = 0;
+        Row titleRow = sheet.createRow(rowNum++);
+        Cell titleCell = titleRow.createCell(0);
+        titleCell.setCellValue("DATA PENILAIAN");
+
+        CellStyle titleStyle = workbook.createCellStyle();
+        Font titleFont = workbook.createFont();
+        titleFont.setFontHeightInPoints((short) 16);
+        titleFont.setBold(true);
+        titleStyle.setFont(titleFont);
+        titleStyle.setAlignment(HorizontalAlignment.CENTER);
+        titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        titleCell.setCellStyle(titleStyle);
+
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 4));
 
         Row headerRow = sheet.createRow(rowNum++);
         String[] headers = {"No", "Nama Siswa", "Kelas", "Nilai Siswa", "Deskripsi"};
+
+        CellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        headerStyle.setFillForegroundColor(IndexedColors.LIME.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setColor(IndexedColors.WHITE.getIndex());
+        headerStyle.setFont(headerFont);
+
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
         }
+
+        List<Penilaian> penilaianList = penilaianRepo.findAll();
+        penilaianList.sort((u1, u2) -> Long.compare(u2.getId(), u1.getId()));
 
         int no = 1;
         for (Penilaian penilaian : penilaianList) {
@@ -54,7 +82,9 @@ public class ExcelPenilaianSer {
             cell1.setCellValue(penilaian.getSiswa().getNama_siswa());
 
             Cell cell2 = row.createCell(2);
-            cell2.setCellValue(penilaian.getKelas().getId());
+            String kelas = penilaian.getKelas().getKelas();
+            String nama_kelas = penilaian.getKelas().getNama_kelas();
+            cell2.setCellValue(kelas + " - " + nama_kelas);
 
             Cell cell3 = row.createCell(3);
             cell3.setCellValue(penilaian.getNilai());
@@ -78,6 +108,10 @@ public class ExcelPenilaianSer {
             Workbook workbook = new XSSFWorkbook(inputStream);
             Sheet sheet = workbook.getSheetAt(0);
             Iterator<Row> rows = sheet.iterator();
+
+            if (rows.hasNext()) {
+                rows.next();
+            }
 
             if (rows.hasNext()) {
                 rows.next();
@@ -142,25 +176,53 @@ public class ExcelPenilaianSer {
 
     public void excelDownloadPenilaianTemplate(HttpServletResponse response) throws IOException {
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Penilaian Template");
+        Sheet sheet = workbook.createSheet("Templat-Penilaian");
 
         int rowNum = 0;
+        Row titleRow = sheet.createRow(rowNum++);
+        Cell titleCell = titleRow.createCell(0);
+        titleCell.setCellValue("TEMPLAT DATA PENILAIAN");
+
+        CellStyle titleStyle = workbook.createCellStyle();
+        Font titleFont = workbook.createFont();
+        titleFont.setFontHeightInPoints((short) 16);
+        titleFont.setBold(true);
+        titleStyle.setFont(titleFont);
+        titleStyle.setAlignment(HorizontalAlignment.CENTER);
+        titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        titleCell.setCellStyle(titleStyle);
+
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 4));
 
         Row headerRow = sheet.createRow(rowNum++);
         String[] headers = {"No", "Nama Siswa", "Kelas", "Nilai Siswa", "Deskripsi"};
+
+        CellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        headerStyle.setFillForegroundColor(IndexedColors.LIME.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setColor(IndexedColors.WHITE.getIndex());
+        headerStyle.setFont(headerFont);
+
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
         }
 
-        for (int i = 0; i < headers.length; i++) {
-            sheet.autoSizeColumn(i);
-        }
+        sheet.setColumnWidth(0, 256 * 5);
+        sheet.setColumnWidth(1, 256 * 20);
+        sheet.setColumnWidth(2, 256 * 15);
+        sheet.setColumnWidth(3, 256 * 15);
+        sheet.setColumnWidth(4, 256 * 20);
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=TemplatePenilaian.xlsx");
         workbook.write(response.getOutputStream());
         workbook.close();
     }
-
 }
