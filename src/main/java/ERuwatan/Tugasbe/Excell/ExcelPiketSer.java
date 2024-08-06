@@ -21,18 +21,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import javax.persistence.EntityNotFoundException;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFCell;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Service
 public class ExcelPiketSer {
@@ -40,6 +35,7 @@ public class ExcelPiketSer {
     private PiketSer piketSer;
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+    private static final Logger LOGGER = Logger.getLogger(ExcelPiketSer.class.getName());
 
     public ResponseEntity<byte[]> exportPiketDataToExcel() {
         try (Workbook workbook = new XSSFWorkbook()) {
@@ -205,6 +201,87 @@ public class ExcelPiketSer {
         return style;
     }
 
+    public List<String> importPiketFromExcel(MultipartFile file) throws IOException {
+        List<String> messages = new ArrayList<>();
+
+        try (InputStream inputStream = file.getInputStream();
+             Workbook workbook = new XSSFWorkbook(inputStream)) {
+
+            Sheet sheet = workbook.getSheetAt(0);
+            for (Row row : sheet) {
+                if (row.getRowNum() < 2) {
+                    continue; // Skip header rows
+                }
+
+                try {
+                    PiketDTO piketDTO = new PiketDTO();
+                    piketDTO.setKelasId(getLongCellValue(row.getCell(1)));
+                    piketDTO.setTanggal(getDateCellValue(row.getCell(2)));
+
+                    List<SiswaStatusDTO> siswaStatusList = new ArrayList<>();
+                    SiswaStatusDTO siswaStatusDTO = new SiswaStatusDTO();
+                    siswaStatusDTO.setSiswaId(getLongCellValue(row.getCell(3)));
+                    List<String> statusList = new ArrayList<>();
+                    statusList.add(getStringCellValue(row.getCell(4)));
+                    siswaStatusDTO.setStatusList(statusList);
+                    siswaStatusList.add(siswaStatusDTO);
+
+                    piketDTO.setSiswaStatusList(siswaStatusList);
+
+                    piketSer.createPiket(piketDTO);
+                } catch (EntityNotFoundException e) {
+                    String errorMessage = "Siswa dengan ID " + getLongCellValue(row.getCell(3)) + " tidak ditemukan pada baris " + row.getRowNum();
+                    messages.add(errorMessage);
+                    LOGGER.log(Level.WARNING, errorMessage, e);
+                } catch (IllegalArgumentException e) {
+                    String errorMessage = "Data tidak valid pada baris " + row.getRowNum() + ": " + e.getMessage();
+                    messages.add(errorMessage);
+                    LOGGER.log(Level.WARNING, errorMessage, e);
+                }
+            }
+        }
+
+        return messages;
+    }
+
+    private Long getLongCellValue(Cell cell) {
+        if (cell.getCellType() == CellType.NUMERIC) {
+            return (long) cell.getNumericCellValue();
+        } else if (cell.getCellType() == CellType.STRING) {
+            try {
+                return Long.parseLong(cell.getStringCellValue());
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Invalid long format: " + cell.getStringCellValue(), e);
+            }
+        } else {
+            throw new IllegalArgumentException("Unexpected cell type for long value: " + cell.getCellType());
+        }
+    }
+
+    private String getStringCellValue(Cell cell) {
+        if (cell.getCellType() == CellType.STRING) {
+            return cell.getStringCellValue();
+        } else if (cell.getCellType() == CellType.NUMERIC) {
+            return String.valueOf(cell.getNumericCellValue());
+        } else {
+            throw new IllegalArgumentException("Unexpected cell type for string value: " + cell.getCellType());
+        }
+    }
+
+    private java.util.Date getDateCellValue(Cell cell) {
+        if (cell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell)) {
+            return cell.getDateCellValue();
+        } else if (cell.getCellType() == CellType.STRING) {
+            try {
+                return dateFormat.parse(cell.getStringCellValue());
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Invalid date format: " + cell.getStringCellValue(), e);
+            }
+        } else {
+            throw new IllegalArgumentException("Unexpected cell type for date value: " + cell.getCellType());
+        }
+    }
+
     public ResponseEntity<byte[]> downloadPiketTemplate() {
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Templat-Piketan");
@@ -254,117 +331,4 @@ public class ExcelPiketSer {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
-
-    public void importPiketDataFromExcel(String filePath) throws IOException {
-        FileInputStream file = new FileInputStream(new File(filePath));
-        Workbook workbook = new XSSFWorkbook(file);
-        Sheet sheet = workbook.getSheetAt(0);
-
-        for (Row row : sheet) {
-            // Skip the first two rows
-            if (row.getRowNum() < 2) {
-                continue;
-            }
-
-            // Iterate through each cell in the row
-            for (Cell cell : row) {
-                switch (cell.getCellType()) {
-                    case STRING:
-                        String stringValue = cell.getStringCellValue();
-                        System.out.println("String value: " + stringValue);
-                        // Process string value
-                        break;
-                    case NUMERIC:
-                        if (DateUtil.isCellDateFormatted(cell)) {
-                            Date dateValue = cell.getDateCellValue();
-                            System.out.println("Date value: " + dateValue);
-                            // Process date value
-                        } else {
-                            double numericValue = cell.getNumericCellValue();
-                            System.out.println("Numeric value: " + numericValue);
-                            // Process numeric value
-                        }
-                        break;
-                    case BOOLEAN:
-                        boolean booleanValue = cell.getBooleanCellValue();
-                        System.out.println("Boolean value: " + booleanValue);
-                        // Process boolean value
-                        break;
-                    case FORMULA:
-                        // Evaluate the formula and process the resulting value
-                        FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
-                        CellValue cellValue = evaluator.evaluate(cell);
-                        switch (cellValue.getCellType()) {
-                            case STRING:
-                                String formulaStringValue = cellValue.getStringValue();
-                                System.out.println("Formula string value: " + formulaStringValue);
-                                // Process formula string value
-                                break;
-                            case NUMERIC:
-                                double formulaNumericValue = cellValue.getNumberValue();
-                                System.out.println("Formula numeric value: " + formulaNumericValue);
-                                // Process formula numeric value
-                                break;
-                            case BOOLEAN:
-                                boolean formulaBooleanValue = cellValue.getBooleanValue();
-                                System.out.println("Formula boolean value: " + formulaBooleanValue);
-                                // Process formula boolean value
-                                break;
-                        }
-                        break;
-                    case BLANK:
-                        System.out.println("Blank cell");
-                        // Handle blank cell
-                        break;
-                    default:
-                        System.out.println("Unknown cell type");
-                        // Handle unknown cell type
-                        break;
-                }
-            }
-        }
-
-        workbook.close();
-        file.close();
-    }
-
-//    public void importPiketDataFromExcel(MultipartFile file) throws IOException {
-//        try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
-//            Sheet sheet = workbook.getSheetAt(0);
-//            int rowNum = 0;
-//            for (Row row : sheet) {
-//                if (rowNum++ == 0) continue; // Skip header row
-//
-//                PiketDTO piketDTO = new PiketDTO();
-//                // Skip cell 0 as it is for "No"
-//                piketDTO.setKelasId((long) row.getCell(1).getNumericCellValue());
-//                piketDTO.setTanggal(row.getCell(2).getDateCellValue());
-//
-//                List<SiswaStatusDTO> siswaStatusList = extractSiswaStatusList(row);
-//                piketDTO.setSiswaStatusList(siswaStatusList);
-//
-//                piketSer.createPiket(piketDTO);
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            throw new IOException("Error processing Excel file: " + e.getMessage());
-//        }
-//    }
-
-//    private List<SiswaStatusDTO> extractSiswaStatusList(Row row) {
-//        List<SiswaStatusDTO> siswaStatusList = new ArrayList<>();
-//        int numberOfCells = row.getLastCellNum();
-//
-//        for (int i = 3; i < numberOfCells; i++) { // Start from cell 3 to skip cells 0, 1, and 2
-//            Cell cell = row.getCell(i);
-//            if (cell != null) {
-//                SiswaStatusDTO siswaStatusDTO = new SiswaStatusDTO();
-//                siswaStatusDTO.setSiswaId((long) i); // Adjust this to properly map student ID if needed
-//                siswaStatusDTO.setStatusList(Collections.singletonList(cell.getStringCellValue()));
-//                siswaStatusList.add(siswaStatusDTO);
-//            }
-//        }
-//
-//        return siswaStatusList;
-//    }
 }

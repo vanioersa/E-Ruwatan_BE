@@ -1,6 +1,7 @@
 package ERuwatan.Tugasbe.controller;
 
 import ERuwatan.Tugasbe.Excell.ExcelPiketSer;
+import ERuwatan.Tugasbe.PDF.PdfPiketSer;
 import ERuwatan.Tugasbe.dto.PiketDTO;
 import ERuwatan.Tugasbe.service.PiketSer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,11 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/piket")
@@ -24,6 +29,15 @@ public class PiketCont {
     private PiketSer piketSer;
     @Autowired
     private ExcelPiketSer excelPiketSer;
+    @Autowired
+    private PdfPiketSer pdfPiketSer;
+
+    private static final Logger LOGGER = Logger.getLogger(PiketCont.class.getName());
+
+    @GetMapping("/export-piketan-pdf")
+    public ResponseEntity<byte[]> exportPiketDataToPdf() {
+        return pdfPiketSer.exportPiketDataToPdf();
+    }
 
     @GetMapping("/upload/export-piketan")
     public ResponseEntity<byte[]> exportExcel() {
@@ -31,14 +45,26 @@ public class PiketCont {
     }
 
     @PostMapping("/upload/import-piketan")
-    public ResponseEntity<String> importPiketData(@RequestPart("file") MultipartFile file) {
+    public ResponseEntity<Map<String, Object>> importPiketFromExcel(@RequestParam("file") MultipartFile file) {
+        Map<String, Object> response = new HashMap<>();
+        if (file.isEmpty()) {
+            response.put("message", "File is empty");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+
         try {
-            excelPiketSer.importPiketDataFromExcel(String.valueOf(file));
-            return new ResponseEntity<>("Import berhasil", HttpStatus.OK);
+            List<String> messages = excelPiketSer.importPiketFromExcel(file);
+            if (messages.isEmpty()) {
+                response.put("message", "File imported successfully");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                response.put("messages", messages);
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
         } catch (IOException e) {
-            return new ResponseEntity<>("Import gagal: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>("Import gagal: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            LOGGER.log(Level.SEVERE, "Failed to import file", e);
+            response.put("message", "Failed to import file");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

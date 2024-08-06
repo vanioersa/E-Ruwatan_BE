@@ -91,6 +91,14 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- Dependensi untuk PDF-->
+		<dependency>
+			<groupId>com.itextpdf</groupId>
+			<artifactId>itextpdf</artifactId>
+			<version>5.5.13.3</version>
+		</dependency>
+
+
 		<dependency>
 			<groupId>com.google.firebase</groupId>
 			<artifactId>firebase-admin</artifactId>
