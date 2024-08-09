@@ -39,6 +39,11 @@ public class PiketCont {
         return pdfPiketSer.exportPiketDataToPdf();
     }
 
+    @GetMapping("/export-by-id/pdf/{id}")
+    public ResponseEntity<byte[]> exportPiketByIdToPdf(@PathVariable Long id) {
+        return pdfPiketSer.exportPiketByIdToPdf(id);
+    }
+
     @GetMapping("/upload/export-piketan")
     public ResponseEntity<byte[]> exportExcel() {
         return excelPiketSer.exportPiketDataToExcel();

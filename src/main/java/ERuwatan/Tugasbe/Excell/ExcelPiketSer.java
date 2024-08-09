@@ -39,19 +39,25 @@ public class ExcelPiketSer {
 
     public ResponseEntity<byte[]> exportPiketDataToExcel() {
         try (Workbook workbook = new XSSFWorkbook()) {
-            Sheet sheet = workbook.createSheet("Ekspor-Piketan");
+            Sheet sheet = workbook.createSheet("Ekspor-Piket");
 
             List<PiketDTO> piketList = piketSer.getAllPiket();
 
             int rowNum = 0;
             Row headerRow = sheet.createRow(rowNum++);
+
+            Font titleFont = workbook.createFont();
+            titleFont.setFontHeightInPoints((short) 14);
+            titleFont.setBold(true);
+
+            CellStyle titleStyle = workbook.createCellStyle();
+            titleStyle.setAlignment(HorizontalAlignment.CENTER);
+            titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+            titleStyle.setFont(titleFont);
+
             Cell piketanCell = headerRow.createCell(0);
-            piketanCell.setCellValue("DATA PIKETAN");
-            CellStyle piketanStyle = workbook.createCellStyle();
-            piketanStyle.setAlignment(HorizontalAlignment.CENTER);
-            piketanStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-            piketanStyle.setFont(createBoldFont(workbook));
-            piketanCell.setCellStyle(piketanStyle);
+            piketanCell.setCellValue("DATA PIKET");
+            piketanCell.setCellStyle(titleStyle);
 
             sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 4));
 
@@ -151,7 +157,7 @@ public class ExcelPiketSer {
 
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
-            httpHeaders.setContentDispositionFormData("attachment", "piket_data.xlsx");
+            httpHeaders.setContentDispositionFormData("attachment", "Ekspor-Piket.xlsx");
 
             return ResponseEntity.ok()
                     .headers(httpHeaders)
@@ -210,7 +216,7 @@ public class ExcelPiketSer {
             Sheet sheet = workbook.getSheetAt(0);
             for (Row row : sheet) {
                 if (row.getRowNum() < 2) {
-                    continue; // Skip header rows
+                    continue;
                 }
 
                 try {
@@ -284,17 +290,23 @@ public class ExcelPiketSer {
 
     public ResponseEntity<byte[]> downloadPiketTemplate() {
         try (Workbook workbook = new XSSFWorkbook()) {
-            Sheet sheet = workbook.createSheet("Templat-Piketan");
+            Sheet sheet = workbook.createSheet("Templat-Piket");
 
             int rowNum = 0;
             Row headerRow = sheet.createRow(rowNum++);
+
+            Font titleFont = workbook.createFont();
+            titleFont.setFontHeightInPoints((short) 14);
+            titleFont.setBold(true);
+
+            CellStyle titleStyle = workbook.createCellStyle();
+            titleStyle.setAlignment(HorizontalAlignment.CENTER);
+            titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+            titleStyle.setFont(titleFont);
+
             Cell piketanCell = headerRow.createCell(0);
-            piketanCell.setCellValue("TEMPLAT DATA PIKETAN");
-            CellStyle piketanStyle = workbook.createCellStyle();
-            piketanStyle.setAlignment(HorizontalAlignment.CENTER);
-            piketanStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-            piketanStyle.setFont(createBoldFont(workbook));
-            piketanCell.setCellStyle(piketanStyle);
+            piketanCell.setCellValue("TEMPLAT DATA PIKET");
+            piketanCell.setCellStyle(titleStyle);
 
             sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 4));
 
@@ -307,21 +319,22 @@ public class ExcelPiketSer {
                 cell.setCellStyle(headerStyle);
             }
 
-            int cmToExcelUnits = (int) (16.67 * 256);
-            for (int i = 0; i < headers.length; i++) {
-                if (i == 1 || i == 2) {
-                    sheet.setColumnWidth(i, cmToExcelUnits);
-                } else {
-                    sheet.autoSizeColumn(i);
-                }
-            }
+            int widthKelasTanggalStatus = 15 * 256;
+            int widthNamaSiswa = 20 * 256;
+
+            sheet.setColumnWidth(1, widthKelasTanggalStatus);
+            sheet.setColumnWidth(2, widthKelasTanggalStatus);
+            sheet.setColumnWidth(4, widthKelasTanggalStatus);
+            sheet.setColumnWidth(3, widthNamaSiswa);
+
+            sheet.autoSizeColumn(0);
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             workbook.write(outputStream);
 
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
-            httpHeaders.setContentDispositionFormData("attachment", "template_piket.xlsx");
+            httpHeaders.setContentDispositionFormData("attachment", "Templat-Piket.xlsx");
 
             return ResponseEntity.ok()
                     .headers(httpHeaders)
